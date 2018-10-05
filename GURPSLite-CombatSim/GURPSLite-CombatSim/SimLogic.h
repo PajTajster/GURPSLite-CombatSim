@@ -3,9 +3,22 @@
 #include <vector>
 #include <queue>
 
+class GameMaster
+{
+public:
+
+	// "Rolls" 6-sided dice 'dices' times and adds 'bonus'[if it exists].
+	int RollDice(int dices, int bonus);
+
+	GameMaster();
+	~GameMaster();
+
+};
+
 
 class Skill
 {
+public:
 	// Alters chance of succees of using skill.
 	// Max: 18.
 	int proficiency;
@@ -68,6 +81,7 @@ typedef struct
 
 class Weapon
 {
+public:
 	// Weapon's name.
 	std::string name;
 	// Weapon's damage.
@@ -76,11 +90,24 @@ class Weapon
 	Skill skill;
 	// Decides whether weapon has to use ST-related bonus damage.
 	bool isMelee;
+	// How many "bullets" weapon shoots, if it's melee then it's value = 1.
+	int rateOfFire;
 };
+
+typedef struct
+{
+	int x;
+	int y;
+}Position;
 
 class Character
 {
 protected:
+	// Amount of actions character can performs, which is 2 per turn.
+	int actions;
+
+	// Where is character located in 2D space.
+	Position position;
 
 	// Name character is represented with.
 	std::string Name;
@@ -126,6 +153,9 @@ protected:
 
 	// Tells whether character skips it's turn due to knockdown.
 	bool isKnockedDown;
+	// Tells for how many turns characters are supposed to be knocked down
+	// when reaches 0, character gets up(if they didn't died already).
+	int knockDownTimer;
 	// Whether the character is not alive.
 	bool isDead;
 	
@@ -137,11 +167,12 @@ public:
 	Weapon currentWeapon;
 
 	// Taken the character, try to attack him/her/whatever-the-hell-it-is
-	void Attack(Character target);
+	//	returns string message with adequate message.
+	std::string Attack(Character target, GameMaster gm);
 
 	// Called usually when there's Attack method called on receiving character
 	// calculate attackers skills vs defenders speed, dodging and defence
-	void AnswerToAttack(Character attacker);
+	bool DidGetHit(Character attacker);
 
 	// If character happens not to defend himself, he'll get reduced HT.
 	void ReceiveDamage(int);
@@ -182,18 +213,23 @@ public:
 	void AssessSituation();
 };
 
-class GameMaster
+// Class taking care of turns and match movement.
+class TurnLogic
 {
 private:
+	// Characters that fight in present match.
 	std::vector<Character> charactersInPlay;
+
+	// Match sides. Set by player before match begin. 
+
+	std::vector<Character> team1;
+	std::vector<Character> team2;
 public:
+
 	// Takes a vector of characters and sorts it by initiative.
 	void CalculateInitiative();
 
-	// "Rolls" 6-sided dice 'dices' times and adds 'bonus'[if it exists].
-	int RollDice(int dices, int bonus);
+	void killCharacter();
 
-	GameMaster();
-	~GameMaster();
-
+	void nextTurn();
 };
