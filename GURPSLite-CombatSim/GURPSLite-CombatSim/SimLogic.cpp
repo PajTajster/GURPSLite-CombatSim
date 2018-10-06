@@ -5,7 +5,7 @@
 
 int GameMaster::RollDice(int dices, int bonus)
 {
-	srand(time(NULL));
+	srand((unsigned)time(NULL));
 	int diceResult = 0;
 	for (int i = 0; i < dices; ++i)
 		diceResult += rand() % 6 + 1;
@@ -100,12 +100,39 @@ std::string Character::Attack(Character target, GameMaster gm)
 
 bool Character::DidGetHit(Character attacker, GameMaster gm)
 {
-	
+	// Firstly calculate our total defence, which is sum of all
+	// defences the character has.
+	int totalDefense = (dodge + parry + block + passiveDefence);
+
+	// Now we roll 3d6 against it.
+	int diceRoll = gm.RollDice(3, 0);
+
+	// Roll of 4 or less is always a success.
+	if (diceRoll <= 4)
+		return false;
+	// Roll of 17 or 18 is always a failure.
+	else if (diceRoll >= 17)
+		return true;
+	// If roll is less than or equal to totalDefense, then it's a success.
+	else if (diceRoll < 17 && diceRoll > 4)
+		return false;
+
+	// Shouldn't happen
+	return true;
 }
 
 void Character::ReceiveDamage(int damage)
 {
-	
+	if (health / 2 == damage)
+	{
+		isKnockedDown = true;
+		knockDownTimer++;
+	}
+	health -= damage;
+
+	// R.I.P.
+	if (health <= 0)
+		isDead = true;
 }
 
 std::string Character::Move(DIRECTION dir, int meters)
@@ -171,6 +198,8 @@ void Character::CalculateExtraAttributes()
 	baseMeleeDamage.bonus = strength / 3;
 }
 
+float Character::getInitiative() { return basicSpeed; }
+
 Character::Character() : actions(2), isWieldingShield(false),
 						isDead(false), isKnockedDown(false),
 						knockDownTimer(0) { }
@@ -183,7 +212,28 @@ Character::~Character()
 
 void Player::ModifyAttribute(int value, char attribute)
 {
-	
+	if (value * 15 > characterPoints)
+		return;
+
+	switch (attribute)
+	{
+	case 'S':
+		strength += value;
+		characterPoints -= value * 10;
+		break;
+	case 'D':
+		dexterity += value;
+		characterPoints -= value * 10;
+		break;
+	case 'H':
+		health += value;
+		characterPoints -= value * 10;
+		break;
+	default:
+		break;
+	}
+
+	return;
 }
 
 void NPC::AssessSituation()
@@ -193,21 +243,36 @@ void NPC::AssessSituation()
 
 void TurnLogic::CalculateInitiative()
 {
-	std::sort(charactersInPlay.cbegin, charactersInPlay.cend,
+	std::sort(charactersInPlay.cbegin(), charactersInPlay.cend(),
 		[](const Character& x, const Character& y) -> bool
-	{
-		return 
-	});
+		{
+			return x.basicSpeed > y.basicSpeed;
+		});
 }
 
-void TurnLogic::KillCharacter()
+void TurnLogic::KillCharacter(Character character)
 {
+	if (!character.isDead)
+		return;
 
+	// wip
+	auto characterToDelete = find(charactersInPlay.cbegin(), charactersInPlay.cend(), character.Name);
 }
 
 void TurnLogic::NextTurn()
 {
+	for (auto i : charactersInPlay)
+	{
+		if (i.isDead)
+			KillCharacter(i);
+		if (i.knockDownTimer)
+		{
+			if (--i.knockDownTimer);
+			else
+				i.isKnockedDown = false;
+		}
 
+	}
 }
 
 TurnLogic::TurnLogic() { }

@@ -114,18 +114,6 @@ typedef struct
 class Character
 {
 protected:
-	// Amount of actions character can performs, which is 2 per turn.
-	int actions;
-
-	// Where is character located in 2D space.
-	Position position;
-
-	// Name character is represented with.
-	std::string Name;
-
-	// An array of skills character's using.
-	std::vector<Skill> skills;
-
 	// *** Base Attributes ***
 
 	// IQ not needed, magic spells not planned as for now.
@@ -139,8 +127,7 @@ protected:
 
 	// ** Extra Attributes ***
 
-	// Used for calculating initiative in combat.
-	float basicSpeed;
+
 	// Attribute deciding how far a character can go.
 	int move;
 	
@@ -160,6 +147,22 @@ protected:
 	int passiveDefence;
 	// A value which decreases the amount of damage taken.
 	int damageResistance;
+	
+	// Base damage using melee weapon, related to ST.
+	Damage baseMeleeDamage;
+
+public:
+	// Amount of actions character can performs, which is 2 per turn.
+	int actions;
+
+	// Name character is represented with.
+	std::string Name;
+
+	// An array of skills character's using.
+	std::vector<Skill> skills;
+
+	// Where is character located in 2D space.
+	Position position;
 
 	// ** Status Effects **
 
@@ -170,11 +173,10 @@ protected:
 	int knockDownTimer;
 	// Whether the character is not alive.
 	bool isDead;
-	
-	// Base damage using melee weapon, related to ST.
-	Damage baseMeleeDamage;
 
-public:
+	// Used for calculating initiative in combat.
+	float basicSpeed;
+
 	// Currently used weapon of mass destruction.
 	Weapon currentWeapon;
 	// Says whether character has shield ready;
@@ -205,7 +207,7 @@ public:
 	void CalculateExtraAttributes();
 
 	// Initiative getter.
-	int getInitiative();
+	float getInitiative();
 
 	Character();
 	virtual ~Character();
@@ -252,7 +254,7 @@ public:
 	// Takes a vector of characters and sorts it by initiative.
 	void CalculateInitiative();
 
-	void KillCharacter();
+	void KillCharacter(Character);
 
 	void NextTurn();
 
