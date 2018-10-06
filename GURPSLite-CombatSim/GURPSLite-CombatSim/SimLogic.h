@@ -79,6 +79,17 @@ typedef struct
 	int bonus;
 }Damage;
 
+class Armour
+{
+public:
+	// Armour's name.
+	std::string name;
+	// How much bonus to defence roll this armor gives.
+	int passiveDefence;
+	// How much damage it blocks.
+	int damageResistance;
+};
+
 class Weapon
 {
 public:
@@ -137,15 +148,16 @@ protected:
 
 	// Attribute deciding character succeed in doding an attack.
 	int dodge;
-	// Attribute deciding if character manages to parry an attack.
+	// Attribute deciding if character manages to parry an attack
+	// related to the skill used by currentWeapon.
 	int parry;
-	// Same as above, but for blocking.
+	// Same as above, but for blocking. Is active only if character has shield.
 	int block;
 
 	// ** Passive Defence **
 
 	// A sum of defences given by armour and shield used by a character.
-	int armour;
+	int passiveDefence;
 	// A value which decreases the amount of damage taken.
 	int damageResistance;
 
@@ -165,6 +177,12 @@ protected:
 public:
 	// Currently used weapon of mass destruction.
 	Weapon currentWeapon;
+	// Says whether character has shield ready;
+	bool isWieldingShield;
+	// Says whethe character is wearing any armour or goes berserk-like nude.
+	bool isWearingArmour;
+	// Currently worn armour.
+	Armour currentArmour;
 
 	// Taken the character, try to attack him/her/whatever-the-hell-it-is
 	//	returns string message with adequate message.
@@ -172,7 +190,7 @@ public:
 
 	// Called usually when there's Attack method called on receiving character
 	// calculate attackers skills vs defenders speed, dodging and defence
-	bool DidGetHit(Character attacker);
+	bool DidGetHit(Character attacker, GameMaster gm);
 
 	// If character happens not to defend himself, he'll get reduced HT.
 	void ReceiveDamage(int);
@@ -186,6 +204,9 @@ public:
 	// strength attribute is taken for calculating baseMeleeDamage.
 	void CalculateExtraAttributes();
 
+	// Initiative getter.
+	int getInitiative();
+
 	Character();
 	virtual ~Character();
 };
@@ -198,6 +219,8 @@ private:
 	int characterPoints;
 public:
 
+	// During character creation, for modifying base attributes.
+	void ModifyAttribute(int value, char attribute);
 };
 
 class NPC : public Character
@@ -229,7 +252,10 @@ public:
 	// Takes a vector of characters and sorts it by initiative.
 	void CalculateInitiative();
 
-	void killCharacter();
+	void KillCharacter();
 
-	void nextTurn();
+	void NextTurn();
+
+	TurnLogic();
+	~TurnLogic();
 };
