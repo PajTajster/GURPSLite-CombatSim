@@ -3,54 +3,6 @@
 #include <vector>
 #include <queue>
 
-class GameMaster
-{
-public:
-
-	// "Rolls" 6-sided dice 'dices' times and adds 'bonus'[if it exists].
-	int RollDice(int dices, int bonus);
-
-	GameMaster();
-	~GameMaster();
-
-};
-
-
-class Skill
-{
-public:
-	// Alters chance of succees of using skill.
-	// Max: 18.
-	int proficiency;
-	// Skill's name.
-	std::string name;
-
-	// *** DEFAULTS ***
-	// Some skills have their default value
-	// depending on characters main attributes.
-	
-	// Value to be added/subtracted to/from proficency.
-	int defaultBonus;
-	// Attribute that will depend of default proficency.
-	std::string defaultAttribute;
-	// Optional attribute, if higher that 'defaultAttribute'
-	// then this one will be treated as default one.
-	std::string defaultOptionalAttribute;
-	// *** DEFAULTS ***
-
-	// Set true if skills doesn't have default value.
-	bool noDefaults;
-};
-
-// The harder the skill, the more player has to pay to upgrade them.
-enum SKILLDIFFICULTY
-{
-	SD_VERYHARD,
-	SD_HARD,
-	SD_MEDIUM,
-	SD_EASY
-};
-
 // Directions character can move by on the map.
 enum DIRECTION 
 {
@@ -78,6 +30,49 @@ typedef struct
 	int dices;
 	int bonus;
 }Damage;
+
+class GameMaster
+{
+public:
+
+	// "Rolls" 6-sided dice 'dices' times and adds 'bonus'[if it exists].
+	int RollDice(int dices, int bonus);
+
+	GameMaster();
+	~GameMaster();
+
+};
+
+class Skill
+{
+public:
+	// Alters chance of succees of using skill.
+	// Max: 18.
+	int proficiency;
+	// Skill's name.
+	std::string name;
+
+	// *** DEFAULTS ***
+	// Some skills have their default value
+	// depending on characters main attributes.
+
+	// Value to be added/subtracted to/from proficency.
+	int defaultBonus;
+	// Attribute that will depend of default proficency.
+	std::string defaultAttribute;
+	// Optional attribute, if higher that 'defaultAttribute'
+	// then this one will be treated as default one.
+	std::string defaultOptionalAttribute;
+
+	// *** DEFAULTS ***
+
+	// Set true if skill doesn't have default value.
+	bool noDefaults;
+
+	Skill();
+	Skill(std::string nm, std::string dftAt, std::string dftOptAt,
+		int dB, bool noDef);
+};
 
 class Armour
 {

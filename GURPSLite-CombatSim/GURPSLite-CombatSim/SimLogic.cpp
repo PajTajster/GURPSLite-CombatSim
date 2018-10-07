@@ -16,7 +16,12 @@ int GameMaster::RollDice(int dices, int bonus)
 GameMaster::GameMaster() {}
 GameMaster::~GameMaster() {}
 
+Skill::Skill() { }
 
+Skill::Skill(std::string nm, std::string dftAt, std::string dftOptAt,
+			int dB, bool noDef) :
+			name(nm), defaultAttribute(dftAt), defaultOptionalAttribute(dftOptAt),
+			defaultBonus(dB), noDefaults(noDef) { }			
 
 std::string Character::Attack(Character target, GameMaster gm)
 {
@@ -142,7 +147,7 @@ void Character::ReceiveDamage(int damage)
 
 std::string Character::Move(DIRECTION dir, int meters)
 {
-
+	
 	return "";
 }
 
@@ -153,12 +158,7 @@ void Character::CalculateExtraAttributes()
 	if (!isWieldingShield || currentWeapon.isTwoHanded)
 		block = 0;
 	else
-	{
-		auto shieldSkill = find(skills.cbegin(), skills.cend(), "Shield");
-
-		if (shieldSkill->name == "Shield")
-			block = shieldSkill->proficiency / 2;
-	}
+		block = skills[0].proficiency;
 
 	// If no weapon is used, then parry is 0
 	// but if it is, then parry is half of weapon's skill's proficiency.
@@ -209,19 +209,26 @@ Character::Character() : actions(2), isWieldingShield(false),
 						isDead(false), isKnockedDown(false),
 						knockDownTimer(0)
 {
-	skills = {};
+	skills =
+	{
+		// Shield
+		Skill("Shield", "DX", "None", -6, true),
+		// Sword
+		Skill("Sword", "DX", "None", -6, true),
+		// Axe/Mace
+		Skill("Axe/Mace", "DX", "None", -5, true),
+		// Polearm
+		Skill("Polearm", "DX", "None", -6, true),
+		// Bow
+		Skill("Bow", "DX", "None", -6, true),
+		// Crossbow
+		Skill("Crossbow", "DX", "None", -4, true),
+		// Pistol
+		Skill("Pistol", "DX", "None", -4, true),
+		// Rifle
+		Skill("Rifle", "DX", "None", -4, true)
+	};
 }
-
-/*
-	Shields,
-	Swords,
-	Axes,
-	Polearms,
-	Bows,
-	Crossbows,
-	Pistols,
-	Rifles
-*/
 
 Character::~Character()
 {
