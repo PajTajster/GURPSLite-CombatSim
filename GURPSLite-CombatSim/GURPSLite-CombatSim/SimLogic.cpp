@@ -101,8 +101,13 @@ std::string Character::Attack(Character target, GameMaster gm)
 bool Character::DidGetHit(Character attacker, GameMaster gm)
 {
 	// Firstly calculate our total defence, which is sum of all
-	// defences the character has.
-	int totalDefense = (dodge + parry + block + passiveDefence);
+	// defences the character has. [if knockdown then only passive]
+	int totalDefense = 0;
+
+	if (isKnockedDown)
+		totalDefense = passiveDefence;
+	else
+		totalDefense = (dodge + parry + block + passiveDefence);
 
 	// Now we roll 3d6 against it.
 	int diceRoll = gm.RollDice(3, 0);
@@ -145,7 +150,7 @@ void Character::CalculateExtraAttributes()
 {
 	// If no shield, then block is 0
 	// if there's one, then it's half of "Shield" skill proficiency.
-	if (!isWieldingShield)
+	if (!isWieldingShield || currentWeapon.isTwoHanded)
 		block = 0;
 	else
 	{
@@ -202,7 +207,21 @@ float Character::getInitiative() { return basicSpeed; }
 
 Character::Character() : actions(2), isWieldingShield(false),
 						isDead(false), isKnockedDown(false),
-						knockDownTimer(0) { }
+						knockDownTimer(0)
+{
+	skills = {};
+}
+
+/*
+	Shields,
+	Swords,
+	Axes,
+	Polearms,
+	Bows,
+	Crossbows,
+	Pistols,
+	Rifles
+*/
 
 Character::~Character()
 {

@@ -99,10 +99,12 @@ public:
 	Damage damage;
 	// Skill proficiency used by weapon.
 	Skill skill;
-	// Decides whether weapon has to use ST-related bonus damage.
+	// Decides whether weapon has to use ST-related bonus damage. [Ranged or not]
 	bool isMelee;
 	// How many "bullets" weapon shoots, if it's melee then it's value = 1.
 	int rateOfFire;
+	// Whether character uses both hands or not[if yes, then no shield possible].
+	bool isTwoHanded;
 };
 
 typedef struct
@@ -181,6 +183,8 @@ public:
 	Weapon currentWeapon;
 	// Says whether character has shield ready;
 	bool isWieldingShield;
+	// If Character has a shield, it gives this bonus to "Shield" skill.
+	int equippedShieldBonus;
 	// Says whethe character is wearing any armour or goes berserk-like nude.
 	bool isWearingArmour;
 	// Currently worn armour.
