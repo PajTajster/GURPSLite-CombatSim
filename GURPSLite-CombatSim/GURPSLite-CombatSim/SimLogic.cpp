@@ -3,6 +3,9 @@
 #include <cstdlib>
 #include <ctime>
 
+
+
+
 int GameMaster::RollDice(int dices, int bonus)
 {
 	srand((unsigned)time(NULL));
@@ -16,7 +19,7 @@ int GameMaster::RollDice(int dices, int bonus)
 GameMaster::GameMaster() {}
 GameMaster::~GameMaster() {}
 
-Skill::Skill() { }
+Skill::Skill() : name("Undefined") { }
 
 Skill::Skill(std::string nm, std::string dftAt, std::string dftOptAt,
 			int dB, bool noDef) :
@@ -41,7 +44,7 @@ std::string Character::Attack(Character target, GameMaster gm)
 				&& defenderPos.y - 1 == attackerPos.y))
 		{
 			std::string message = "Attempting to attack: ";
-			message.append(Name + " ...");
+			message.append(name + " ...");
 
 			// Roll for attack.
 			int roll = gm.RollDice(3, 0);
@@ -133,12 +136,18 @@ bool Character::DidGetHit(Character attacker, GameMaster gm)
 
 void Character::ReceiveDamage(int damage)
 {
-	if (health / 2 == damage)
+	int finalDamage = damage - damageResistance;
+
+	if (finalDamage < 0)
+		return;
+
+	// If character got damaged for 1/2 of it's HP, they get knocked down.
+	if (health / 2 == finalDamage)
 	{
 		isKnockedDown = true;
 		knockDownTimer++;
 	}
-	health -= damage;
+
 
 	// R.I.P.
 	if (health <= 0)
@@ -166,8 +175,28 @@ void Character::CalculateExtraAttributes()
 		parry = 0;
 	else
 	{
-		auto weaponSkill = find(skills.cbegin(), skills.cend(), currentWeapon.skill.name);
-		parry = weaponSkill->proficiency / 2;
+		/*Skill weaponSkill;
+		for (auto i : skills)
+		{
+			if (i.name == currentWeapon.skill.name)
+			{
+				weaponSkill = i;
+				break;
+			}
+		}
+		if (weaponSkill.name == "Undefined")
+			parry = 0;
+		else
+			parry = weaponSkill.proficiency / 2;*/
+		std::string skillToFind = currentWeapon.skill.name;
+
+		auto weaponSkill = std::find_if(skills.cbegin(), skills.cend(),
+			[skillToFind](const Skill& s)->bool {return s.name == skillToFind; });
+
+		if (weaponSkill->name == "Undefined")
+			parry = 0;
+		else
+			parry = weaponSkill->proficiency / 2;
 	}
 
 	basicSpeed = static_cast<float>((health + dexterity) / 4);
@@ -226,7 +255,9 @@ Character::Character() : actions(2), isWieldingShield(false),
 		// Pistol
 		Skill("Pistol", "DX", "None", -4, true),
 		// Rifle
-		Skill("Rifle", "DX", "None", -4, true)
+		Skill("Rifle", "DX", "None", -4, true),
+		// Undefined
+		Skill("Undefined", "None", "None", 0, false)
 	};
 }
 
@@ -234,7 +265,6 @@ Character::~Character()
 {
 	skills.clear();
 }
-
 
 void Player::ModifyAttribute(int value, char attribute)
 {
@@ -269,8 +299,8 @@ void NPC::AssessSituation()
 
 void TurnLogic::CalculateInitiative()
 {
-	std::sort(charactersInPlay.cbegin(), charactersInPlay.cend(),
-		[](const Character& x, const Character& y) -> bool
+	std::sort(charactersInPlay.begin(), charactersInPlay.end(),
+		[](const auto& x, const auto& y) -> bool
 		{
 			return x.basicSpeed > y.basicSpeed;
 		});
@@ -281,8 +311,10 @@ void TurnLogic::KillCharacter(Character character)
 	if (!character.isDead)
 		return;
 
+	std::string charName = character.name;
 	// wip
-	auto characterToDelete = find(charactersInPlay.cbegin(), charactersInPlay.cend(), character.Name);
+	auto characterToDelete = std::find_if(charactersInPlay.cbegin(), charactersInPlay.cend(),
+							[charName](const Character &c) -> bool {return c.name == charName; });
 }
 
 void TurnLogic::NextTurn()

@@ -108,6 +108,7 @@ typedef struct
 	int y;
 }Position;
 
+
 class Character
 {
 protected:
@@ -135,7 +136,8 @@ protected:
 	// Attribute deciding if character manages to parry an attack
 	// related to the skill used by currentWeapon.
 	int parry;
-	// Same as above, but for blocking. Is active only if character has shield.
+	// Attribute deciding character's chance in blocking.
+	// Is active only if character has shield.
 	int block;
 
 	// ** Passive Defence **
@@ -149,11 +151,12 @@ protected:
 	Damage baseMeleeDamage;
 
 public:
+
 	// Amount of actions character can performs, which is 2 per turn.
 	int actions;
 
 	// Name character is represented with.
-	std::string Name;
+	std::string name;
 
 	// An array of skills character's using.
 	std::vector<Skill> skills;
