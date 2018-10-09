@@ -112,6 +112,10 @@ typedef struct
 class Character
 {
 protected:
+	// Value to keep record of last ID given, this way
+	// IDs won't repeat.
+	static int nextID;
+
 	// *** Base Attributes ***
 
 	// IQ not needed, magic spells not planned as for now.
@@ -145,6 +149,8 @@ protected:
 	Damage baseMeleeDamage;
 
 public:
+	// Character's ID for distinguishability.
+	int ID;
 
 	// Actions used purely for moving
 	int movingActions;
@@ -205,7 +211,11 @@ public:
 	// Initiative getter.
 	float getInitiative();
 
+
+	Character& operator=(const Character& original);
+
 	Character();
+	Character(const Character& original);
 	virtual ~Character();
 };
 
@@ -259,6 +269,9 @@ public:
 	// Tries to move character 'c' in 'dir' direction,
 	// returns string with adequate message.
 	std::string MoveCharacter(Character c, DIRECTION dir);
+
+	// Adds character into 'charactersInPlay' vector.
+	void AddCharacterToMainVector(Character);
 
 	TurnLogic();
 	~TurnLogic();

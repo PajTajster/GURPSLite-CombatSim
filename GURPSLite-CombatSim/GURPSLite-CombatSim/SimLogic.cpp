@@ -169,19 +169,6 @@ void Character::CalculateExtraAttributes()
 		parry = 0;
 	else
 	{
-		/*Skill weaponSkill;
-		for (auto i : skills)
-		{
-			if (i.name == currentWeapon.skill.name)
-			{
-				weaponSkill = i;
-				break;
-			}
-		}
-		if (weaponSkill.name == "Undefined")
-			parry = 0;
-		else
-			parry = weaponSkill.proficiency / 2;*/
 		std::string skillToFind = currentWeapon.skill.name;
 
 		auto weaponSkill = std::find_if(skills.cbegin(), skills.cend(),
@@ -235,6 +222,7 @@ Character::Character() : isWieldingShield(false), isDead(false),
 						knockDownTimer(0), strength(10), dexterity(10),
 						health(10), movingActions(2)
 {
+	ID = ++nextID;
 	skills =
 	{
 		// Shield
@@ -256,6 +244,17 @@ Character::Character() : isWieldingShield(false), isDead(false),
 		// Undefined
 		Skill("Undefined", "None", "None", 0, false)
 	};
+}
+
+Character& Character::operator=(const Character& original)
+{
+	ID = original.ID;
+	return (*this);
+}
+
+Character::Character(const Character& original)
+{
+	ID = original.ID;
 }
 
 Character::~Character()
@@ -308,10 +307,10 @@ void TurnLogic::KillCharacter(Character character)
 	if (!character.isDead)
 		return;
 
-	std::string charName = character.name;
+	int charID = character.ID;
 
 	auto characterToDelete = std::find_if(charactersInPlay.cbegin(), charactersInPlay.cend(),
-							[charName](const auto &c) -> bool {return c.name == charName; });
+							[charID](const auto &c) -> bool {return c.ID == charID; });
 	charactersInPlay.erase(characterToDelete);
 }
 
