@@ -309,9 +309,10 @@ void TurnLogic::KillCharacter(Character character)
 		return;
 
 	std::string charName = character.name;
-	// wip
+
 	auto characterToDelete = std::find_if(charactersInPlay.cbegin(), charactersInPlay.cend(),
-							[charName](const Character &c) -> bool {return c.name == charName; });
+							[charName](const auto &c) -> bool {return c.name == charName; });
+	charactersInPlay.erase(characterToDelete);
 }
 
 void TurnLogic::NextTurn()

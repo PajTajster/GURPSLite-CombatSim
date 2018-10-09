@@ -250,8 +250,10 @@ public:
 	// Takes a vector of characters and sorts it by initiative.
 	void CalculateInitiative();
 
+	// Remove given character from play.
 	void KillCharacter(Character);
-
+	// Run through all the present characters and refresh their
+	// actions and decrement knockdowntimer (if they have one active).
 	void NextTurn();
 
 	// Tries to move character 'c' in 'dir' direction,
