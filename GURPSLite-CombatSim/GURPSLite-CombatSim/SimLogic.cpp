@@ -90,8 +90,8 @@ std::string Character::Attack(Character target, GameMaster gm)
 			else
 				message.append("Miss!");
 				
-			// Attack is an action, thus we reduce possible actions for this turn.
-			--actions;
+			// Since character attacked already then we set bool to false.
+			hasAttackedThisTurn = false;
 			return message;
 		}
 		else
@@ -154,12 +154,6 @@ void Character::ReceiveDamage(int damage)
 		isDead = true;
 }
 
-std::string Character::Move(DIRECTION dir, int meters)
-{
-	
-	return "";
-}
-
 void Character::CalculateExtraAttributes()
 {
 	// If no shield, then block is 0
@@ -202,6 +196,8 @@ void Character::CalculateExtraAttributes()
 	basicSpeed = static_cast<float>((health + dexterity) / 4);
 	move = static_cast<int>(basicSpeed);
 	dodge = move;
+	// For keeping a record how many times character moved their turn.
+	movingActions = move;
 	
 	// If there is armour on character's body, then he "inherits" it's bonuses
 	// if not, it's 0.
@@ -234,9 +230,10 @@ void Character::CalculateExtraAttributes()
 
 float Character::getInitiative() { return basicSpeed; }
 
-Character::Character() : actions(2), isWieldingShield(false),
-						isDead(false), isKnockedDown(false),
-						knockDownTimer(0)
+Character::Character() : isWieldingShield(false), isDead(false),
+						isKnockedDown(false), hasAttackedThisTurn(false),
+						knockDownTimer(0), strength(10), dexterity(10),
+						health(10), movingActions(2)
 {
 	skills =
 	{
@@ -329,8 +326,61 @@ void TurnLogic::NextTurn()
 			else
 				i.isKnockedDown = false;
 		}
+		else
+		{
+			i.hasAttackedThisTurn = false;
+			i.movingActions = i.move;
+		}
 
 	}
+}
+
+std::string TurnLogic::MoveCharacter(Character c, DIRECTION dir)
+{
+	if (c.isKnockedDown)
+		return "Character knocked down!";
+
+
+	switch (dir)
+	{
+		case DIR_UP:
+			if (c.position.y + 1 <= 1)
+				return "You can't go there!";
+			else
+			{
+				++c.position.y;
+				return "You've moved up 1 meter.";
+			}
+		case DIR_LEFT:
+			if(c.position.x - 1 <= 1)
+				return "You can't go there!";
+			else
+			{
+				--c.position.x;
+				return "You've moved left 1 meter.";
+			}
+		case DIR_RIGHT:
+			if (c.position.x + 1 >= 10)
+				return "You can't go there!";
+			else
+			{
+				++c.position.x;
+				return "You've moved right 1 meter.";
+			}
+		case DIR_DOWN:
+			if (c.position.y - 1 >= 10)
+				return "You can't go there!";
+			else
+			{
+				--c.position.y;
+				return "You've moved down 1 meter.";
+			}
+		// Shouldn't happen
+		default:
+			break;
+	}
+
+	return "";
 }
 
 TurnLogic::TurnLogic() { }

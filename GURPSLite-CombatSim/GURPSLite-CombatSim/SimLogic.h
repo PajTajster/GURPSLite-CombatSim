@@ -122,12 +122,6 @@ protected:
 	int dexterity;
 	// If you get 0 or less, you're done. 
 	int health;
-
-	// ** Extra Attributes ***
-
-
-	// Attribute deciding how far a character can go.
-	int move;
 	
 	// ** Active Defenses **
 
@@ -152,8 +146,10 @@ protected:
 
 public:
 
-	// Amount of actions character can performs, which is 2 per turn.
-	int actions;
+	// Actions used purely for moving
+	int movingActions;
+	// Tells whether character have attacked
+	bool hasAttackedThisTurn;
 
 	// Name character is represented with.
 	std::string name;
@@ -176,6 +172,8 @@ public:
 
 	// Used for calculating initiative in combat.
 	float basicSpeed;
+	// Attribute deciding how far a character can go.
+	int move;
 
 	// Currently used weapon of mass destruction.
 	Weapon currentWeapon;
@@ -198,10 +196,6 @@ public:
 
 	// If character happens not to defend himself, he'll get reduced HT.
 	void ReceiveDamage(int);
-
-	// Tries to move character in 'dir' direction by 'meters' m,
-	// returns string with adequate message.
-	std::string Move(DIRECTION dir, int meters);
 
 	// Check the values of extra attributes depending on base Attributes
 	// calculate values like movement, passive/active defenses
@@ -259,6 +253,10 @@ public:
 	void KillCharacter(Character);
 
 	void NextTurn();
+
+	// Tries to move character 'c' in 'dir' direction,
+	// returns string with adequate message.
+	std::string MoveCharacter(Character c, DIRECTION dir);
 
 	TurnLogic();
 	~TurnLogic();
