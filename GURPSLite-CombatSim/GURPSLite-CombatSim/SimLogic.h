@@ -148,6 +148,10 @@ protected:
 	// Base damage using melee weapon, related to ST.
 	Damage baseMeleeDamage;
 
+	// What team character belongs to
+	// for now only 1 and 2.
+	int team;
+
 public:
 	// Character's ID for distinguishability.
 	int ID;
@@ -209,7 +213,10 @@ public:
 	void CalculateExtraAttributes();
 
 	// Initiative getter.
-	float getInitiative();
+	float GetInitiative();
+
+	void SetTeam(int teamToSet);
+	int GetTeam();
 
 
 	Character& operator=(const Character& original);
@@ -256,6 +263,8 @@ private:
 	std::vector<Character> team1;
 	std::vector<Character> team2;
 public:
+	// Adds given character to 'teamToSet" vector (either 1 or 2).
+	void AddCharacterToTeam(Character c, int teamToSet);
 
 	// Takes a vector of characters and sorts it by initiative.
 	void CalculateInitiative();

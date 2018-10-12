@@ -28,6 +28,10 @@ Skill::Skill(std::string nm, std::string dftAt, std::string dftOptAt,
 
 std::string Character::Attack(Character target, GameMaster gm)
 {
+	// If target happens to be on the same team, abort.
+	if (target.team == team)
+		return "You can't attack your allies!";
+
 	Position attackerPos = position;
 	Position defenderPos = target.position;
 
@@ -215,7 +219,7 @@ void Character::CalculateExtraAttributes()
 	baseMeleeDamage.bonus = strength / 3;
 }
 
-float Character::getInitiative() { return basicSpeed; }
+float Character::GetInitiative() { return basicSpeed; }
 
 Character::Character() : isWieldingShield(false), isDead(false),
 						isKnockedDown(false), hasAttackedThisTurn(false),
@@ -245,6 +249,14 @@ Character::Character() : isWieldingShield(false), isDead(false),
 		Skill("Undefined", "None", "None", 0, false)
 	};
 }
+
+void Character::SetTeam(int teamToSet)
+{
+	if (teamToSet == 1 || teamToSet == 2)
+		team = teamToSet;
+}
+
+int Character::GetTeam() { return team; }
 
 Character& Character::operator=(const Character& original)
 {
@@ -293,6 +305,24 @@ void NPC::AssessSituation()
 
 }
 
+void TurnLogic::AddCharacterToTeam(Character c, int teamToSet)
+{
+	if (teamToSet == 1 || teamToSet == 2)
+	{
+		switch (teamToSet)
+		{
+		case 1:
+			team1.push_back(c);
+			break;
+		case 2:
+			team2.push_back(c);
+			break;
+		}
+		c.SetTeam(teamToSet);
+	}
+	return;
+}
+
 void TurnLogic::CalculateInitiative()
 {
 	std::sort(charactersInPlay.begin(), charactersInPlay.end(),
@@ -304,14 +334,36 @@ void TurnLogic::CalculateInitiative()
 
 void TurnLogic::KillCharacter(Character character)
 {
+	// Don't kill charater that's not dead! :((
 	if (!character.isDead)
 		return;
 
 	int charID = character.ID;
 
+	// Search charactersInPlay vector in order to delete character.
 	auto characterToDelete = std::find_if(charactersInPlay.cbegin(), charactersInPlay.cend(),
 							[charID](const auto &c) -> bool {return c.ID == charID; });
 	charactersInPlay.erase(characterToDelete);
+
+	// Search adequate team vector in order to delete character.
+	switch (character.GetTeam())
+	{
+		// If team 1
+	case 1:
+		characterToDelete = std::find_if(team1.cbegin(), team1.cend(),
+			[charID](const auto &c) -> bool {return c.ID == charID; });
+		team1.erase(characterToDelete);
+		break;
+		// If team 2
+	case 2:
+		characterToDelete = std::find_if(team2.cbegin(), team2.cend(),
+			[charID](const auto &c) -> bool { return c.ID == charID; });
+		team2.erase(characterToDelete);
+		break;
+		// Shouldn't happen!
+	default:
+		break;
+	}
 }
 
 void TurnLogic::NextTurn()
