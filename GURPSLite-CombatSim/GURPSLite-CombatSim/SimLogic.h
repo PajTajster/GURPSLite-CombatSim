@@ -254,6 +254,8 @@ public:
 class GameMaster
 {
 private:
+	static DiceRoller diceRoller;
+	char* map;
 
 	// Vectors containing all the data app needs.
 

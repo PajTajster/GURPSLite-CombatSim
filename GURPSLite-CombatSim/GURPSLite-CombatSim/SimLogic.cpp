@@ -301,7 +301,7 @@ void Player::ModifyAttribute(int value, char attribute)
 
 void NPC::AssessSituation()
 {
-
+	// TODO
 }
 
 void GameMaster::AddCharacterToTeam(Character c, int teamToSet)
@@ -453,6 +453,47 @@ void GameMaster::AddCharacterToMainVector(Character character)
 		charactersInPlay.push_back(character);
 }
 
+bool GameMaster::InitializeGameMaster()
+{
+	// TODO
+	return true;
+}
+
+bool GameMaster::LoadCharacters()
+{
+	// TODO
+	return true;
+}
+
+bool GameMaster::LoadSkills()
+{
+	// TODO
+	return true;
+}
+
+bool GameMaster::LoadArmours()
+{
+	// TODO
+	return true;
+}
+
+bool GameMaster::LoadWeapons()
+{
+	// TODO
+	return true;
+}
+
 GameMaster::GameMaster() { }
 
-GameMaster::~GameMaster() { }
+GameMaster::~GameMaster()
+{
+	delete map;
+	allCharacters.clear();
+	allSkills.clear();
+	allArmours.clear();
+	allWeapons.clear();
+
+	charactersInPlay.clear();
+	team1.clear();
+	team2.clear();
+}
