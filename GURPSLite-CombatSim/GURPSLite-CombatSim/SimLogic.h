@@ -31,15 +31,15 @@ typedef struct
 	int bonus;
 }Damage;
 
-class GameMaster
+class DiceRoller
 {
 public:
 
 	// "Rolls" 6-sided dice 'dices' times and adds 'bonus'[if it exists].
 	int RollDice(int dices, int bonus);
 
-	GameMaster();
-	~GameMaster();
+	DiceRoller();
+	~DiceRoller();
 
 };
 
@@ -198,11 +198,11 @@ public:
 
 	// Taken the character, try to attack him/her/whatever-the-hell-it-is
 	//	returns string message with adequate message.
-	std::string Attack(Character target, GameMaster gm);
+	std::string Attack(Character target, DiceRoller dr);
 
 	// Called usually when there's Attack method called on receiving character
 	// calculate attackers skills vs defenders speed, dodging and defence
-	bool DidGetHit(Character attacker, GameMaster gm);
+	bool DidGetHit(Character attacker, DiceRoller dr);
 
 	// If character happens not to defend himself, he'll get reduced HT.
 	void ReceiveDamage(int);
@@ -251,10 +251,20 @@ public:
 	void AssessSituation();
 };
 
-// Class taking care of turns and match movement.
-class TurnLogic
+class GameMaster
 {
 private:
+
+	// Vectors containing all the data app needs.
+
+	// All the characters available to choose.
+	std::vector<Character> allCharacters;
+	// All the skills that characters can learn.
+	std::vector<Skill> allSkills;
+	// All the armours that characters can use.
+	std::vector<Armour> allArmours;
+	// All the weapons that characters can make a mess with.
+	std::vector<Weapon> allWeapons;
 	// Characters that fight in present match.
 	std::vector<Character> charactersInPlay;
 
@@ -271,6 +281,7 @@ public:
 
 	// Remove given character from play.
 	void KillCharacter(Character);
+
 	// Run through all the present characters and refresh their
 	// actions and decrement knockdowntimer (if they have one active).
 	void NextTurn();
@@ -282,6 +293,14 @@ public:
 	// Adds character into 'charactersInPlay' vector.
 	void AddCharacterToMainVector(Character);
 
-	TurnLogic();
-	~TurnLogic();
+	// Load all the data, setup map.
+	bool InitializeGameMaster();
+
+	bool LoadCharacters();
+	bool LoadSkills();
+	bool LoadArmours();
+	bool LoadWeapons();
+
+	GameMaster();
+	~GameMaster();
 };

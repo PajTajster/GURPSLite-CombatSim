@@ -5,8 +5,7 @@
 
 
 
-
-int GameMaster::RollDice(int dices, int bonus)
+int DiceRoller::RollDice(int dices, int bonus)
 {
 	srand((unsigned)time(NULL));
 	int diceResult = 0;
@@ -16,8 +15,8 @@ int GameMaster::RollDice(int dices, int bonus)
 	return diceResult + bonus;
 }
 
-GameMaster::GameMaster() {}
-GameMaster::~GameMaster() {}
+DiceRoller::DiceRoller() {}
+DiceRoller::~DiceRoller() {}
 
 Skill::Skill() : name("Undefined") { }
 
@@ -26,7 +25,7 @@ Skill::Skill(std::string nm, std::string dftAt, std::string dftOptAt,
 			name(nm), defaultAttribute(dftAt), defaultOptionalAttribute(dftOptAt),
 			defaultBonus(dB), noDefaults(noDef) { }			
 
-std::string Character::Attack(Character target, GameMaster gm)
+std::string Character::Attack(Character target, DiceRoller dr)
 {
 	// If target happens to be on the same team, abort.
 	if (target.team == team)
@@ -51,7 +50,7 @@ std::string Character::Attack(Character target, GameMaster gm)
 			message.append(name + " ...");
 
 			// Roll for attack.
-			int roll = gm.RollDice(3, 0);
+			int roll = dr.RollDice(3, 0);
 
 			// Critical miss, applies knockdown effect for 1 turn.
 			if (roll >= 17)
@@ -64,7 +63,7 @@ std::string Character::Attack(Character target, GameMaster gm)
 			else
 			if (roll <= 3)
 			{
-				int damageApplied = gm.RollDice(currentWeapon.damage.dices + baseMeleeDamage.dices,
+				int damageApplied = dr.RollDice(currentWeapon.damage.dices + baseMeleeDamage.dices,
 					currentWeapon.damage.bonus + baseMeleeDamage.bonus);
 				damageApplied *= 2;
 				target.ReceiveDamage(damageApplied);
@@ -76,9 +75,9 @@ std::string Character::Attack(Character target, GameMaster gm)
 			else if (roll < currentWeapon.skill.proficiency)
 			{
 				// If yes, apply damage to target
-				if (DidGetHit(target, gm))
+				if (DidGetHit(target, dr))
 				{
-					int damageApplied = gm.RollDice(currentWeapon.damage.dices + baseMeleeDamage.dices,
+					int damageApplied = dr.RollDice(currentWeapon.damage.dices + baseMeleeDamage.dices,
 						currentWeapon.damage.bonus + baseMeleeDamage.bonus);
 					target.ReceiveDamage(damageApplied);
 
@@ -110,7 +109,7 @@ std::string Character::Attack(Character target, GameMaster gm)
 	return "";
 }
 
-bool Character::DidGetHit(Character attacker, GameMaster gm)
+bool Character::DidGetHit(Character attacker, DiceRoller dr)
 {
 	// Firstly calculate our total defence, which is sum of all
 	// defences the character has. [if knockdown then only passive]
@@ -122,7 +121,7 @@ bool Character::DidGetHit(Character attacker, GameMaster gm)
 		totalDefense = (dodge + parry + block + passiveDefence);
 
 	// Now we roll 3d6 against it.
-	int diceRoll = gm.RollDice(3, 0);
+	int diceRoll = dr.RollDice(3, 0);
 
 	// Roll of 4 or less is always a success.
 	if (diceRoll <= 4)
@@ -178,7 +177,7 @@ void Character::CalculateExtraAttributes()
 		auto weaponSkill = std::find_if(skills.cbegin(), skills.cend(),
 			[skillToFind](const Skill& s)->bool {return s.name == skillToFind; });
 
-		if (weaponSkill->name == "Undefined")
+		if (weaponSkill == skills.cend())
 			parry = 0;
 		else
 			parry = weaponSkill->proficiency / 2;
@@ -245,10 +244,10 @@ Character::Character() : isWieldingShield(false), isDead(false),
 		Skill("Pistol", "DX", "None", -4, true),
 		// Rifle
 		Skill("Rifle", "DX", "None", -4, true),
-		// Undefined
-		Skill("Undefined", "None", "None", 0, false)
 	};
 }
+
+int Character::nextID = 0;
 
 void Character::SetTeam(int teamToSet)
 {
@@ -305,7 +304,7 @@ void NPC::AssessSituation()
 
 }
 
-void TurnLogic::AddCharacterToTeam(Character c, int teamToSet)
+void GameMaster::AddCharacterToTeam(Character c, int teamToSet)
 {
 	if (teamToSet == 1 || teamToSet == 2)
 	{
@@ -323,7 +322,7 @@ void TurnLogic::AddCharacterToTeam(Character c, int teamToSet)
 	return;
 }
 
-void TurnLogic::CalculateInitiative()
+void GameMaster::CalculateInitiative()
 {
 	std::sort(charactersInPlay.begin(), charactersInPlay.end(),
 		[](const auto& x, const auto& y) -> bool
@@ -332,7 +331,7 @@ void TurnLogic::CalculateInitiative()
 		});
 }
 
-void TurnLogic::KillCharacter(Character character)
+void GameMaster::KillCharacter(Character character)
 {
 	// Don't kill charater that's not dead! :((
 	if (!character.isDead)
@@ -343,6 +342,9 @@ void TurnLogic::KillCharacter(Character character)
 	// Search charactersInPlay vector in order to delete character.
 	auto characterToDelete = std::find_if(charactersInPlay.cbegin(), charactersInPlay.cend(),
 							[charID](const auto &c) -> bool {return c.ID == charID; });
+	if (characterToDelete == charactersInPlay.cend())
+		return;
+
 	charactersInPlay.erase(characterToDelete);
 
 	// Search adequate team vector in order to delete character.
@@ -352,12 +354,16 @@ void TurnLogic::KillCharacter(Character character)
 	case 1:
 		characterToDelete = std::find_if(team1.cbegin(), team1.cend(),
 			[charID](const auto &c) -> bool {return c.ID == charID; });
+		if (characterToDelete == team1.cend())
+			return;
 		team1.erase(characterToDelete);
 		break;
 		// If team 2
 	case 2:
 		characterToDelete = std::find_if(team2.cbegin(), team2.cend(),
 			[charID](const auto &c) -> bool { return c.ID == charID; });
+		if (characterToDelete == team2.cend())
+			return;
 		team2.erase(characterToDelete);
 		break;
 		// Shouldn't happen!
@@ -366,7 +372,7 @@ void TurnLogic::KillCharacter(Character character)
 	}
 }
 
-void TurnLogic::NextTurn()
+void GameMaster::NextTurn()
 {
 	for (auto i : charactersInPlay)
 	{
@@ -387,7 +393,7 @@ void TurnLogic::NextTurn()
 	}
 }
 
-std::string TurnLogic::MoveCharacter(Character c, DIRECTION dir)
+std::string GameMaster::MoveCharacter(Character c, DIRECTION dir)
 {
 	if (c.isKnockedDown)
 		return "Character knocked down!";
@@ -435,6 +441,18 @@ std::string TurnLogic::MoveCharacter(Character c, DIRECTION dir)
 	return "";
 }
 
-TurnLogic::TurnLogic() { }
+void GameMaster::AddCharacterToMainVector(Character character)
+{
+	int IDToFind = character.ID;
 
-TurnLogic::~TurnLogic() { }
+	// Check whether character is placed in such vector, if not, add them.
+	if (std::find_if(charactersInPlay.cbegin(), charactersInPlay.cend(),
+		[IDToFind](const auto &c) -> bool {return c.ID == IDToFind; }) == charactersInPlay.cend())
+		return;
+	else
+		charactersInPlay.push_back(character);
+}
+
+GameMaster::GameMaster() { }
+
+GameMaster::~GameMaster() { }
