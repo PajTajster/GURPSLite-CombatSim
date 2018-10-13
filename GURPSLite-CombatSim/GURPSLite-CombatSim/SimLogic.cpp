@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
+#include <string>
 
 
 
@@ -34,6 +35,9 @@ std::string Character::Attack(Character target, DiceRoller dr)
 	Position attackerPos = position;
 	Position defenderPos = target.position;
 
+	std::string message = "Attempting to attack: ";
+	message.append(name + " ...");
+
 	// If attacker's using melee weapon, check for range.
 	if (currentWeapon.isMelee)
 	{
@@ -46,10 +50,7 @@ std::string Character::Attack(Character target, DiceRoller dr)
 			|| (defenderPos.x == attackerPos.x
 				&& defenderPos.y - 1 == attackerPos.y))
 		{
-			std::string message = "Attempting to attack: ";
-			message.append(name + " ...");
-
-			// Roll for attack.
+			// Roll for an attack.
 			int roll = dr.RollDice(3, 0);
 
 			// Critical miss, applies knockdown effect for 1 turn.
@@ -65,11 +66,19 @@ std::string Character::Attack(Character target, DiceRoller dr)
 			{
 				int damageApplied = dr.RollDice(currentWeapon.damage.dices + baseMeleeDamage.dices,
 					currentWeapon.damage.bonus + baseMeleeDamage.bonus);
-				damageApplied *= 2;
-				target.ReceiveDamage(damageApplied);
 
-				message.append("Critically hit for ");
-				message.append(damageApplied + "!");
+				int finalDamage = target.ReceiveDamage(damageApplied * 2);
+
+				if (finalDamage == 0)
+				{
+					message.append("Your " + currentWeapon.name +
+						" bounced off the " + target.name + " armour!");
+				}
+				else
+				{
+					message.append("Critically hit for ");
+					message.append(damageApplied + "ht!");
+				}
 			}
 			// Normal hit, needs to roll for defend 
 			else if (roll < currentWeapon.skill.proficiency)
@@ -79,10 +88,20 @@ std::string Character::Attack(Character target, DiceRoller dr)
 				{
 					int damageApplied = dr.RollDice(currentWeapon.damage.dices + baseMeleeDamage.dices,
 						currentWeapon.damage.bonus + baseMeleeDamage.bonus);
-					target.ReceiveDamage(damageApplied);
 
-					message.append("Target hit for ");
-					message.append(damageApplied + "!");
+					int finalDamage = target.ReceiveDamage(damageApplied);
+
+					if (finalDamage == 0)
+					{
+						message.append("Your " + currentWeapon.name +
+							" bounced off the " + target.name + " armour!");
+					}
+					else
+					{
+						message.append("Target hit for ");
+						message.append(damageApplied + "ht!");
+					}
+
 				}
 				// If no, then attack is blocked and round goes on.
 				else
@@ -93,20 +112,96 @@ std::string Character::Attack(Character target, DiceRoller dr)
 			else
 				message.append("Miss!");
 				
-			// Since character attacked already then we set bool to false.
-			hasAttackedThisTurn = false;
-			return message;
+			// Since character attacked already then we set bool to true.
+			hasAttackedThisTurn = true;
 		}
 		else
 		{
 			return "You're out of range!";
 		}
 	}
+	// If weapon is a ranged one.
+	else
+	{
+		// Because ranged weapons have Rate Of Fire value, a loop is used
+		// because every projectile is independent to each other.
+		for (int i = 0; i < currentWeapon.rateOfFire; ++i)
+		{
+			// If target is dead, no point in shooting a corpse and wasting time.
+			if (target.isDead)
+			{
+				message.append("\nTarget is dead, you lower your " + currentWeapon.name);
+			}
+			message.append("[Bullet " + std::to_string(i + 1) + "]\n");
+			// Roll for an attack.
+			int roll = dr.RollDice(3, 0);
 
-	// TODO: Ranged
+			// Critical miss, applies knockdown effect for 1 turn.
+			if (roll >= 17)
+			{
+				message.append("Critically missed! You lost balance, knockdown for 1 turn.");
+				isKnockedDown = true;
+				knockDownTimer = 1;
+				// Since character landed on the floor, they can't shoot any more bullets.
+				break;
+			}
+			// Critial hit, ignores whole defending step and applies x2 damage.
+			else
+				if (roll <= 3)
+				{
+					int damageApplied = dr.RollDice(currentWeapon.damage.dices,
+													currentWeapon.damage.bonus);
+
+					int finalDamage = target.ReceiveDamage(damageApplied * 2);
+
+					if (finalDamage == 0)
+					{
+						message.append("Projectile bounced off the " + target.name + " armour!");
+					}
+					else
+					{
+						message.append("Critically hit for ");
+						message.append(damageApplied + "ht!");
+					}
+				}
+			// Normal hit, needs to roll for defend 
+				else if (roll < currentWeapon.skill.proficiency)
+				{
+					// If yes, apply damage to target
+					if (DidGetHit(target, dr))
+					{
+						int damageApplied = dr.RollDice(currentWeapon.damage.dices,
+														currentWeapon.damage.bonus);
+						int finalDamage = target.ReceiveDamage(damageApplied);
+
+						if (finalDamage == 0)
+						{
+							message.append("Projectile bounced off the " + target.name + " armour!");
+						}
+						else
+						{
+							message.append("Target hit for ");
+							message.append(damageApplied + "ht!");
+						}
+					}
+					// If no, then attack is blocked and round goes on.
+					else
+					{
+						message.append("Projectile bounced off the " + target.name + " armour!");
+					}
+				}
+				else
+					message.append("Miss!");
+		}
+		// Since character attacked already then we set bool to true.
+		// in case of ranged weapons, attack is done after all the
+		// projectiles(Rate of Fire) were shot.
+		hasAttackedThisTurn = true;
+	}	
 	
+	message.append("\n");
 
-	return "";
+	return message;
 }
 
 bool Character::DidGetHit(Character attacker, DiceRoller dr)
@@ -137,12 +232,13 @@ bool Character::DidGetHit(Character attacker, DiceRoller dr)
 	return true;
 }
 
-void Character::ReceiveDamage(int damage)
+int Character::ReceiveDamage(int damage)
 {
 	int finalDamage = damage - damageResistance;
 
+	// This could mean that the attacked just bounced off the armour.
 	if (finalDamage < 0)
-		return;
+		return 0;
 
 	// If character got damaged for 1/2 of it's HP, they get knocked down.
 	if (health / 2 == finalDamage)
@@ -155,6 +251,8 @@ void Character::ReceiveDamage(int damage)
 	// R.I.P.
 	if (health <= 0)
 		isDead = true;
+
+	return finalDamage;
 }
 
 void Character::CalculateExtraAttributes()
@@ -333,7 +431,7 @@ void GameMaster::CalculateInitiative()
 
 void GameMaster::KillCharacter(Character character)
 {
-	// Don't kill charater that's not dead! :((
+	// Don't kill character that's not dead! :((
 	if (!character.isDead)
 		return;
 

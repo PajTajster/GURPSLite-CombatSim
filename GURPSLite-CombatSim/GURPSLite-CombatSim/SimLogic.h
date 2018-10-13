@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <queue>
+#include <string>
 
 // Directions character can move by on the map.
 enum DIRECTION 
@@ -205,7 +206,8 @@ public:
 	bool DidGetHit(Character attacker, DiceRoller dr);
 
 	// If character happens not to defend himself, he'll get reduced HT.
-	void ReceiveDamage(int);
+	// returns damage taken.
+	int ReceiveDamage(int);
 
 	// Check the values of extra attributes depending on base Attributes
 	// calculate values like movement, passive/active defenses
