@@ -113,6 +113,8 @@ typedef struct
 class Character
 {
 protected:
+	static DiceRoller diceRoller;
+
 	// Value to keep record of last ID given, this way
 	// IDs won't repeat.
 	static int nextID;
@@ -263,11 +265,14 @@ public:
 	void SelectTarget(std::vector<Character> charactersToChoose);
 
 	// NPC tries to decide it's next move depending on their situation.
-	int AssessSituation();
+	void AssessSituation();
 
 	// Checks whether NPC is capable of performing melee attack on it's target.
 	// True if possible, False if it's not.
-	bool IsInRange();
+	bool IsInRange();	
+
+	// Tries to move NPC to their target.
+	void CloseDistance();
 };
 
 class GameMaster

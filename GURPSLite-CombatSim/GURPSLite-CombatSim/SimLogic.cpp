@@ -496,9 +496,34 @@ void NPC::SelectTarget(std::vector<Character> charactersToChoose)
 	currentTarget = newTarget;
 }
 
-int NPC::AssessSituation()
+void NPC::AssessSituation()
 {
-	return 0; // TODO
+	// If NPC uses melee weapon resolve this branch.
+	if (currentWeapon.isMelee)
+	{
+		if (IsInRange())
+		{
+			Attack(currentTarget, diceRoller);
+		}
+		// If not in range, go closer and assess situation again.
+		else
+		{
+			CloseDistance();
+
+			if (movingActions > 0)
+				AssessSituation();
+			else
+				return;
+		}
+	}
+	// If NPC uses ranged weapon instead, do that:
+	else
+	{
+		// Well, shoot stuff!
+		Attack(currentTarget, diceRoller);
+	}
+
+	return;
 }
 
 bool NPC::IsInRange()
@@ -518,6 +543,11 @@ bool NPC::IsInRange()
 		return true;
 	else
 		return false;
+}
+
+void NPC::CloseDistance()
+{
+
 }
 
 void GameMaster::AddCharacterToTeam(Character c, int teamToSet)
