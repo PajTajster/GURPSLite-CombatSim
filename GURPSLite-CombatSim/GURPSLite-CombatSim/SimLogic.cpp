@@ -26,6 +26,55 @@ Skill::Skill(std::string nm, std::string dftAt, std::string dftOptAt,
 			name(nm), defaultAttribute(dftAt), defaultOptionalAttribute(dftOptAt),
 			defaultBonus(dB), noDefaults(noDef) { }			
 
+
+std::string Character::Move(DIRECTION dir)
+{
+	if (isKnockedDown)
+		return "Character knocked down!";
+
+
+	switch (dir)
+	{
+	case DIR_UP:
+		if (position.y + 1 <= 1)
+			return "You can't go there!";
+		else
+		{
+			++position.y;
+			return "You've moved up 1 meter.";
+		}
+	case DIR_LEFT:
+		if (position.x - 1 <= 1)
+			return "You can't go there!";
+		else
+		{
+			--position.x;
+			return "You've moved left 1 meter.";
+		}
+	case DIR_RIGHT:
+		if (position.x + 1 >= 10)
+			return "You can't go there!";
+		else
+		{
+			++position.x;
+			return "You've moved right 1 meter.";
+		}
+	case DIR_DOWN:
+		if (position.y - 1 >= 10)
+			return "You can't go there!";
+		else
+		{
+			--position.y;
+			return "You've moved down 1 meter.";
+		}
+		// Shouldn't happen
+	default:
+		break;
+	}
+
+	return "";
+}
+
 std::string Character::Attack(Character target, DiceRoller dr)
 {
 	// If target happens to be on the same team, abort.
@@ -316,6 +365,8 @@ void Character::CalculateExtraAttributes()
 	baseMeleeDamage.bonus = strength / 3;
 }
 
+int Character::GetHealth() { return health; }
+
 float Character::GetInitiative() { return basicSpeed; }
 
 Character::Character() : isWieldingShield(false), isDead(false),
@@ -397,9 +448,76 @@ void Player::ModifyAttribute(int value, char attribute)
 	return;
 }
 
-void NPC::AssessSituation()
+void NPC::SelectTarget(std::vector<Character> charactersToChoose)
 {
-	// TODO
+	// If NPC is dead or knocked down, he does nothing.
+	if (isDead || isKnockedDown)
+		return;
+
+	Character newTarget;	
+
+	switch (usedAI)
+	{
+		// NPC chooses opponent with most health.
+	case AI_TARGET_STRONGEST:
+	{
+		int max = 0;
+		for (auto i : charactersToChoose)
+		{
+			if (i.GetHealth() > max)
+				newTarget = i;
+		}
+		break;
+	}
+		// NPC chooses opponent with least health.
+	case AI_TARGET_WEAKEST:
+	{
+		int min = 999;
+		for (auto i : charactersToChoose)
+		{
+			if (i.GetHealth() < min)
+				newTarget = i;
+		}
+		break;
+	}
+		// NPC chooses random opponent.
+	case AI_TARGET_RANDOM:
+	{
+		srand((unsigned)time(NULL));
+		int randTarget = 0;
+		randTarget = rand() % charactersToChoose.size();
+		newTarget = charactersToChoose[randTarget];
+	}
+		break;
+	default:
+		return;
+	}
+
+	currentTarget = newTarget;
+}
+
+int NPC::AssessSituation()
+{
+	return 0; // TODO
+}
+
+bool NPC::IsInRange()
+{
+	Position targetPos = currentTarget.position;
+	Position ownPos = position;
+
+	// NPC chooses opponent with most health.
+	if ((targetPos.x + 1 == ownPos.x
+		&& targetPos.y == ownPos.y)
+		|| (targetPos.x - 1 == ownPos.x
+			&& targetPos.y == ownPos.y)
+		|| (targetPos.x == ownPos.x
+			&& targetPos.y + 1 == ownPos.y)
+		|| (targetPos.x == ownPos.x
+			&& targetPos.y - 1 == ownPos.y))
+		return true;
+	else
+		return false;
 }
 
 void GameMaster::AddCharacterToTeam(Character c, int teamToSet)
@@ -489,54 +607,6 @@ void GameMaster::NextTurn()
 		}
 
 	}
-}
-
-std::string GameMaster::MoveCharacter(Character c, DIRECTION dir)
-{
-	if (c.isKnockedDown)
-		return "Character knocked down!";
-
-
-	switch (dir)
-	{
-		case DIR_UP:
-			if (c.position.y + 1 <= 1)
-				return "You can't go there!";
-			else
-			{
-				++c.position.y;
-				return "You've moved up 1 meter.";
-			}
-		case DIR_LEFT:
-			if(c.position.x - 1 <= 1)
-				return "You can't go there!";
-			else
-			{
-				--c.position.x;
-				return "You've moved left 1 meter.";
-			}
-		case DIR_RIGHT:
-			if (c.position.x + 1 >= 10)
-				return "You can't go there!";
-			else
-			{
-				++c.position.x;
-				return "You've moved right 1 meter.";
-			}
-		case DIR_DOWN:
-			if (c.position.y - 1 >= 10)
-				return "You can't go there!";
-			else
-			{
-				--c.position.y;
-				return "You've moved down 1 meter.";
-			}
-		// Shouldn't happen
-		default:
-			break;
-	}
-
-	return "";
 }
 
 void GameMaster::AddCharacterToMainVector(Character character)

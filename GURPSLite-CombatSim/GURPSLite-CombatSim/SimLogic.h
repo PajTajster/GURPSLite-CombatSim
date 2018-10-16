@@ -197,6 +197,10 @@ public:
 	// Currently worn armour.
 	Armour currentArmour;
 
+	// Tries to move character in 'dir' direction,
+	// returns string with adequate message.
+	std::string Move(DIRECTION dir);
+
 	// Taken the character, try to attack him/her/whatever-the-hell-it-is
 	//	returns string message with adequate message.
 	std::string Attack(Character target, DiceRoller dr);
@@ -213,6 +217,9 @@ public:
 	// calculate values like movement, passive/active defenses
 	// strength attribute is taken for calculating baseMeleeDamage.
 	void CalculateExtraAttributes();
+
+	// Get current HT.
+	int GetHealth();
 
 	// Initiative getter.
 	float GetInitiative();
@@ -246,11 +253,21 @@ private:
 
 	// Is set during NPC creation
 	AI usedAI;
+	// Current character that NPC wants to do something bad.
+	Character currentTarget;
 
 public:
 
+	// Selects the target AI will try to kill depending on the 'usedAI'.
+	// must be supplied all the possible targets.
+	void SelectTarget(std::vector<Character> charactersToChoose);
+
 	// NPC tries to decide it's next move depending on their situation.
-	void AssessSituation();
+	int AssessSituation();
+
+	// Checks whether NPC is capable of performing melee attack on it's target.
+	// True if possible, False if it's not.
+	bool IsInRange();
 };
 
 class GameMaster
@@ -289,10 +306,6 @@ public:
 	// Run through all the present characters and refresh their
 	// actions and decrement knockdowntimer (if they have one active).
 	void NextTurn();
-
-	// Tries to move character 'c' in 'dir' direction,
-	// returns string with adequate message.
-	std::string MoveCharacter(Character c, DIRECTION dir);
 
 	// Adds character into 'charactersInPlay' vector.
 	void AddCharacterToMainVector(Character);
