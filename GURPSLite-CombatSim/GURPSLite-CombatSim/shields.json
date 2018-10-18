@@ -1,0 +1,10 @@
+{
+  "shields": {
+    "Buckler": {
+      "bonus": 1
+    },
+    "KiteShield": {
+      "bonus": 3
+    }
+  }
+}

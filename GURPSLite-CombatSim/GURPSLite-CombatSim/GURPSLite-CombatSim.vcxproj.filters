@@ -26,5 +26,25 @@
     <ClInclude Include="SimLogic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="json.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="skills.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="armours.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="characters.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="weapons.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shields.json">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

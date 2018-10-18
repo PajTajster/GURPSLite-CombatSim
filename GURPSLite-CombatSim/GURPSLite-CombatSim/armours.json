@@ -1,0 +1,19 @@
+{
+  "armours": {
+    "LeatherJacket": {
+      "name": "Leather Jacket",
+      "passiveDefence": 1,
+      "damageResistance": 1
+    },
+    "ScaleArmour": {
+      "name": "Scale Armour",
+      "passiveDefence": 3,
+      "damageResistance": 4
+    },
+    "HalfPlate": {
+      "name": "Half Plate",
+      "passiveDefence": 4,
+      "damageResistance": 5
+    }
+  }
+}

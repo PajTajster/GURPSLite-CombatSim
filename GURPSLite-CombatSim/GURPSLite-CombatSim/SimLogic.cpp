@@ -1,8 +1,11 @@
-#include "SimLogic.h"
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
 #include <string>
+
+#include "SimLogic.h"
+#include "json.hpp"
+using json = nlohmann::json;
 
 
 
@@ -547,7 +550,8 @@ bool NPC::IsInRange()
 
 void NPC::CloseDistance()
 {
-
+	Position targetPos = currentTarget.position;
+	Position ownPos = position;
 }
 
 void GameMaster::AddCharacterToTeam(Character c, int teamToSet)

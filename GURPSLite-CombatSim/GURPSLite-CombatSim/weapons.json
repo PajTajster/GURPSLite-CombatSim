@@ -1,0 +1,85 @@
+{
+  "weapons": {
+    "Axe": {
+      "name": "Axe",
+      "damageDices": 0,
+      "damageBonus": 2,
+      "skillName": "Axe/Mace",
+      "isMelee": true,
+      "isTwoHanded": false,
+      "rateOfFire": 0
+    },
+    "Broadsword": {
+      "name": "Broadsword",
+      "damageDices": 0,
+      "damageBonus": 1,
+      "skillName": "Sword",
+      "isMelee": true,
+      "isTwoHanded": false,
+      "rateOfFire": 0
+    },
+    "Greatsword": {
+      "name": "Greatsword",
+      "damageDices": 0,
+      "damageBonus": 3,
+      "skillName": "Sword",
+      "isMelee": true,
+      "isTwoHanded": true,
+      "rateOfFire": 0
+    },
+    "Halberd": {
+      "name": "Halberd",
+      "damageDices": 0,
+      "damageBonus": 5,
+      "skillName": "Polearm",
+      "isMelee": true,
+      "isTwoHanded": true,
+      "rateOfFire": 0
+    },
+    "Spear": {
+      "name": "Spear",
+      "damageDices": 0,
+      "damageBonus": 2,
+      "skillName": "Polearm",
+      "isMelee": true,
+      "isTwoHanded": false,
+      "rateOfFire": 0
+    },
+    "Shortbow": {
+      "name": "Short Bow",
+      "damageDices": 0,
+      "damageBonus": 2,
+      "skillName": "Bow",
+      "isMelee": false,
+      "isTwoHanded": true,
+      "rateOfFire": 1
+    },
+    "HeavyCrossbow": {
+      "name": "Heavy Crossbow",
+      "damageDices": 1,
+      "damageBonus": 2,
+      "skillName": "Crossbow",
+      "isMelee": false,
+      "isTwoHanded": true,
+      "rateOfFire": 1
+    },
+    "Winchester44": {
+      "name": "Winchester .44-40",
+      "damageDices": 2,
+      "damageBonus": 0,
+      "skillName": "Pistol",
+      "isMelee": false,
+      "isTwoHanded": false,
+      "rateOfFire": 2
+    },
+    "Musket": {
+      "name": "Musket",
+      "damageDices": 2,
+      "damageBonus": 0,
+      "skillName": "Rifle",
+      "isMelee": false,
+      "isTwoHanded": true,
+      "rateOfFire": 1
+    }
+  }
+}

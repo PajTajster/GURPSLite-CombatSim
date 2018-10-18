@@ -152,7 +152,15 @@
     <ClCompile Include="GURPSLite-CombatSim.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="json.hpp" />
     <ClInclude Include="SimLogic.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="armours.json" />
+    <None Include="characters.json" />
+    <None Include="shields.json" />
+    <None Include="skills.json" />
+    <None Include="weapons.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

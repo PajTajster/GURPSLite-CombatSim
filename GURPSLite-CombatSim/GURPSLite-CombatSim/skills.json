@@ -1,0 +1,60 @@
+{
+  "skills": {
+    "Shield": {
+      "name": "Shield",
+      "defaultAtt": "DX",
+      "defaultOptionalAtt": "None",
+      "defaultBonus": -6,
+      "noDefaults": false
+    },
+    "Sword": {
+      "name": "Sword",
+      "defaultAtt": "DX",
+      "defaultOptionalAtt": "None",
+      "defaultBonus": -6,
+      "noDefaults": false
+    },
+    "Axe/Mace": {
+      "name": "Axe/Mace",
+      "defaultAtt": "DX",
+      "defaultOptionalAtt": "None",
+      "defaultBonus": -5,
+      "noDefaults": false
+    },
+    "Polearm": {
+      "name": "Polearm",
+      "defaultAtt": "DX",
+      "defaultOptionalAtt": "None",
+      "defaultBonus": -6,
+      "noDefaults": false
+    },
+    "Bow": {
+      "name": "Bow",
+      "defaultAtt": "DX",
+      "defaultOptionalAtt": "None",
+      "defaultBonus": -6,
+      "noDefaults": false
+    },
+    "Crossbow": {
+      "name": "Crossbow",
+      "defaultAtt": "DX",
+      "defaultOptionalAtt": "None",
+      "defaultBonus": -4,
+      "noDefaults": false
+    },
+    "Pistol": {
+      "name": "Pistol",
+      "defaultAtt": "DX",
+      "defaultOptionalAtt": "None",
+      "defaultBonus": -4,
+      "noDefaults": false
+    },
+    "Rifle": {
+      "name": "Rifle",
+      "defaultAtt": "DX",
+      "defaultOptionalAtt": "None",
+      "defaultBonus": -4,
+      "noDefaults": false
+    }
+  }
+}
