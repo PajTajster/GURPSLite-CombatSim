@@ -1,7 +1,6 @@
 {
-  "characters": {
-    "Looter": {
-      "name": "Looter",
+  "characters": [
+    {
       "strength": 9,
       "dexterity": 6,
       "health": 12,
@@ -9,7 +8,7 @@
       "armour": "Leather Jacket",
       "shield": "None"
     },
-    "Brigand": {
+    {
       "name": "Brigand",
       "strength": 12,
       "dexterity": 8,
@@ -18,7 +17,7 @@
       "armour": "Scale Armour",
       "shield": "Buckler"
     },
-    "Musketeer": {
+    {
       "name": "Musketeer",
       "strength": 11,
       "dexterity": 13,
@@ -27,7 +26,7 @@
       "armour": "Leather Jacket",
       "shield": "None"
     },
-    "Archer": {
+    {
       "name": "Archer",
       "strength": 16,
       "dexterity": 12,
@@ -36,7 +35,7 @@
       "armour": "Leather Jacket",
       "shield": "None"
     },
-    "Crossbowman": {
+    {
       "name": "Crossbowman",
       "strength": 17,
       "dexterity": 12,
@@ -45,5 +44,5 @@
       "armour": "Half Plate",
       "shield": "None"
     }
-  }
+  ]
 }

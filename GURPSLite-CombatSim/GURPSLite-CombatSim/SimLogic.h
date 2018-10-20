@@ -75,6 +75,15 @@ public:
 		int dB, bool noDef);
 };
 
+class Shield {
+public:
+	std::string name;
+	int bonus;
+
+	Shield();
+	Shield(std::string n, int b);
+};
+
 class Armour
 {
 public:
@@ -84,6 +93,9 @@ public:
 	int passiveDefence;
 	// How much damage it blocks.
 	int damageResistance;
+
+	Armour();
+	Armour(std::string n, int pD, int dR);
 };
 
 class Weapon
@@ -101,6 +113,9 @@ public:
 	int rateOfFire;
 	// Whether character uses both hands or not[if yes, then no shield possible].
 	bool isTwoHanded;
+
+	Weapon();
+	Weapon(std::string n, Damage d, Skill s, bool isM, int rOF, bool isTH);
 };
 
 typedef struct
@@ -113,7 +128,7 @@ typedef struct
 class Character
 {
 protected:
-	static DiceRoller diceRoller;
+	DiceRoller diceRoller;
 
 	// Value to keep record of last ID given, this way
 	// IDs won't repeat.
@@ -192,8 +207,8 @@ public:
 	Weapon currentWeapon;
 	// Says whether character has shield ready;
 	bool isWieldingShield;
-	// If Character has a shield, it gives this bonus to "Shield" skill.
-	int equippedShieldBonus;
+	// Currently used shield.
+	Shield currentShield;
 	// Says whethe character is wearing any armour or goes berserk-like nude.
 	bool isWearingArmour;
 	// Currently worn armour.
@@ -291,6 +306,8 @@ private:
 	std::vector<Armour> allArmours;
 	// All the weapons that characters can make a mess with.
 	std::vector<Weapon> allWeapons;
+	// All the shields characters can use.
+	std::vector<Shield> allShields;
 	// Characters that fight in present match.
 	std::vector<Character> charactersInPlay;
 
@@ -318,10 +335,11 @@ public:
 	// Load all the data, setup map.
 	bool InitializeGameMaster();
 
-	bool LoadCharacters();
-	bool LoadSkills();
-	bool LoadArmours();
-	bool LoadWeapons();
+	int LoadCharacters();
+	int LoadSkills();
+	int LoadArmours();
+	int LoadWeapons();
+	int LoadShields();
 
 	GameMaster();
 	~GameMaster();

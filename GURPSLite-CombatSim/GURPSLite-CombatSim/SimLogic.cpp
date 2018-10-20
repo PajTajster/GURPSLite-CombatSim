@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
+#include <fstream>
+#include <memory>
 
 #include "SimLogic.h"
 #include "json.hpp"
@@ -20,7 +22,10 @@ int DiceRoller::RollDice(int dices, int bonus)
 }
 
 DiceRoller::DiceRoller() {}
+
 DiceRoller::~DiceRoller() {}
+
+
 
 Skill::Skill() : name("Undefined") { }
 
@@ -28,6 +33,29 @@ Skill::Skill(std::string nm, std::string dftAt, std::string dftOptAt,
 			int dB, bool noDef) :
 			name(nm), defaultAttribute(dftAt), defaultOptionalAttribute(dftOptAt),
 			defaultBonus(dB), noDefaults(noDef) { }			
+
+
+
+Shield::Shield() : name("Undefined") { }
+
+Shield::Shield(std::string n, int b) : name(n), bonus(b) { }
+
+
+
+Armour::Armour() : name("Undefined") { }
+
+Armour::Armour(std::string n, int pD, int dR) :
+	name(name), passiveDefence(pD), damageResistance(dR) { }
+
+
+
+Weapon::Weapon() : name("Undefined") { }
+
+Weapon::Weapon(std::string n, Damage d, Skill s, bool isM,
+				int rOF, bool isTH) :
+	name(n), damage(d), skill(s), isMelee(isM), rateOfFire(rOF), isTwoHanded(isTH) { }
+
+
 
 
 std::string Character::Move(DIRECTION dir)
@@ -425,6 +453,8 @@ Character::~Character()
 	skills.clear();
 }
 
+
+
 void Player::ModifyAttribute(int value, char attribute)
 {
 	if (value * 15 > characterPoints)
@@ -450,6 +480,8 @@ void Player::ModifyAttribute(int value, char attribute)
 
 	return;
 }
+
+
 
 void NPC::SelectTarget(std::vector<Character> charactersToChoose)
 {
@@ -553,6 +585,8 @@ void NPC::CloseDistance()
 	Position targetPos = currentTarget.position;
 	Position ownPos = position;
 }
+
+
 
 void GameMaster::AddCharacterToTeam(Character c, int teamToSet)
 {
@@ -661,28 +695,98 @@ bool GameMaster::InitializeGameMaster()
 	return true;
 }
 
-bool GameMaster::LoadCharacters()
+int GameMaster::LoadCharacters()
 {
-	// TODO
-	return true;
+	std::ifstream ifs("characters.json");
+	json j = json::parse(ifs);
+	
+	return 0;
 }
 
-bool GameMaster::LoadSkills()
+int GameMaster::LoadSkills()
 {
-	// TODO
-	return true;
+	std::ifstream ifs("skills.json");
+	json j = json::parse(ifs);
+
+	json skillsArray = j["skills"];
+
+	for (auto& it : skillsArray)
+	{
+		std::string newName = it["name"];
+		std::string newDefAtt = it["defaultAtt"];
+		std::string newDefOptAtt = it["defaultOptionalAtt"];
+		int newDefBonus = it["defaultBonus"];
+		bool newNoDefaults = it["noDefaults"];
+
+		allSkills.push_back(Skill(
+			newName,
+			newDefAtt,
+			newDefOptAtt,
+			newDefBonus,
+			newNoDefaults
+		));
+	}
+
+	return 0;
 }
 
-bool GameMaster::LoadArmours()
+int GameMaster::LoadArmours()
 {
-	// TODO
-	return true;
+	std::ifstream ifs("armours.json");
+	json j = json::parse(ifs);
+
+	json armoursArray = j["armours"];
+
+	for (auto& it: armoursArray)
+	{
+		std::string newName = it["name"];
+		int newPD = it["passiveDefence"];
+		int newDR = it["damageResistance"];
+		
+		allArmours.push_back(Armour(
+			newName,
+			newPD,
+			newDR
+		));
+	}
+	return 0;
 }
 
-bool GameMaster::LoadWeapons()
+int GameMaster::LoadWeapons()
 {
-	// TODO
-	return true;
+	std::ifstream ifs("weapons.json");
+	json j = json::parse(ifs);
+
+	json weaponsArray = j["weapons"];
+
+	for (auto& it : weaponsArray)
+	{
+		std::string newName = it["name"];
+		int newDD = it["damageDices"];
+		int newDB = it["damageBonus"];
+		std::string newSkillName = it["skillName"];
+		bool newIsM = it["isMelee"];
+		bool newIsTH = it["isTwoHanded"];
+		int newRoF = it["rateOfFire"];
+
+		// TODO
+	}
+	return 0;
+}
+
+int GameMaster::LoadShields() 
+{
+	std::ifstream ifs("shields.json");
+	json j = json::parse(ifs);
+
+	json shieldsArray = j["shields"];
+
+	for (auto& it : shieldsArray)
+	{
+		std::string newName = it["name"];
+		int newBonus = it["bonus"];
+	}
+	return 0;
 }
 
 GameMaster::GameMaster() { }

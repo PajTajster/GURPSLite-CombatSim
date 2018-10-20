@@ -1,6 +1,7 @@
 {
-  "weapons": {
-    "Axe": {
+  "weapons": [
+
+    {
       "name": "Axe",
       "damageDices": 0,
       "damageBonus": 2,
@@ -9,7 +10,8 @@
       "isTwoHanded": false,
       "rateOfFire": 0
     },
-    "Broadsword": {
+
+    {
       "name": "Broadsword",
       "damageDices": 0,
       "damageBonus": 1,
@@ -18,7 +20,8 @@
       "isTwoHanded": false,
       "rateOfFire": 0
     },
-    "Greatsword": {
+
+    {
       "name": "Greatsword",
       "damageDices": 0,
       "damageBonus": 3,
@@ -27,7 +30,8 @@
       "isTwoHanded": true,
       "rateOfFire": 0
     },
-    "Halberd": {
+
+    {
       "name": "Halberd",
       "damageDices": 0,
       "damageBonus": 5,
@@ -36,7 +40,8 @@
       "isTwoHanded": true,
       "rateOfFire": 0
     },
-    "Spear": {
+
+    {
       "name": "Spear",
       "damageDices": 0,
       "damageBonus": 2,
@@ -45,7 +50,8 @@
       "isTwoHanded": false,
       "rateOfFire": 0
     },
-    "Shortbow": {
+
+    {
       "name": "Short Bow",
       "damageDices": 0,
       "damageBonus": 2,
@@ -54,7 +60,8 @@
       "isTwoHanded": true,
       "rateOfFire": 1
     },
-    "HeavyCrossbow": {
+
+    {
       "name": "Heavy Crossbow",
       "damageDices": 1,
       "damageBonus": 2,
@@ -63,7 +70,8 @@
       "isTwoHanded": true,
       "rateOfFire": 1
     },
-    "Winchester44": {
+
+    {
       "name": "Winchester .44-40",
       "damageDices": 2,
       "damageBonus": 0,
@@ -72,7 +80,8 @@
       "isTwoHanded": false,
       "rateOfFire": 2
     },
-    "Musket": {
+
+    {
       "name": "Musket",
       "damageDices": 2,
       "damageBonus": 0,
@@ -81,5 +90,5 @@
       "isTwoHanded": true,
       "rateOfFire": 1
     }
-  }
+  ]
 }

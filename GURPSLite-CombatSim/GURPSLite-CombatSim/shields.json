@@ -1,10 +1,12 @@
 {
-  "shields": {
-    "Buckler": {
+  "shields": [
+    {
+      "name":  "Buckler",
       "bonus": 1
     },
-    "KiteShield": {
+    {
+      "name":  "Kite Shield",
       "bonus": 3
     }
-  }
+  ]
 }
