@@ -240,6 +240,9 @@ public:
 	// strength attribute is taken for calculating baseMeleeDamage.
 	void CalculateExtraAttributes();
 
+	// Update all the character's skills proficiencies.
+	void CalculateSkillsDefaults();
+
 	// Get current HT.
 	int GetHealth();
 

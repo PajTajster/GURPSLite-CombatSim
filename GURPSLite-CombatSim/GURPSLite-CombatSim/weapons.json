@@ -1,5 +1,14 @@
 {
   "weapons": [
+    {
+      "name": "Bare Fists",
+      "damageDices": 0,
+      "damageBonus": 0,
+      "skillName": "Unarmed",
+      "isMelee": true,
+      "isTwoHanded": false,
+      "rateOfFire":  0
+    },
 
     {
       "name": "Axe",

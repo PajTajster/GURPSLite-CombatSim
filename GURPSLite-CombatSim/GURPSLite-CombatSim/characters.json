@@ -1,6 +1,7 @@
 {
   "characters": [
     {
+      "name":  "Bandit",
       "strength": 9,
       "dexterity": 6,
       "health": 12,

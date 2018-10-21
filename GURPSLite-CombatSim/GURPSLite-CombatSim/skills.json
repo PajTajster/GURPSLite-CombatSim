@@ -1,6 +1,13 @@
 {
   "skills": [
     {
+      "name": "Unarmed",
+      "defaultAtt": "DX",
+      "defaultOptionalAtt": "ST",
+      "defaultBonus": -4,
+      "noDefaults":  false
+    },
+    {
       "name": "Shield",
       "defaultAtt": "DX",
       "defaultOptionalAtt": "None",

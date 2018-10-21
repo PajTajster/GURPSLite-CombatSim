@@ -344,7 +344,18 @@ void Character::InitializeCharacter(int initST, int initDX, int initHT,
 	health = initHT;
 
 	skills = initSkills;
-	// TODO
+	currentWeapon = initWeapon;
+	currentArmour = initArmour;
+	if (currentArmour.name != "None")
+		isWearingArmour = true;
+	currentShield = initShield;
+	// If somehow character passed in is using twohanded weapon the shield won't be added.
+	if (currentShield.name != "None" || currentWeapon.isTwoHanded)
+		isWieldingShield = true;
+
+	skills = initSkills;
+
+	CalculateExtraAttributes();
 
 	return;
 }
@@ -408,6 +419,13 @@ void Character::CalculateExtraAttributes()
 		baseMeleeDamage.dices = 2;
 	}
 	baseMeleeDamage.bonus = strength / 3;
+
+	CalculateSkillsDefaults();
+}
+
+void Character::CalculateSkillsDefaults()
+{
+	// TODO
 }
 
 int Character::GetHealth() { return health; }
@@ -422,22 +440,7 @@ Character::Character() : isWieldingShield(false), isDead(false),
 	ID = ++nextID;
 	skills =
 	{
-		// Shield
-		Skill("Shield", "DX", "None", -6, true),
-		// Sword
-		Skill("Sword", "DX", "None", -6, true),
-		// Axe/Mace
-		Skill("Axe/Mace", "DX", "None", -5, true),
-		// Polearm
-		Skill("Polearm", "DX", "None", -6, true),
-		// Bow
-		Skill("Bow", "DX", "None", -6, true),
-		// Crossbow
-		Skill("Crossbow", "DX", "None", -4, true),
-		// Pistol
-		Skill("Pistol", "DX", "None", -4, true),
-		// Rifle
-		Skill("Rifle", "DX", "None", -4, true),
+		Skill("Undefined", "None", "None", 0, false),
 	};
 }
 
@@ -720,13 +723,47 @@ int GameMaster::LoadCharacters()
 	for (auto& it : charactersArray)
 	{
 		int newST = it["strength"];
-		int newDT = it["dexterity"];
+		int newDX = it["dexterity"];
 		int newHT = it["health"];
 		std::string newWeap = it["weapon"];
 		std::string newArm = it["armour"];
 		std::string newShld = it["shield"];
 
 
+		// Checks if character is using items loaded previously. If not, it won't be added.
+
+		// Weapon
+		std::string nameToSearch = newWeap;
+
+		auto searchedWeapon = std::find_if(allWeapons.cbegin(), allWeapons.cend(),
+			[nameToSearch](const Weapon& w) -> bool {return w.name == nameToSearch; });
+
+		if (searchedWeapon == allWeapons.cend())
+			continue;
+		Weapon newWeapon = *searchedWeapon;
+
+		// Armour
+		nameToSearch = newArm;
+
+		auto searchedArmour = std::find_if(allArmours.cbegin(), allArmours.cend(),
+			[nameToSearch](const Armour& a) -> bool {return a.name == nameToSearch; });
+
+		if (searchedArmour == allArmours.cend())
+			continue;
+		Armour newArmour = *searchedArmour;
+		
+		// Shield
+		nameToSearch = newShld;
+
+		auto searchedShield = std::find_if(allShields.cbegin(), allShields.cend(),
+			[nameToSearch](const Shield& s) -> bool {return s.name == nameToSearch; });
+
+		if (searchedShield == allShields.cend())
+			continue;
+		Shield newShield = *searchedShield;
+
+		Character newCharacter;
+		newCharacter.InitializeCharacter(newST, newDX, newHT, allSkills, newWeapon, newArmour, newShield);
 	}
 	return 0;
 }
