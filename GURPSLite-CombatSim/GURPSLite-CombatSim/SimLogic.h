@@ -230,6 +230,11 @@ public:
 	// returns damage taken.
 	int ReceiveDamage(int);
 
+	// Initialize character[mainly used for loading from file].
+	void InitializeCharacter(int initST, int initDX, int initHT,
+		std::vector<Skill> initSkills, Weapon initWeapon,
+		Armour initArmour, Shield initShield);
+
 	// Check the values of extra attributes depending on base Attributes
 	// calculate values like movement, passive/active defenses
 	// strength attribute is taken for calculating baseMeleeDamage.
@@ -315,6 +320,12 @@ private:
 
 	std::vector<Character> team1;
 	std::vector<Character> team2;
+
+	int LoadCharacters();
+	int LoadSkills();
+	int LoadArmours();
+	int LoadWeapons();
+	int LoadShields();
 public:
 	// Adds given character to 'teamToSet" vector (either 1 or 2).
 	void AddCharacterToTeam(Character c, int teamToSet);
@@ -334,12 +345,6 @@ public:
 
 	// Load all the data, setup map.
 	bool InitializeGameMaster();
-
-	int LoadCharacters();
-	int LoadSkills();
-	int LoadArmours();
-	int LoadWeapons();
-	int LoadShields();
 
 	GameMaster();
 	~GameMaster();

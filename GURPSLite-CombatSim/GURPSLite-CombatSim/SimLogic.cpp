@@ -335,6 +335,20 @@ int Character::ReceiveDamage(int damage)
 	return finalDamage;
 }
 
+void Character::InitializeCharacter(int initST, int initDX, int initHT,
+	std::vector<Skill> initSkills, Weapon initWeapon,
+	Armour initArmour, Shield initShield)
+{
+	strength = initST;
+	dexterity = initDX;
+	health = initHT;
+
+	skills = initSkills;
+	// TODO
+
+	return;
+}
+
 void Character::CalculateExtraAttributes()
 {
 	// If no shield, then block is 0
@@ -683,7 +697,7 @@ void GameMaster::AddCharacterToMainVector(Character character)
 
 	// Check whether character is placed in such vector, if not, add them.
 	if (std::find_if(charactersInPlay.cbegin(), charactersInPlay.cend(),
-		[IDToFind](const auto &c) -> bool {return c.ID == IDToFind; }) == charactersInPlay.cend())
+		[IDToFind](const auto &c) -> bool {return c.ID == IDToFind; }) != charactersInPlay.cend())
 		return;
 	else
 		charactersInPlay.push_back(character);
@@ -700,6 +714,20 @@ int GameMaster::LoadCharacters()
 	std::ifstream ifs("characters.json");
 	json j = json::parse(ifs);
 	
+	json charactersArray = j["characters"];
+
+
+	for (auto& it : charactersArray)
+	{
+		int newST = it["strength"];
+		int newDT = it["dexterity"];
+		int newHT = it["health"];
+		std::string newWeap = it["weapon"];
+		std::string newArm = it["armour"];
+		std::string newShld = it["shield"];
+
+
+	}
 	return 0;
 }
 
@@ -718,13 +746,10 @@ int GameMaster::LoadSkills()
 		int newDefBonus = it["defaultBonus"];
 		bool newNoDefaults = it["noDefaults"];
 
-		allSkills.push_back(Skill(
-			newName,
-			newDefAtt,
-			newDefOptAtt,
-			newDefBonus,
-			newNoDefaults
-		));
+		Skill newSkill(newName, newDefAtt,
+			newDefOptAtt, newDefBonus, newNoDefaults);
+
+		allSkills.push_back(newSkill);
 	}
 
 	return 0;
@@ -742,12 +767,10 @@ int GameMaster::LoadArmours()
 		std::string newName = it["name"];
 		int newPD = it["passiveDefence"];
 		int newDR = it["damageResistance"];
+
+		Armour newArmour(newName, newPD, newDR);
 		
-		allArmours.push_back(Armour(
-			newName,
-			newPD,
-			newDR
-		));
+		allArmours.push_back(newArmour);
 	}
 	return 0;
 }
@@ -769,7 +792,25 @@ int GameMaster::LoadWeapons()
 		bool newIsTH = it["isTwoHanded"];
 		int newRoF = it["rateOfFire"];
 
-		// TODO
+		// Check if the skill used by weapon exists in skills vector.
+		auto foundSkill = std::find_if(allSkills.cbegin(), allSkills.cend(),
+			[newSkillName](const Skill& s) -> bool {return s.name == newSkillName; });
+
+		// If not, weapon won't be added.
+		if (foundSkill != allSkills.cend())
+		{
+			Damage newDamage;
+			newDamage.dices = newDD;
+			newDamage.bonus = newDB;
+
+			// Take skill from the iterator.
+			Skill newSkill = *foundSkill;
+
+			Weapon newWeapon(newName, newDamage, newSkill, 
+					newIsM, newRoF, newIsTH);
+
+			allWeapons.push_back(newWeapon);
+		}
 	}
 	return 0;
 }
@@ -785,6 +826,10 @@ int GameMaster::LoadShields()
 	{
 		std::string newName = it["name"];
 		int newBonus = it["bonus"];
+
+		Shield newShield(newName, newBonus);
+
+		allShields.push_back(newShield);
 	}
 	return 0;
 }
