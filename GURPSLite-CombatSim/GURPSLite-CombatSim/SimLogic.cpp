@@ -58,62 +58,11 @@ Weapon::Weapon(std::string n, Damage d, Skill s, bool isM,
 
 
 
-std::string Character::Move(DIRECTION dir)
-{
-	if (isKnockedDown)
-		return "Character knocked down!";
-
-
-	switch (dir)
-	{
-	case DIR_UP:
-		if (position.y + 1 <= 1)
-			return "You can't go there!";
-		else
-		{
-			++position.y;
-			return "You've moved up 1 meter.";
-		}
-	case DIR_LEFT:
-		if (position.x - 1 <= 1)
-			return "You can't go there!";
-		else
-		{
-			--position.x;
-			return "You've moved left 1 meter.";
-		}
-	case DIR_RIGHT:
-		if (position.x + 1 >= 10)
-			return "You can't go there!";
-		else
-		{
-			++position.x;
-			return "You've moved right 1 meter.";
-		}
-	case DIR_DOWN:
-		if (position.y - 1 >= 10)
-			return "You can't go there!";
-		else
-		{
-			--position.y;
-			return "You've moved down 1 meter.";
-		}
-		// Shouldn't happen
-	default:
-		break;
-	}
-
-	return "";
-}
-
 std::string Character::Attack(Character target, DiceRoller dr)
 {
 	// If target happens to be on the same team, abort.
 	if (target.team == team)
 		return "You can't attack your allies!";
-
-	Position attackerPos = position;
-	Position defenderPos = target.position;
 
 	std::string message = "Attempting to attack: ";
 	message.append(name + " ...");
@@ -121,14 +70,7 @@ std::string Character::Attack(Character target, DiceRoller dr)
 	// If attacker's using melee weapon, check for range.
 	if (currentWeapon.isMelee)
 	{
-		if ((defenderPos.x + 1 == attackerPos.x
-				&& defenderPos.y == attackerPos.y)
-			|| (defenderPos.x - 1 == attackerPos.x
-				&& defenderPos.y == attackerPos.y)
-			|| (defenderPos.x == attackerPos.x
-				&& defenderPos.y + 1 == attackerPos.y)
-			|| (defenderPos.x == attackerPos.x
-				&& defenderPos.y - 1 == attackerPos.y))
+		if (true)
 		{
 			// Roll for an attack.
 			int roll = dr.RollDice(3, 0);
@@ -387,11 +329,8 @@ void Character::CalculateExtraAttributes()
 	}
 
 	basicSpeed = static_cast<float>((health + dexterity) / 4);
-	move = static_cast<int>(basicSpeed);
-	dodge = move;
-	// For keeping a record how many times character moved their turn.
-	movingActions = move;
-	
+	dodge = static_cast<int>(basicSpeed);
+		
 	// If there is armour on character's body, then he "inherits" it's bonuses
 	// if not, it's 0.
 	if (isWearingArmour)
@@ -435,7 +374,7 @@ float Character::GetInitiative() { return basicSpeed; }
 Character::Character() : isWieldingShield(false), isDead(false),
 						isKnockedDown(false), hasAttackedThisTurn(false),
 						knockDownTimer(0), strength(10), dexterity(10),
-						health(10), movingActions(2)
+						health(10)
 {
 	ID = ++nextID;
 	skills =
@@ -553,20 +492,7 @@ void NPC::AssessSituation()
 	// If NPC uses melee weapon resolve this branch.
 	if (currentWeapon.isMelee)
 	{
-		if (IsInRange())
-		{
-			Attack(currentTarget, diceRoller);
-		}
-		// If not in range, go closer and assess situation again.
-		else
-		{
-			CloseDistance();
-
-			if (movingActions > 0)
-				AssessSituation();
-			else
-				return;
-		}
+		Attack(currentTarget, diceRoller);
 	}
 	// If NPC uses ranged weapon instead, do that:
 	else
@@ -576,31 +502,6 @@ void NPC::AssessSituation()
 	}
 
 	return;
-}
-
-bool NPC::IsInRange()
-{
-	Position targetPos = currentTarget.position;
-	Position ownPos = position;
-
-	// NPC chooses opponent with most health.
-	if ((targetPos.x + 1 == ownPos.x
-		&& targetPos.y == ownPos.y)
-		|| (targetPos.x - 1 == ownPos.x
-			&& targetPos.y == ownPos.y)
-		|| (targetPos.x == ownPos.x
-			&& targetPos.y + 1 == ownPos.y)
-		|| (targetPos.x == ownPos.x
-			&& targetPos.y - 1 == ownPos.y))
-		return true;
-	else
-		return false;
-}
-
-void NPC::CloseDistance()
-{
-	Position targetPos = currentTarget.position;
-	Position ownPos = position;
 }
 
 
@@ -688,7 +589,6 @@ void GameMaster::NextTurn()
 		else
 		{
 			i.hasAttackedThisTurn = false;
-			i.movingActions = i.move;
 		}
 
 	}

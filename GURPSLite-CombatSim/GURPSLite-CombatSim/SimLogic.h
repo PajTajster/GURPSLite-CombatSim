@@ -4,15 +4,6 @@
 #include <queue>
 #include <string>
 
-// Directions character can move by on the map.
-enum DIRECTION 
-{
-	DIR_UP,
-	DIR_DOWN,
-	DIR_LEFT,
-	DIR_RIGHT
-};
-
 // Decision NPCs take during combat
 enum AI
 {
@@ -118,13 +109,6 @@ public:
 	Weapon(std::string n, Damage d, Skill s, bool isM, int rOF, bool isTH);
 };
 
-typedef struct
-{
-	int x;
-	int y;
-}Position;
-
-
 class Character
 {
 protected:
@@ -174,8 +158,6 @@ public:
 	// Character's ID for distinguishability.
 	int ID;
 
-	// Actions used purely for moving
-	int movingActions;
 	// Tells whether character have attacked
 	bool hasAttackedThisTurn;
 
@@ -184,9 +166,6 @@ public:
 
 	// An array of skills character's using.
 	std::vector<Skill> skills;
-
-	// Where is character located in 2D space.
-	Position position;
 
 	// ** Status Effects **
 
@@ -200,8 +179,6 @@ public:
 
 	// Used for calculating initiative in combat.
 	float basicSpeed;
-	// Attribute deciding how far a character can go.
-	int move;
 
 	// Currently used weapon of mass destruction.
 	Weapon currentWeapon;
@@ -213,10 +190,6 @@ public:
 	bool isWearingArmour;
 	// Currently worn armour.
 	Armour currentArmour;
-
-	// Tries to move character in 'dir' direction,
-	// returns string with adequate message.
-	std::string Move(DIRECTION dir);
 
 	// Taken the character, try to attack him/her/whatever-the-hell-it-is
 	//	returns string message with adequate message.
@@ -289,13 +262,6 @@ public:
 
 	// NPC tries to decide it's next move depending on their situation.
 	void AssessSituation();
-
-	// Checks whether NPC is capable of performing melee attack on it's target.
-	// True if possible, False if it's not.
-	bool IsInRange();	
-
-	// Tries to move NPC to their target.
-	void CloseDistance();
 };
 
 class GameMaster
