@@ -45,7 +45,7 @@ Shield::Shield(std::string n, int b) : name(n), bonus(b) { }
 Armour::Armour() : name("Undefined") { }
 
 Armour::Armour(std::string n, int pD, int dR) :
-	name(name), passiveDefence(pD), damageResistance(dR) { }
+	name(n), passiveDefence(pD), damageResistance(dR) { }
 
 
 
@@ -364,7 +364,67 @@ void Character::CalculateExtraAttributes()
 
 void Character::CalculateSkillsDefaults()
 {
-	// TODO
+	for (auto& i : skills)
+	{
+		int defaultAttProf = 0;
+		int defaultOptionalProf = 0;
+		int finalProf = 0;
+
+		// If noDefaults flag is set, then skill proficiency is 0.
+		if (i.noDefaults)
+		{
+			i.proficiency = 0;
+			continue;
+		}
+		else
+		{
+			// S - Strength, D - Dexterity, H - Health
+			// Calculate default proficiency.
+			switch (i.name[0])
+			{
+			case 'S':
+				defaultAttProf = strength + i.defaultBonus;
+				break;
+			case 'D':
+				defaultAttProf = dexterity + i.defaultBonus;
+				break;
+			case 'H':
+				defaultAttProf = health + i.defaultBonus;
+				break;
+			default:
+				defaultAttProf = 0;
+				break;
+			}
+
+			// If there's a second optional default Attribute, we calculate it also.
+			if (i.defaultOptionalAttribute != "None")
+			{
+				switch (i.name[0])
+				{
+				case 'S':
+					defaultOptionalProf = strength + i.defaultBonus;
+					break;
+				case 'D':
+					defaultOptionalProf = dexterity + i.defaultBonus;
+					break;
+				case 'H':
+					defaultOptionalProf = health + i.defaultBonus;
+					break;
+				default:
+					defaultOptionalProf = 0;
+					break;
+				}
+
+				// We take better proficiency.
+				finalProf = (defaultAttProf > defaultOptionalProf) ? defaultAttProf : defaultOptionalProf;
+			}
+			// If there's no optional default attribute, we take the original one.
+			else
+				finalProf = defaultAttProf;
+		}
+
+		i.proficiency = finalProf;
+	}
 }
 
 int Character::GetHealth() { return health; }
@@ -608,7 +668,12 @@ void GameMaster::AddCharacterToMainVector(Character character)
 
 bool GameMaster::InitializeGameMaster()
 {
-	// TODO
+	LoadSkills();
+	LoadArmours();
+	LoadShields();
+	LoadWeapons();
+	LoadCharacters();
+
 	return true;
 }
 
@@ -681,7 +746,12 @@ int GameMaster::LoadSkills()
 		std::string newDefAtt = it["defaultAtt"];
 		std::string newDefOptAtt = it["defaultOptionalAtt"];
 		int newDefBonus = it["defaultBonus"];
-		bool newNoDefaults = it["noDefaults"];
+
+		bool newNoDefaults;
+		if (newDefAtt == "None")
+			newNoDefaults = true;
+		else
+			newNoDefaults = false;
 
 		Skill newSkill(newName, newDefAtt,
 			newDefOptAtt, newDefBonus, newNoDefaults);
@@ -701,7 +771,7 @@ int GameMaster::LoadArmours()
 
 	for (auto& it: armoursArray)
 	{
-		std::string newName = it["name"];
+		std::string newName = it["name"].get<std::string>();
 		int newPD = it["passiveDefence"];
 		int newDR = it["damageResistance"];
 

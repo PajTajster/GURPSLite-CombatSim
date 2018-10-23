@@ -4,64 +4,55 @@
       "name": "Unarmed",
       "defaultAtt": "DX",
       "defaultOptionalAtt": "ST",
-      "defaultBonus": -4,
-      "noDefaults":  false
+      "defaultBonus": -4
     },
     {
       "name": "Shield",
       "defaultAtt": "DX",
       "defaultOptionalAtt": "None",
-      "defaultBonus": -6,
-      "noDefaults": false
+      "defaultBonus": -6
     },
     {
       "name": "Sword",
       "defaultAtt": "DX",
       "defaultOptionalAtt": "None",
-      "defaultBonus": -6,
-      "noDefaults": false
+      "defaultBonus": -6
     },
     {
       "name": "Axe/Mace",
       "defaultAtt": "DX",
       "defaultOptionalAtt": "None",
-      "defaultBonus": -5,
-      "noDefaults": false
+      "defaultBonus": -5
     },
     {
       "name": "Polearm",
       "defaultAtt": "DX",
       "defaultOptionalAtt": "None",
-      "defaultBonus": -6,
-      "noDefaults": false
+      "defaultBonus": -6
     },
     {
       "name": "Bow",
       "defaultAtt": "DX",
       "defaultOptionalAtt": "None",
-      "defaultBonus": -6,
-      "noDefaults": false
+      "defaultBonus": -6
     },
     {
       "name": "Crossbow",
       "defaultAtt": "DX",
       "defaultOptionalAtt": "None",
-      "defaultBonus": -4,
-      "noDefaults": false
+      "defaultBonus": -4
     },
     {
       "name": "Pistol",
       "defaultAtt": "DX",
       "defaultOptionalAtt": "None",
-      "defaultBonus": -4,
-      "noDefaults": false
+      "defaultBonus": -4
     },
     {
       "name": "Rifle",
       "defaultAtt": "DX",
       "defaultOptionalAtt": "None",
-      "defaultBonus": -4,
-      "noDefaults": false
+      "defaultBonus": -4
     }
   ]
 }
