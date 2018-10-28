@@ -247,7 +247,7 @@ bool Character::DidGetHit(Character attacker, DiceRoller dr)
 	else if (diceRoll >= 17)
 		return true;
 	// If roll is less than or equal to totalDefense, then it's a success.
-	else if (diceRoll < 17 && diceRoll > 4)
+	else if (diceRoll < 17)
 		return false;
 
 	// Shouldn't happen
