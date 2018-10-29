@@ -64,10 +64,16 @@ std::string Character::Attack(Character target, DiceRoller dr)
 	if (target.team == team)
 		return "You can't attack your allies!";
 
-	std::string message = "Attempting to attack: ";
+	std::string message = "";
+	// A little speed up for concatenating. 
+	message.reserve(120);
+	if (dynamic_cast<Player*>(this) == nullptr)
+		message = this->name + " tries to attack: ";
+	else
+		message = "Attempting to attack: ";
 	message.append(name + " ...");
 
-	// If attacker's using melee weapon, check for range.
+	// If attacker's using melee weapon:
 	if (currentWeapon.isMelee)
 	{
 		if (true)
@@ -168,8 +174,7 @@ std::string Character::Attack(Character target, DiceRoller dr)
 				break;
 			}
 			// Critial hit, ignores whole defending step and applies x2 damage.
-			else
-				if (roll <= 3)
+			else if (roll <= 3)
 				{
 					int damageApplied = dr.RollDice(currentWeapon.damage.dices,
 													currentWeapon.damage.bonus);
@@ -187,7 +192,7 @@ std::string Character::Attack(Character target, DiceRoller dr)
 					}
 				}
 			// Normal hit, needs to roll for defend 
-				else if (roll < currentWeapon.skill.proficiency)
+			else if (roll < currentWeapon.skill.proficiency)
 				{
 					// If yes, apply damage to target
 					if (DidGetHit(target, dr))
@@ -258,7 +263,7 @@ int Character::ReceiveDamage(int damage)
 {
 	int finalDamage = damage - damageResistance;
 
-	// This could mean that the attacked just bounced off the armour.
+	// This could mean that the attack just bounced off the armour.
 	if (finalDamage < 0)
 		return 0;
 
