@@ -734,6 +734,8 @@ int GameMaster::LoadCharacters()
 
 		Character newCharacter;
 		newCharacter.InitializeCharacter(newST, newDX, newHT, allSkills, newWeapon, newArmour, newShield);
+
+		allCharacters.push_back(newCharacter);
 	}
 	return 0;
 }
