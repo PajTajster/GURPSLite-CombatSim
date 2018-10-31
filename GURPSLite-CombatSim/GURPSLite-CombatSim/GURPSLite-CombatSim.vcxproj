@@ -158,10 +158,12 @@
   <ItemGroup>
     <ClCompile Include="SimLogic.cpp" />
     <ClCompile Include="GURPSLite-CombatSim.cpp" />
+    <ClCompile Include="SimTUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="json.hpp" />
     <ClInclude Include="SimLogic.h" />
+    <ClInclude Include="SimTUI.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="armours.json" />
