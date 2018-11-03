@@ -9,11 +9,6 @@ class MenuUIHelper
 {
 private:
 	GameMaster gm;
-	std::vector<std::string> mainMenuOptions;
-	std::vector<std::string> playerCreationMenuOptions;
-	std::vector<std::string> battleMenuOptions;
-	std::vector<std::string> showItemsMenuOptions;
-	std::vector<std::string> prepareTeamMenuOptions;
 
 	bool isPlayerInit;
 	static Player player;

@@ -11,13 +11,19 @@ void MenuUIHelper::mainMenu()
 {
 	initscr();
 	clear();
-
-	WINDOW* mainMenu = newwin(0, 0, 0, 0);
-
-	keypad(mainMenu, true);
+	keypad(stdscr, true);
 
 	noecho();
 	cbreak();
+
+
+	std::vector<std::string> mainMenuOptions =
+	{
+		"Create Character",
+		"Prepare the battle",
+		"Show all Items",
+		"Exit"
+	};
 
 	int menuOptionsPos = 5;
 
@@ -52,21 +58,20 @@ void MenuUIHelper::mainMenu()
 		}
 		menuOptionsPos = 5;
 
-		wrefresh(mainMenu);
 		refresh();
 
-		int choosenOption = wgetch(mainMenu);
+		int choosenOption = getch();
 		switch (choosenOption)
 		{
 		case KEY_UP:
-			if (!(currentPos == 5))
+			if (!(currentPos <= 5))
 			{
 				previousPos = currentPos;
 				currentPos -= 2;
 			}
 			break;
 		case KEY_DOWN:
-			if (!(currentPos == 11))
+			if (!(currentPos >= 11))
 			{
 				previousPos = currentPos;
 				currentPos += 2;
@@ -101,23 +106,128 @@ void MenuUIHelper::mainMenu()
 
 	}
 
-
-	delwin(mainMenu);
+	endwin();
 }
 
-void MenuUIHelper::showItemsMenu()
+void MenuUIHelper::playerCreationMenu()
 {
-	WINDOW* itemShowWin = newwin(0, 0, 0, 0);
+	clear();
+	refresh();
 
-	int menuOptionsPos = 5;
+	std::vector<std::string> playerCreationMenuOptions =
+	{
+		"Name: ",
+		"ST: 10",
+		"DX: 10",
+		"HT: 10",
+		"Weapon: Bare Hands",
+		"Armour: None",
+		"Shield: None",
+		" ",
+		"Done: ",
+		"Character Points left: ",
+
+		"Go back"
+	};
+
+	int menuOptionsPos = 2;
 
 	int previousPos = 0;
 	int currentPos = 2;
 
+	while (true)
+	{
+		for (auto& i : playerCreationMenuOptions)
+		{
+			if (menuOptionsPos == currentPos)
+			{
+				move(previousPos, 1);
+				addch(' ');
+				move(currentPos, 1);
+				printw(">");
+			}
+
+			move(menuOptionsPos, 2);
+			printw(i.c_str());
+
+			menuOptionsPos += 2;
+		}
+		menuOptionsPos = 2;
+
+		refresh();
+
+		int choosenOption = getch();
+		switch (choosenOption)
+		{
+		case KEY_UP:
+			if (!(currentPos <= 2))
+			{
+				previousPos = currentPos;
+				currentPos -= 2;
+			}
+			break;
+		case KEY_DOWN:
+			if (!(currentPos >= 13))
+			{
+				previousPos = currentPos;
+				currentPos += 2;
+			}
+			break;
+		case 10:
+		{
+			switch (currentPos)
+			{
+			case 2:
+				showCharacters();
+				break;
+			case 4:
+				showSkills();
+				break;
+			case 6:
+				showArmours();
+				break;
+			case 8:
+				showWeapons();
+				break;
+			case 10:
+				showShields();
+				break;
+			case 12:
+				clear();
+				refresh();
+				return;
+			default:
+				break;
+			}
+		}
+		break;
+		default:
+			break;
+		}
+
+
+	}
+}
+
+void MenuUIHelper::showItemsMenu()
+{
 	clear();
-	keypad(itemShowWin, true);
-	wrefresh(itemShowWin);
 	refresh();
+
+	std::vector<std::string> showItemsMenuOptions =
+	{
+		"Show Characters",
+		"Show Skills",
+		"Show Armours",
+		"Show Weapons",
+		"Show Shields",
+		"Go back"
+	};
+
+	int menuOptionsPos = 2;
+
+	int previousPos = 0;
+	int currentPos = 2;
 
 	while (true)
 	{
@@ -138,21 +248,20 @@ void MenuUIHelper::showItemsMenu()
 		}
 		menuOptionsPos = 2;
 
-		wrefresh(itemShowWin);
 		refresh();
 
-		int choosenOption = wgetch(itemShowWin);
+		int choosenOption = getch();
 		switch (choosenOption)
 		{
 		case KEY_UP:
-			if (!(currentPos == 2))
+			if (!(currentPos <= 2))
 			{
 				previousPos = currentPos;
 				currentPos -= 2;
 			}
 			break;
 		case KEY_DOWN:
-			if (!(currentPos == 13))
+			if (!(currentPos >= 13))
 			{
 				previousPos = currentPos;
 				currentPos += 2;
@@ -165,21 +274,20 @@ void MenuUIHelper::showItemsMenu()
 			case 2:
 				showCharacters();
 				break;
-			case 5:
+			case 4:
 				showSkills();
 				break;
-			case 7:
+			case 6:
 				showArmours();
 				break;
-			case 9:
+			case 8:
 				showWeapons();
 				break;
-			case 11:
+			case 10:
 				showShields();
 				break;
-			case 13:
-				wclear(itemShowWin);
-				delwin(itemShowWin);
+			case 12:
+				clear();
 				refresh();
 				return;
 			default:
@@ -193,8 +301,6 @@ void MenuUIHelper::showItemsMenu()
 
 
 	}
-
-	delwin(itemShowWin);
 }
 
 
@@ -226,44 +332,14 @@ MenuUIHelper::MenuUIHelper()
 {
 	isPlayerInit = false;
 
-	mainMenuOptions =
-	{
-		"Create Character",
-		"Prepare the battle",
-		"Show all Items",
-		"Exit"
-	};
 
-	playerCreationMenuOptions =
-	{
-		"Name: ",
-		"ST: 10",
-		"DX: 10",
-		"HT: 10",
-		"Weapon: Bare Hands",
-		"Armour: None",
-		"Shield: None",
-		" ",
-		"Done: ",
-		"Character Points left: ",
 
-		"Go back"
-	};
+	/*
 
 	battleMenuOptions =
 	{
 		"Attack",
 		"Surrender"
-	};
-
-	showItemsMenuOptions =
-	{
-		"Show Characters",
-		"Show Skills",
-		"Show Armours",
-		"Show Weapons",
-		"Show Shields",
-		"Go back"
 	};
 	prepareTeamMenuOptions =
 	{
@@ -271,13 +347,7 @@ MenuUIHelper::MenuUIHelper()
 		"Select Team 2",
 		"Team Size: 1",
 		"Go back"
-	};
+	};*/
 }
 MenuUIHelper::~MenuUIHelper()
-{
-	mainMenuOptions.clear();
-	playerCreationMenuOptions.clear();
-	battleMenuOptions.clear();
-	showItemsMenuOptions.clear();
-	prepareTeamMenuOptions.clear();
-}
+{}
