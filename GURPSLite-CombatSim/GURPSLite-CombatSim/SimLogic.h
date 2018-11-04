@@ -225,11 +225,15 @@ public:
 	void SetTeam(int teamToSet);
 	int GetTeam();
 
+	std::string PrintCharacter();
+
 
 	Character& operator=(const Character& original);
 
 	Character();
-	Character(const Character& original);
+
+	// Some old copy constructor, left just in case.
+	//Character(const Character& original);
 	virtual ~Character();
 };
 
@@ -296,6 +300,7 @@ private:
 	int LoadWeapons();
 	int LoadShields();
 public:
+
 	// Adds given character to 'teamToSet" vector (either 1 or 2).
 	void AddCharacterToTeam(Character c, int teamToSet);
 
@@ -314,6 +319,12 @@ public:
 
 	// Load all the data, setup map.
 	bool InitializeGameMaster();
+
+	std::vector<Character> getCharacters();
+	std::vector<Skill> getSkills();
+	std::vector<Armour> getArmour();
+	std::vector<Weapon> getWeapons();
+	std::vector<Shield> getShields();
 
 	GameMaster();
 	~GameMaster();

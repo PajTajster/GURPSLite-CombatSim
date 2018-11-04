@@ -293,6 +293,8 @@ void MenuUIHelper::showItemsMenu()
 			default:
 				break;
 			}
+			clear();
+			refresh();
 		}
 		break;
 		default:
@@ -306,23 +308,130 @@ void MenuUIHelper::showItemsMenu()
 
 void MenuUIHelper::showCharacters()
 {
-	// T
+	clear();
+	refresh();
+
+	std::vector<std::string> showOptions =
+	{
+		// 8
+		"Previous",
+		// 18
+		"Go back",
+		// 28
+		"Next"
+	};
+
+
+	std::vector<Character> allCharacters = gm.getCharacters();
+
+	// Currently showed character
+	int currentChar = 0;
+	int maxChar = allCharacters.size() - 1;
+
+
+	// Menu Positions
+
+	// Horizontal line for options
+	int menuOptionsPos = 8;
+	// Positions for all 3 options
+	int optionPos[] = { 9, 19, 29 };
+	// Current option indicated by an arrow
+	int currentOption = 0;
+	// Holds previous arrow position
+	int previousPos = 0;
+	// Current arrow position
+	int currentPos = 8;
+
+	while (true)
+	{
+
+		move(0, 0);
+
+		// Print Character
+		printw(allCharacters[currentChar].PrintCharacter().c_str());
+
+		int j = 0;
+		for (auto &i : showOptions)
+		{
+			if ((optionPos[j] - 1) == currentPos)
+			{
+				move(menuOptionsPos, previousPos);
+				addch(' ');
+				move(menuOptionsPos, currentPos);
+				addch('>');
+			}
+
+			mvprintw(menuOptionsPos, optionPos[j], i.c_str());
+
+			j++;
+		}
+
+		refresh();
+
+		int choosenOption = getch();
+		switch (choosenOption)
+		{
+		case KEY_LEFT:
+			if (currentOption != 0)
+			{
+				--currentOption;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption] - 1;
+			}
+			break;
+		case KEY_RIGHT:
+			if (currentOption != 2)
+			{
+				++currentOption;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption] - 1;
+			}
+			break;
+		case 10:
+		{
+			switch (currentOption)
+			{
+			// Previous
+			case 0:
+				if (currentChar != 0)
+					--currentChar;
+				break;
+
+			// Go back
+			case 1:
+				return;
+
+			// Next
+			case 2:
+				if (currentChar != maxChar)
+					++currentChar;
+				break;
+
+			default:
+				break;
+			}
+		}
+		break;
+		default:
+			break;
+		}
+	}
 }
 void MenuUIHelper::showSkills()
 {
-	// O
+	// T
 }
 void MenuUIHelper::showArmours()
 {
-	// D
+	// O
 }
 void MenuUIHelper::showWeapons()
 {
-	// O
+	// D
 }
 void MenuUIHelper::showShields()
 {
-	// !
+	// O
 }
 
 

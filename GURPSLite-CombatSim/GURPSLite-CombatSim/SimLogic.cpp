@@ -458,17 +458,34 @@ void Character::SetTeam(int teamToSet)
 
 int Character::GetTeam() { return team; }
 
+std::string Character::PrintCharacter()
+{
+	std::string message;
+
+
+	message.append("Name: " + name +
+		"\nStrength: " + std::to_string(strength) +
+		"\nDexterity: " + std::to_string(dexterity) +
+		"\nHealth: " + std::to_string(health) +
+	"\nEquipped Weapon: " + currentWeapon.name +
+	"\nEquipped Shield: " + currentShield.name +
+	"\nEquipped Armour: " + currentArmour.name);
+
+	return message;
+}
+
 Character& Character::operator=(const Character& original)
 {
 	ID = original.ID;
 	return (*this);
 }
 
+/* Some old copy constructor, left just in case.
+
 Character::Character(const Character& original)
 {
 	ID = original.ID;
-}
-
+} */
 Character::~Character()
 {
 	skills.clear();
@@ -846,6 +863,27 @@ int GameMaster::LoadShields()
 		allShields.push_back(newShield);
 	}
 	return 0;
+}
+
+std::vector<Character> GameMaster::getCharacters()
+{
+	return allCharacters;
+}
+std::vector<Skill> GameMaster::getSkills()
+{
+	return allSkills;
+}
+std::vector<Armour> GameMaster::getArmour()
+{
+	return allArmours;
+}
+std::vector<Weapon> GameMaster::getWeapons()
+{
+	return allWeapons;
+}
+std::vector<Shield> GameMaster::getShields()
+{
+	return allShields;
 }
 
 GameMaster::GameMaster() { }
