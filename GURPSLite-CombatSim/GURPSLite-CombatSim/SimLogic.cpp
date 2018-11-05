@@ -512,6 +512,7 @@ Character::Character() : isWieldingShield(false), isDead(false),
 {
 	isPlayer = false;
 	ID = ++nextID;
+
 	skills =
 	{
 		Skill("Undefined", "None", "None", 0, false),
@@ -582,6 +583,8 @@ void Character::ModifyAttribute(int value, char attribute)
 
 	return;
 }
+
+int Character::GetCharacterPoints() { return characterPoints; }
 
 
 
@@ -752,15 +755,30 @@ void GameMaster::AddCharacterToMainVector(Character character)
 		charactersInPlay.push_back(character);
 }
 
-bool GameMaster::InitializeGameMaster()
+void GameMaster::InitializeGameMaster()
 {
+	// Init data
+
 	LoadSkills();
 	LoadArmours();
 	LoadShields();
 	LoadWeapons();
 	LoadCharacters();
+}
 
-	return true;
+Character GameMaster::InitBasePlayer()
+{
+	Character player;
+	player.currentArmour = allArmours[0];
+	player.currentWeapon = allWeapons[0];
+	player.skills = allSkills;
+	player.CalculateExtraAttributes();
+	player.CalculateSkillsDefaults();
+
+	player.isPlayer = true;
+
+
+	return player;
 }
 
 int GameMaster::LoadCharacters()

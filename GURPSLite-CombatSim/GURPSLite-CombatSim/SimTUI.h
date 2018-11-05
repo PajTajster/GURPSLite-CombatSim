@@ -11,7 +11,13 @@ private:
 	GameMaster gm;
 
 	bool isPlayerInit;
-	static Character player;
+	Character player;
+
+	// Player stats to keep
+
+	int playerST;
+	int playerDX;
+	int playerHT;
 
 	std::string bigLogo;
 	std::string smallLogo;

@@ -1,19 +1,24 @@
 {
   "armours": [
-      {
-        "name": "Leather Jacket",
-        "passiveDefence": 1,
-        "damageResistance": 1
-      },
-      {
-        "name": "Scale Armour",
-        "passiveDefence": 3,
-        "damageResistance": 4
-      },
-      {
-        "name": "Half Plate",
-        "passiveDefence": 4,
-        "damageResistance": 5
-      }
-    ]
+    {
+      "name": "Ordinary Clothes",
+      "passiveDefence": 0,
+      "damageResistance":  0
+    },
+    {
+      "name": "Leather Jacket",
+      "passiveDefence": 1,
+      "damageResistance": 1
+    },
+    {
+      "name": "Scale Armour",
+      "passiveDefence": 3,
+      "damageResistance": 4
+    },
+    {
+      "name": "Half Plate",
+      "passiveDefence": 4,
+      "damageResistance": 5
+    }
+  ]
 }

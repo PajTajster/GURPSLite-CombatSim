@@ -4,6 +4,8 @@ void MenuUIHelper::Init()
 {
 	gm.InitializeGameMaster();
 
+	player = gm.InitBasePlayer();
+	
 	MainMenu();
 }
 
@@ -30,7 +32,7 @@ void MenuUIHelper::MainMenu()
 	int optionPos[] = { 2, 4, 6, 8 };
 
 	int previousPos = 0;
-	int currentPos = 2;
+	int currentPos = optionPos[0];
 
 	while (true)
 	{
@@ -85,7 +87,7 @@ void MenuUIHelper::MainMenu()
 			switch (currentOption)
 			{
 			case 0:
-				//PlayerCreationMenu();
+				PlayerCreationMenu();
 				break;
 			case 1:
 				if (isPlayerInit)
@@ -119,95 +121,117 @@ void MenuUIHelper::MainMenu()
 
 void MenuUIHelper::PlayerCreationMenu()
 {
-	clear();
-	refresh();
-
+	wclear(menu);
+	
 	std::vector<std::string> playerCreationMenuOptions =
 	{
 		"Name: ",
-		"ST: 10",
-		"DX: 10",
-		"HT: 10",
+		"ST: ",
+		"DX: ",
+		"HT: ",
 		"Weapon: Bare Hands",
 		"Armour: None",
 		"Shield: None",
-		" ",
-		"Done: ",
 		"Character Points left: ",
-
+		"Done",
 		"Go back"
 	};
 
-	int menuOptionsPos = 2;
+	bool isPlayerNameSet = true;
+
+	if (player.name == "Nobody")
+		isPlayerNameSet = false;
+
+	// TODO
+
+	int currentOption = 0;
+	int optionPos[] = { 1, 3, 5, 7, 9, 11, 13, 16, 19, 22 };
 
 	int previousPos = 0;
-	int currentPos = 2;
+	int currentPos = optionPos[0];
 
 	while (true)
 	{
+		int j = 0;
 		for (auto& i : playerCreationMenuOptions)
 		{
-			if (menuOptionsPos == currentPos)
+			if (optionPos[j] == currentPos)
 			{
-				move(previousPos, 1);
-				addch(' ');
-				move(currentPos, 1);
-				printw(">");
+				mvwaddch(menu, previousPos, menuOptionXPos - 1, ' ');
+				mvwaddch(menu, currentPos, menuOptionXPos - 1, '>');
 			}
 
-			move(menuOptionsPos, 2);
-			printw(i.c_str());
+			mvwprintw(menu, optionPos[j], menuOptionXPos, i.c_str());
 
-			menuOptionsPos += 2;
+			++j;
 		}
-		menuOptionsPos = 2;
 
 
-		refresh();
+		wrefresh(menu);
 
 		int choosenOption = getch();
 		switch (choosenOption)
 		{
 		case KEY_UP:
-			if (!(currentPos <= 2))
+			if (currentOption != 0)
 			{
+				--currentOption;
 				previousPos = currentPos;
-				currentPos -= 2;
+				currentPos = optionPos[currentOption];
 			}
 			break;
 		case KEY_DOWN:
-			if (!(currentPos >= 13))
+			if (currentOption != 9)
 			{
+				++currentOption;
 				previousPos = currentPos;
-				currentPos += 2;
+				currentPos = optionPos[currentOption];
 			}
 			break;
 		case 10:
 		{
-			switch (currentPos)
+			switch (currentOption)
 			{
+				// Name
+			case 0:
+				break;
+
+				// ST
+			case 1:
+				break;
+
+				// DX
 			case 2:
-				ShowCharacters();
 				break;
+
+				// HT
+			case 3:
+				break;
+
+				// Weapon
 			case 4:
-				ShowSkills();
 				break;
+
+				// Armour
+			case 5:
+				break;
+
+				// Shield
 			case 6:
-				ShowArmours();
 				break;
+
+				// Done
 			case 8:
-				ShowWeapons();
 				break;
-			case 10:
-				ShowShields();
-				break;
-			case 12:
-				clear();
-				refresh();
+
+				// Go back
+			case 9:
+				wclear(menu);
 				return;
 			default:
 				break;
 			}
+			wclear(menu);
 		}
 		break;
 		default:
@@ -238,7 +262,7 @@ void MenuUIHelper::ShowItemsMenu()
 	int optionPos[] = { 2, 4, 6, 8, 10, 12 };
 
 	int previousPos = 0;
-	int currentPos = 2;
+	int currentPos = optionPos[0];
 
 	while (true)
 	{
@@ -877,6 +901,10 @@ MenuUIHelper::MenuUIHelper()
 
 	isPlayerInit = false;
 	isGameRunning = true;
+
+	playerST = 10;
+	playerDX = 10;
+	playerHT = 10;
 
 	bigLogo = R"(
  _____    _____    _____ 

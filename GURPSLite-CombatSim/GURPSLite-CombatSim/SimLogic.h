@@ -3,6 +3,7 @@
 #include <vector>
 #include <queue>
 #include <string>
+#include <memory>
 
 // Decision NPCs take during combat
 enum AI
@@ -162,9 +163,6 @@ protected:
 	// for now only 1 and 2.
 	int team;
 
-	// Used for upgrading skills and attributes.
-	int characterPoints;
-
 	// NPC's currently used AI.
 	AI usedAI;
 	// Current character that NPC wants to do something bad.
@@ -175,6 +173,8 @@ public:
 
 	// Tells whether character is player or not.
 	bool isPlayer;
+	// Used for upgrading skills and attributes.
+	int characterPoints;
 
 	// Tells whether character have attacked
 	bool hasAttackedThisTurn;
@@ -212,6 +212,8 @@ public:
 
 	// Modifies given attribute by value at the cost of characterPoints.
 	void ModifyAttribute(int value, char attribute);
+	// Returns Character characterPoints;
+	int GetCharacterPoints();
 
 	// Selects the target AI will try to kill depending on the 'usedAI'.
 	// must be supplied all the possible targets.
@@ -299,7 +301,7 @@ public:
 	// Adds given character to 'teamToSet" vector (either 1 or 2).
 	void AddCharacterToTeam(Character c, int teamToSet);
 
-	// Takes a vector of characters and sorts it by initiative.
+	// Takes a vector of 'charactersInPlay' and sorts it by initiative.
 	void CalculateInitiative();
 
 	// Remove given character from play.
@@ -312,8 +314,10 @@ public:
 	// Adds character into 'charactersInPlay' vector.
 	void AddCharacterToMainVector(Character);
 
-	// Load all the data, setup map.
-	bool InitializeGameMaster();
+	// Load all the data in JSON files.
+	void InitializeGameMaster();
+	// Init base player (returns Character which is Player).
+	Character InitBasePlayer();
 
 	std::vector<Character> getCharacters();
 	std::vector<Skill> getSkills();
