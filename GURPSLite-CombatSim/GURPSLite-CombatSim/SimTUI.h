@@ -11,7 +11,7 @@ private:
 	GameMaster gm;
 
 	bool isPlayerInit;
-	static Player player;
+	static Character player;
 
 	std::string bigLogo;
 	std::string smallLogo;
@@ -21,25 +21,25 @@ private:
 	WINDOW* menu;
 
 
-	void playerCreationMenu();
-	void showPlayer();
+	void PlayerCreationMenu();
+	void ShowPlayer();
 
-	void battleMenu();
+	void BattleMenu();
 
-	void showItemsMenu();
-	void showCharacters();
-	void showSkills();
-	void showArmours();
-	void showWeapons();
-	void showShields();
+	void ShowItemsMenu();
+	void ShowCharacters();
+	void ShowSkills();
+	void ShowArmours();
+	void ShowWeapons();
+	void ShowShields();
 
-	void prepareTeamMenu();
+	void PrepareTeamMenu();
 
 public:
 	bool isGameRunning;
 
-	void mainMenu();
-	void init();
+	void MainMenu();
+	void Init();
 
 	MenuUIHelper();
 	~MenuUIHelper();

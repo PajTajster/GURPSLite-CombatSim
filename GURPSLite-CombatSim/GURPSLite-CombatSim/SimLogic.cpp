@@ -26,6 +26,25 @@ DiceRoller::DiceRoller() {}
 DiceRoller::~DiceRoller() {}
 
 
+std::string Skill::PrintSkill()
+{
+	std::string message;
+
+	message.append("Name: " + name + "\n");
+
+	if (noDefaults)
+	{
+		message.append("Skill has no base proficiency");
+	}
+	else
+	{
+		message.append("Bonus: " + std::to_string(defaultBonus) + 
+		"\nDefault Attribute: " + defaultAttribute +
+		"\nOptional Attribute: " + defaultOptionalAttribute);
+	}
+
+	return message;
+}
 
 Skill::Skill() : name("Undefined") { }
 
@@ -35,12 +54,32 @@ Skill::Skill(std::string nm, std::string dftAt, std::string dftOptAt,
 			defaultBonus(dB), noDefaults(noDef) { }			
 
 
+std::string Shield::PrintShield()
+{
+	std::string message;
+
+	message.append("Name: " + name +
+		"\nArmor bonus: " + std::to_string(bonus));
+
+	return message;
+}
+
 
 Shield::Shield() : name("Undefined") { }
 
 Shield::Shield(std::string n, int b) : name(n), bonus(b) { }
 
 
+std::string Armour::PrintArmour()
+{
+	std::string message;
+
+	message.append("Name: " + name +
+		"\nPassive Defence: " + std::to_string(passiveDefence) +
+		"\nDamage Resistance: " + std::to_string(damageResistance));
+
+	return message;
+}
 
 Armour::Armour() : name("Undefined") { }
 
@@ -48,6 +87,34 @@ Armour::Armour(std::string n, int pD, int dR) :
 	name(n), passiveDefence(pD), damageResistance(dR) { }
 
 
+std::string Weapon::PrintWeapon()
+{
+	std::string message;
+
+	message.append("Name: " + name +
+		"\nDamage: " + std::to_string(damage.dices) + "(Dices), " +
+		std::to_string(damage.bonus) + "(Bonus)" +
+		"\nSkill used: " + skill.name + "\n");
+
+	if (isMelee)
+	{
+		if (isTwoHanded)
+		{
+			message.append("This is Two-Handed weapon.");
+		}
+		else
+		{
+			message.append("This is One-Handed weapon.");
+		}
+	}
+	else
+	{
+		message.append("This is Ranged weapon" \
+			"\nRate of Fire: " + std::to_string(rateOfFire));
+	}
+
+	return message;
+}
 
 Weapon::Weapon() : name("Undefined") { }
 
@@ -67,7 +134,7 @@ std::string Character::Attack(Character target, DiceRoller dr)
 	std::string message = "";
 	// A little speed up for concatenating. 
 	message.reserve(120);
-	if (dynamic_cast<Player*>(this) == nullptr)
+	if (isPlayer)
 		message = this->name + " tries to attack: ";
 	else
 		message = "Attempting to attack: ";
@@ -443,6 +510,7 @@ Character::Character() : isWieldingShield(false), isDead(false),
 						knockDownTimer(0), strength(10), dexterity(10),
 						health(10)
 {
+	isPlayer = false;
 	ID = ++nextID;
 	skills =
 	{
@@ -482,12 +550,6 @@ Character& Character::operator=(const Character& original)
 	return (*this);
 }
 
-/* Some old copy constructor, left just in case.
-
-Character::Character(const Character& original)
-{
-	ID = original.ID;
-} */
 Character::~Character()
 {
 	skills.clear();
@@ -495,7 +557,7 @@ Character::~Character()
 
 
 
-void Player::ModifyAttribute(int value, char attribute)
+void Character::ModifyAttribute(int value, char attribute)
 {
 	if (value * 15 > characterPoints)
 		return;
@@ -523,7 +585,7 @@ void Player::ModifyAttribute(int value, char attribute)
 
 
 
-void NPC::SelectTarget(std::vector<Character> charactersToChoose)
+void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 {
 	// If NPC is dead or knocked down, he does nothing.
 	if (isDead || isKnockedDown)
@@ -568,21 +630,21 @@ void NPC::SelectTarget(std::vector<Character> charactersToChoose)
 		return;
 	}
 
-	currentTarget = newTarget;
+	*currentTarget = newTarget;
 }
 
-void NPC::AssessSituation()
+void Character::NPCAssessSituation()
 {
 	// If NPC uses melee weapon resolve this branch.
 	if (currentWeapon.isMelee)
 	{
-		Attack(currentTarget, diceRoller);
+		Attack(*currentTarget, diceRoller);
 	}
 	// If NPC uses ranged weapon instead, do that:
 	else
 	{
 		// Well, shoot stuff!
-		Attack(currentTarget, diceRoller);
+		Attack(*currentTarget, diceRoller);
 	}
 
 	return;
@@ -876,7 +938,7 @@ std::vector<Skill> GameMaster::getSkills()
 {
 	return allSkills;
 }
-std::vector<Armour> GameMaster::getArmour()
+std::vector<Armour> GameMaster::getArmours()
 {
 	return allArmours;
 }

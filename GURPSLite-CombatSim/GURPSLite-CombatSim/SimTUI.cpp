@@ -1,13 +1,13 @@
 #include "SimTUI.h"
 
-void MenuUIHelper::init()
+void MenuUIHelper::Init()
 {
 	gm.InitializeGameMaster();
 
-	mainMenu();
+	MainMenu();
 }
 
-void MenuUIHelper::mainMenu()
+void MenuUIHelper::MainMenu()
 {
 	keypad(menu, true);
 
@@ -85,14 +85,14 @@ void MenuUIHelper::mainMenu()
 			switch (currentOption)
 			{
 			case 0:
-				//playerCreationMenu();
+				//PlayerCreationMenu();
 				break;
 			case 1:
 				if (isPlayerInit)
-				//prepareTeamMenu();
+				//PrepareTeamMenu();
 				break;
 			case 2:
-				showItemsMenu();
+				ShowItemsMenu();
 				break;
 			case 3:
 				delwin(menu);
@@ -117,7 +117,7 @@ void MenuUIHelper::mainMenu()
 	endwin();
 }
 
-void MenuUIHelper::playerCreationMenu()
+void MenuUIHelper::PlayerCreationMenu()
 {
 	clear();
 	refresh();
@@ -187,19 +187,19 @@ void MenuUIHelper::playerCreationMenu()
 			switch (currentPos)
 			{
 			case 2:
-				showCharacters();
+				ShowCharacters();
 				break;
 			case 4:
-				showSkills();
+				ShowSkills();
 				break;
 			case 6:
-				showArmours();
+				ShowArmours();
 				break;
 			case 8:
-				showWeapons();
+				ShowWeapons();
 				break;
 			case 10:
-				showShields();
+				ShowShields();
 				break;
 			case 12:
 				clear();
@@ -218,7 +218,7 @@ void MenuUIHelper::playerCreationMenu()
 	}
 }
 
-void MenuUIHelper::showItemsMenu()
+void MenuUIHelper::ShowItemsMenu()
 {
 	wclear(menu);
 
@@ -281,19 +281,19 @@ void MenuUIHelper::showItemsMenu()
 			switch (currentPos)
 			{
 			case 2:
-				showCharacters();
+				ShowCharacters();
 				break;
 			case 4:
-				showSkills();
+				ShowSkills();
 				break;
 			case 6:
-				showArmours();
+				ShowArmours();
 				break;
 			case 8:
-				showWeapons();
+				ShowWeapons();
 				break;
 			case 10:
-				showShields();
+				ShowShields();
 				break;
 			case 12:
 				wclear(menu);
@@ -313,7 +313,7 @@ void MenuUIHelper::showItemsMenu()
 }
 
 
-void MenuUIHelper::showCharacters()
+void MenuUIHelper::ShowCharacters()
 {
 	wclear(menu);
 
@@ -333,9 +333,7 @@ void MenuUIHelper::showCharacters()
 	// Currently showed character
 	int currentChar = 0;
 	int maxChar = allCharacters.size() - 1;
-
-	WINDOW* characterDesc = subwin(menu, 20, 8, 2, 20);
-
+	
 	// Menu Positions
 
 	// Horizontal line for options
@@ -351,11 +349,11 @@ void MenuUIHelper::showCharacters()
 
 	while (true)
 	{
+		wclear(menu);
+
 
 		// Print Character
-		//mvwprintw(menu, 5, menuOptionXPos, allCharacters[currentChar].PrintCharacter().c_str());
-		wprintw(characterDesc, allCharacters[currentChar].PrintCharacter().c_str());
-		box(menu, 0, 0);
+		mvwprintw(menu, menuOptionsPos+4, 0, allCharacters[currentChar].PrintCharacter().c_str());
 
 		int j = 0;
 		for (auto &i : showOptions)
@@ -372,7 +370,6 @@ void MenuUIHelper::showCharacters()
 		}
 
 
-		touchwin(menu);
 		wrefresh(menu);
 		
 		int choosenOption = getch();
@@ -406,8 +403,6 @@ void MenuUIHelper::showCharacters()
 
 			// Go back
 			case 1:
-				wclear(characterDesc);
-				delwin(characterDesc);
 				return;
 
 			// Next
@@ -426,21 +421,437 @@ void MenuUIHelper::showCharacters()
 		}
 	}
 }
-void MenuUIHelper::showSkills()
+void MenuUIHelper::ShowSkills()
 {
-	// T
+	wclear(menu);
+
+	std::vector<std::string> showOptions =
+	{
+		// 8
+		"Previous",
+		// 18
+		"Go back",
+		// 28
+		"Next"
+	};
+
+
+	std::vector<Skill> allSkills = gm.getSkills();
+
+	// Currently showed character
+	int currentChar = 0;
+	int maxChar = allSkills.size() - 1;
+
+	// Menu Positions
+
+	// Horizontal line for options
+	int menuOptionsPos = 2;
+	// Positions for all 3 options
+	int optionPos[] = { 29, 39, 49 };
+	// Current option indicated by an arrow
+	int currentOption = 0;
+	// Holds previous arrow position
+	int previousPos = 0;
+	// Current arrow position
+	int currentPos = optionPos[0] - 1;
+
+	while (true)
+	{
+		wclear(menu);
+
+
+		// Print Character
+		mvwprintw(menu, menuOptionsPos + 4, 0, allSkills[currentChar].PrintSkill().c_str());
+
+		int j = 0;
+		for (auto &i : showOptions)
+		{
+			if ((optionPos[j] - 1) == currentPos)
+			{
+				mvwaddch(menu, menuOptionsPos, previousPos, ' ');
+				mvwaddch(menu, menuOptionsPos, currentPos, '>');
+			}
+
+			mvwprintw(menu, menuOptionsPos, optionPos[j], i.c_str());
+
+			j++;
+		}
+
+
+		wrefresh(menu);
+
+		int choosenOption = getch();
+		switch (choosenOption)
+		{
+		case KEY_LEFT:
+			if (currentOption != 0)
+			{
+				--currentOption;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption] - 1;
+			}
+			break;
+		case KEY_RIGHT:
+			if (currentOption != 2)
+			{
+				++currentOption;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption] - 1;
+			}
+			break;
+		case 10:
+		{
+			switch (currentOption)
+			{
+				// Previous
+			case 0:
+				if (currentChar != 0)
+					--currentChar;
+				break;
+
+				// Go back
+			case 1:
+				return;
+
+				// Next
+			case 2:
+				if (currentChar != maxChar)
+					++currentChar;
+				break;
+
+			default:
+				break;
+			}
+		}
+		break;
+		default:
+			break;
+		}
+	}
 }
-void MenuUIHelper::showArmours()
+void MenuUIHelper::ShowArmours()
 {
-	// O
+	wclear(menu);
+
+	std::vector<std::string> showOptions =
+	{
+		// 8
+		"Previous",
+		// 18
+		"Go back",
+		// 28
+		"Next"
+	};
+
+
+	std::vector<Armour> allArmours = gm.getArmours();
+
+	// Currently showed character
+	int currentChar = 0;
+	int maxChar = allArmours.size() - 1;
+
+	// Menu Positions
+
+	// Horizontal line for options
+	int menuOptionsPos = 2;
+	// Positions for all 3 options
+	int optionPos[] = { 29, 39, 49 };
+	// Current option indicated by an arrow
+	int currentOption = 0;
+	// Holds previous arrow position
+	int previousPos = 0;
+	// Current arrow position
+	int currentPos = optionPos[0] - 1;
+
+	while (true)
+	{
+		wclear(menu);
+
+
+		// Print Character
+		mvwprintw(menu, menuOptionsPos + 4, 0, allArmours[currentChar].PrintArmour().c_str());
+
+		int j = 0;
+		for (auto &i : showOptions)
+		{
+			if ((optionPos[j] - 1) == currentPos)
+			{
+				mvwaddch(menu, menuOptionsPos, previousPos, ' ');
+				mvwaddch(menu, menuOptionsPos, currentPos, '>');
+			}
+
+			mvwprintw(menu, menuOptionsPos, optionPos[j], i.c_str());
+
+			j++;
+		}
+
+
+		wrefresh(menu);
+
+		int choosenOption = getch();
+		switch (choosenOption)
+		{
+		case KEY_LEFT:
+			if (currentOption != 0)
+			{
+				--currentOption;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption] - 1;
+			}
+			break;
+		case KEY_RIGHT:
+			if (currentOption != 2)
+			{
+				++currentOption;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption] - 1;
+			}
+			break;
+		case 10:
+		{
+			switch (currentOption)
+			{
+				// Previous
+			case 0:
+				if (currentChar != 0)
+					--currentChar;
+				break;
+
+				// Go back
+			case 1:
+				return;
+
+				// Next
+			case 2:
+				if (currentChar != maxChar)
+					++currentChar;
+				break;
+
+			default:
+				break;
+			}
+		}
+		break;
+		default:
+			break;
+		}
+	}
 }
-void MenuUIHelper::showWeapons()
+void MenuUIHelper::ShowWeapons()
 {
-	// D
+	wclear(menu);
+
+	std::vector<std::string> showOptions =
+	{
+		// 8
+		"Previous",
+		// 18
+		"Go back",
+		// 28
+		"Next"
+	};
+
+
+	std::vector<Weapon> allWeapons = gm.getWeapons();
+
+	// Currently showed character
+	int currentChar = 0;
+	int maxChar = allWeapons.size() - 1;
+
+	// Menu Positions
+
+	// Horizontal line for options
+	int menuOptionsPos = 2;
+	// Positions for all 3 options
+	int optionPos[] = { 29, 39, 49 };
+	// Current option indicated by an arrow
+	int currentOption = 0;
+	// Holds previous arrow position
+	int previousPos = 0;
+	// Current arrow position
+	int currentPos = optionPos[0] - 1;
+
+	while (true)
+	{
+		wclear(menu);
+
+
+		// Print Character
+		mvwprintw(menu, menuOptionsPos + 4, 0, allWeapons[currentChar].PrintWeapon().c_str());
+
+		int j = 0;
+		for (auto &i : showOptions)
+		{
+			if ((optionPos[j] - 1) == currentPos)
+			{
+				mvwaddch(menu, menuOptionsPos, previousPos, ' ');
+				mvwaddch(menu, menuOptionsPos, currentPos, '>');
+			}
+
+			mvwprintw(menu, menuOptionsPos, optionPos[j], i.c_str());
+
+			j++;
+		}
+
+
+		wrefresh(menu);
+
+		int choosenOption = getch();
+		switch (choosenOption)
+		{
+		case KEY_LEFT:
+			if (currentOption != 0)
+			{
+				--currentOption;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption] - 1;
+			}
+			break;
+		case KEY_RIGHT:
+			if (currentOption != 2)
+			{
+				++currentOption;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption] - 1;
+			}
+			break;
+		case 10:
+		{
+			switch (currentOption)
+			{
+				// Previous
+			case 0:
+				if (currentChar != 0)
+					--currentChar;
+				break;
+
+				// Go back
+			case 1:
+				return;
+
+				// Next
+			case 2:
+				if (currentChar != maxChar)
+					++currentChar;
+				break;
+
+			default:
+				break;
+			}
+		}
+		break;
+		default:
+			break;
+		}
+	}
 }
-void MenuUIHelper::showShields()
+void MenuUIHelper::ShowShields()
 {
-	// O
+	wclear(menu);
+
+	std::vector<std::string> showOptions =
+	{
+		// 8
+		"Previous",
+		// 18
+		"Go back",
+		// 28
+		"Next"
+	};
+
+
+	std::vector<Shield> allShields = gm.getShields();
+
+	// Currently showed character
+	int currentChar = 0;
+	int maxChar = allShields.size() - 1;
+
+	// Menu Positions
+
+	// Horizontal line for options
+	int menuOptionsPos = 2;
+	// Positions for all 3 options
+	int optionPos[] = { 29, 39, 49 };
+	// Current option indicated by an arrow
+	int currentOption = 0;
+	// Holds previous arrow position
+	int previousPos = 0;
+	// Current arrow position
+	int currentPos = optionPos[0] - 1;
+
+	while (true)
+	{
+		wclear(menu);
+
+
+		// Print Character
+		mvwprintw(menu, menuOptionsPos + 4, 0, allShields[currentChar].PrintShield().c_str());
+
+		int j = 0;
+		for (auto &i : showOptions)
+		{
+			if ((optionPos[j] - 1) == currentPos)
+			{
+				mvwaddch(menu, menuOptionsPos, previousPos, ' ');
+				mvwaddch(menu, menuOptionsPos, currentPos, '>');
+			}
+
+			mvwprintw(menu, menuOptionsPos, optionPos[j], i.c_str());
+
+			j++;
+		}
+
+
+		wrefresh(menu);
+
+		int choosenOption = getch();
+		switch (choosenOption)
+		{
+		case KEY_LEFT:
+			if (currentOption != 0)
+			{
+				--currentOption;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption] - 1;
+			}
+			break;
+		case KEY_RIGHT:
+			if (currentOption != 2)
+			{
+				++currentOption;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption] - 1;
+			}
+			break;
+		case 10:
+		{
+			switch (currentOption)
+			{
+				// Previous
+			case 0:
+				if (currentChar != 0)
+					--currentChar;
+				break;
+
+				// Go back
+			case 1:
+				return;
+
+				// Next
+			case 2:
+				if (currentChar != maxChar)
+					++currentChar;
+				break;
+
+			default:
+				break;
+			}
+		}
+		break;
+		default:
+			break;
+		}
+	}
 }
 
 

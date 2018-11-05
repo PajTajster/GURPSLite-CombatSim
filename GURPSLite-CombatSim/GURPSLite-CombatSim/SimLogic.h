@@ -61,6 +61,8 @@ public:
 	// Set true if skill doesn't have default value.
 	bool noDefaults;
 
+	std::string PrintSkill();
+
 	Skill();
 	Skill(std::string nm, std::string dftAt, std::string dftOptAt,
 		int dB, bool noDef);
@@ -70,6 +72,8 @@ class Shield {
 public:
 	std::string name;
 	int bonus;
+
+	std::string PrintShield();
 
 	Shield();
 	Shield(std::string n, int b);
@@ -84,6 +88,8 @@ public:
 	int passiveDefence;
 	// How much damage it blocks.
 	int damageResistance;
+
+	std::string PrintArmour();
 
 	Armour();
 	Armour(std::string n, int pD, int dR);
@@ -104,6 +110,8 @@ public:
 	int rateOfFire;
 	// Whether character uses both hands or not[if yes, then no shield possible].
 	bool isTwoHanded;
+
+	std::string PrintWeapon();
 
 	Weapon();
 	Weapon(std::string n, Damage d, Skill s, bool isM, int rOF, bool isTH);
@@ -154,9 +162,19 @@ protected:
 	// for now only 1 and 2.
 	int team;
 
+	// Used for upgrading skills and attributes.
+	int characterPoints;
+
+	// NPC's currently used AI.
+	AI usedAI;
+	// Current character that NPC wants to do something bad.
+	std::shared_ptr<Character> currentTarget;
 public:
 	// Character's ID for distinguishability.
 	int ID;
+
+	// Tells whether character is player or not.
+	bool isPlayer;
 
 	// Tells whether character have attacked
 	bool hasAttackedThisTurn;
@@ -190,6 +208,17 @@ public:
 	bool isWearingArmour;
 	// Currently worn armour.
 	Armour currentArmour;
+
+
+	// Modifies given attribute by value at the cost of characterPoints.
+	void ModifyAttribute(int value, char attribute);
+
+	// Selects the target AI will try to kill depending on the 'usedAI'.
+	// must be supplied all the possible targets.
+	void NPCSelectTarget(std::vector<Character> charactersToChoose);
+
+	// NPC tries to decide it's next move depending on their situation.
+	void NPCAssessSituation();
 
 	// Taken the character, try to attack him/her/whatever-the-hell-it-is
 	//	returns string message with adequate message.
@@ -232,40 +261,7 @@ public:
 
 	Character();
 
-	// Some old copy constructor, left just in case.
-	//Character(const Character& original);
 	virtual ~Character();
-};
-
-class Player : public Character 
-{
-private:
-	
-	// Used for upgrading skills and attributes.
-	int characterPoints;
-public:
-
-	// During character creation, for modifying base attributes.
-	void ModifyAttribute(int value, char attribute);
-};
-
-class NPC : public Character
-{
-private:
-
-	// Is set during NPC creation
-	AI usedAI;
-	// Current character that NPC wants to do something bad.
-	Character currentTarget;
-
-public:
-
-	// Selects the target AI will try to kill depending on the 'usedAI'.
-	// must be supplied all the possible targets.
-	void SelectTarget(std::vector<Character> charactersToChoose);
-
-	// NPC tries to decide it's next move depending on their situation.
-	void AssessSituation();
 };
 
 class GameMaster
@@ -321,7 +317,7 @@ public:
 
 	std::vector<Character> getCharacters();
 	std::vector<Skill> getSkills();
-	std::vector<Armour> getArmour();
+	std::vector<Armour> getArmours();
 	std::vector<Weapon> getWeapons();
 	std::vector<Shield> getShields();
 
