@@ -283,12 +283,14 @@ int Character::ReceiveDamage(int damage)
 }
 
 void Character::InitializeCharacter(int initST, int initDX, int initHT,
-	std::vector<Skill> initSkills, Weapon initWeapon,
-	Armour initArmour, Shield initShield)
+	std::string initName, std::vector<Skill> initSkills,
+	Weapon initWeapon, Armour initArmour, Shield initShield)
 {
 	strength = initST;
 	dexterity = initDX;
 	health = initHT;
+
+	name = initName;
 
 	skills = initSkills;
 	currentWeapon = initWeapon;
@@ -712,6 +714,7 @@ int GameMaster::LoadCharacters()
 		int newST = it["strength"];
 		int newDX = it["dexterity"];
 		int newHT = it["health"];
+		std::string newName = it["name"];
 		std::string newWeap = it["weapon"];
 		std::string newArm = it["armour"];
 		std::string newShld = it["shield"];
@@ -750,7 +753,7 @@ int GameMaster::LoadCharacters()
 		Shield newShield = *searchedShield;
 
 		Character newCharacter;
-		newCharacter.InitializeCharacter(newST, newDX, newHT, allSkills, newWeapon, newArmour, newShield);
+		newCharacter.InitializeCharacter(newST, newDX, newHT, newName, allSkills, newWeapon, newArmour, newShield);
 
 		allCharacters.push_back(newCharacter);
 	}
@@ -890,7 +893,6 @@ GameMaster::GameMaster() { }
 
 GameMaster::~GameMaster()
 {
-	delete map;
 	allCharacters.clear();
 	allSkills.clear();
 	allArmours.clear();

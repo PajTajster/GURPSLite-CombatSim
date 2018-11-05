@@ -9,13 +9,13 @@ void MenuUIHelper::init()
 
 void MenuUIHelper::mainMenu()
 {
-	initscr();
-	clear();
-	keypad(stdscr, true);
+	keypad(menu, true);
+
+	wprintw(logo, bigLogo.c_str());
+	wrefresh(logo);
 
 	noecho();
 	cbreak();
-
 
 	std::vector<std::string> mainMenuOptions =
 	{
@@ -25,10 +25,12 @@ void MenuUIHelper::mainMenu()
 		"Exit"
 	};
 
-	int menuOptionsPos = 5;
+	int currentOption = 0;
+
+	int optionPos[] = { 2, 4, 6, 8 };
 
 	int previousPos = 0;
-	int currentPos = 5;
+	int currentPos = 2;
 
 	while (true)
 	{
@@ -41,58 +43,62 @@ void MenuUIHelper::mainMenu()
 			mainMenuOptions[1] = "Create character before preparing battle";
 		}
 
+		int j = 0;
 		for (auto& i : mainMenuOptions)
 		{
-			if (menuOptionsPos == currentPos)
+			if (optionPos[j] == currentPos)
 			{
-				move(previousPos, 1);
-				addch(' ');
-				move(currentPos, 1);
-				printw(">");
+				mvwaddch(menu, previousPos, menuOptionXPos - 1, ' ');
+				mvwaddch(menu, currentPos, menuOptionXPos - 1, '>');
 			}
 
-			move(menuOptionsPos, 2);
-			printw(i.c_str());
+			mvwprintw(menu, optionPos[j], menuOptionXPos, i.c_str());
 
-			menuOptionsPos += 2;
+			++j;
 		}
-		menuOptionsPos = 5;
-
-		refresh();
+		
+		wrefresh(menu);
 
 		int choosenOption = getch();
 		switch (choosenOption)
 		{
 		case KEY_UP:
-			if (!(currentPos <= 5))
+			if (currentOption != 0)
 			{
+				--currentOption;
 				previousPos = currentPos;
-				currentPos -= 2;
+				currentPos = optionPos[currentOption];
 			}
 			break;
 		case KEY_DOWN:
-			if (!(currentPos >= 11))
+			if (currentOption != 3)
 			{
+				++currentOption;
 				previousPos = currentPos;
-				currentPos += 2;
+				currentPos = optionPos[currentOption];
 			}
 			break;
+
+			// ENTER
 		case 10:
 		{
-			switch (currentPos)
+			switch (currentOption)
 			{
-			case 5:
+			case 0:
 				//playerCreationMenu();
 				break;
-			case 7:
+			case 1:
 				if (isPlayerInit)
-					//prepareTeamMenu();
+				//prepareTeamMenu();
 				break;
-			case 9:
+			case 2:
 				showItemsMenu();
 				break;
-			case 11:
+			case 3:
+				delwin(menu);
+				delwin(logo);
 				endwin();
+				isGameRunning = false;
 				return;
 			default:
 				break;
@@ -105,6 +111,8 @@ void MenuUIHelper::mainMenu()
 
 
 	}
+	delwin(menu);
+	delwin(logo);
 
 	endwin();
 }
@@ -153,6 +161,7 @@ void MenuUIHelper::playerCreationMenu()
 			menuOptionsPos += 2;
 		}
 		menuOptionsPos = 2;
+
 
 		refresh();
 
@@ -211,8 +220,7 @@ void MenuUIHelper::playerCreationMenu()
 
 void MenuUIHelper::showItemsMenu()
 {
-	clear();
-	refresh();
+	wclear(menu);
 
 	std::vector<std::string> showItemsMenuOptions =
 	{
@@ -224,31 +232,32 @@ void MenuUIHelper::showItemsMenu()
 		"Go back"
 	};
 
-	int menuOptionsPos = 2;
+
+	int currentOption = 0;
+
+	int optionPos[] = { 2, 4, 6, 8, 10, 12 };
 
 	int previousPos = 0;
 	int currentPos = 2;
 
 	while (true)
 	{
+		int j = 0;
 		for (auto& i : showItemsMenuOptions)
 		{
-			if (menuOptionsPos == currentPos)
+			if (optionPos[j] == currentPos)
 			{
-				move(previousPos, 1);
-				addch(' ');
-				move(currentPos, 1);
-				printw(">");
+				mvwaddch(menu, previousPos, menuOptionXPos - 1, ' ');
+				mvwaddch(menu, currentPos, menuOptionXPos - 1, '>');
 			}
 
-			move(menuOptionsPos, 2);
-			printw(i.c_str());
+			mvwprintw(menu, optionPos[j], menuOptionXPos, i.c_str());
 
-			menuOptionsPos += 2;
+			++j;
 		}
-		menuOptionsPos = 2;
 
-		refresh();
+
+		wrefresh(menu);
 
 		int choosenOption = getch();
 		switch (choosenOption)
@@ -287,14 +296,12 @@ void MenuUIHelper::showItemsMenu()
 				showShields();
 				break;
 			case 12:
-				clear();
-				refresh();
+				wclear(menu);
 				return;
 			default:
 				break;
 			}
-			clear();
-			refresh();
+			wclear(menu);
 		}
 		break;
 		default:
@@ -308,8 +315,7 @@ void MenuUIHelper::showItemsMenu()
 
 void MenuUIHelper::showCharacters()
 {
-	clear();
-	refresh();
+	wclear(menu);
 
 	std::vector<std::string> showOptions =
 	{
@@ -328,46 +334,47 @@ void MenuUIHelper::showCharacters()
 	int currentChar = 0;
 	int maxChar = allCharacters.size() - 1;
 
+	WINDOW* characterDesc = subwin(menu, 20, 8, 2, 20);
 
 	// Menu Positions
 
 	// Horizontal line for options
-	int menuOptionsPos = 8;
+	int menuOptionsPos = 2;
 	// Positions for all 3 options
-	int optionPos[] = { 9, 19, 29 };
+	int optionPos[] = { 29, 39, 49 };
 	// Current option indicated by an arrow
 	int currentOption = 0;
 	// Holds previous arrow position
 	int previousPos = 0;
 	// Current arrow position
-	int currentPos = 8;
+	int currentPos = optionPos[0] - 1;
 
 	while (true)
 	{
 
-		move(0, 0);
-
 		// Print Character
-		printw(allCharacters[currentChar].PrintCharacter().c_str());
+		//mvwprintw(menu, 5, menuOptionXPos, allCharacters[currentChar].PrintCharacter().c_str());
+		wprintw(characterDesc, allCharacters[currentChar].PrintCharacter().c_str());
+		box(menu, 0, 0);
 
 		int j = 0;
 		for (auto &i : showOptions)
 		{
 			if ((optionPos[j] - 1) == currentPos)
 			{
-				move(menuOptionsPos, previousPos);
-				addch(' ');
-				move(menuOptionsPos, currentPos);
-				addch('>');
+				mvwaddch(menu, menuOptionsPos, previousPos, ' ');
+				mvwaddch(menu, menuOptionsPos, currentPos, '>');
 			}
 
-			mvprintw(menuOptionsPos, optionPos[j], i.c_str());
+			mvwprintw(menu, menuOptionsPos, optionPos[j], i.c_str());
 
 			j++;
 		}
 
-		refresh();
 
+		touchwin(menu);
+		wrefresh(menu);
+		
 		int choosenOption = getch();
 		switch (choosenOption)
 		{
@@ -399,6 +406,8 @@ void MenuUIHelper::showCharacters()
 
 			// Go back
 			case 1:
+				wclear(characterDesc);
+				delwin(characterDesc);
 				return;
 
 			// Next
@@ -439,24 +448,40 @@ void MenuUIHelper::showShields()
 
 MenuUIHelper::MenuUIHelper()
 {
+	initscr();
+	clear();
+	keypad(stdscr, true);
+
+	refresh();
+
+	logo = newwin(7, 30, 1, 30);
+	menu = newwin(0, 0, 8, 0);
+
+	wrefresh(logo);
+	wrefresh(menu);
+
+	curs_set(0);
+
+	menuOptionXPos = 30;
+
 	isPlayerInit = false;
+	isGameRunning = true;
+
+	bigLogo = R"(
+ _____    _____    _____ 
+/ ____|  / ____|  / ____|
+| |  __  | |      | (___  
+| | |_ | | |       \___ \ 
+| |__| | | |____   ____) |
+ \_____|  \_____| |_____/ )";
+
+	smallLogo = R"(
+  _____  _____   ____
+ / ___/ / ___/  / __/
+/ (_ / / /__   _\ \  
+\___/  \___/  /___/  )";
 
 
-
-	/*
-
-	battleMenuOptions =
-	{
-		"Attack",
-		"Surrender"
-	};
-	prepareTeamMenuOptions =
-	{
-		"Select Team 1",
-		"Select Team 2",
-		"Team Size: 1",
-		"Go back"
-	};*/
 }
 MenuUIHelper::~MenuUIHelper()
 {}

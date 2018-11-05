@@ -13,9 +13,13 @@ private:
 	bool isPlayerInit;
 	static Player player;
 
-	static const char* UILogo;
+	std::string bigLogo;
+	std::string smallLogo;
 
-	void mainMenu();
+	int menuOptionXPos;
+	WINDOW* logo;
+	WINDOW* menu;
+
 
 	void playerCreationMenu();
 	void showPlayer();
@@ -32,6 +36,9 @@ private:
 	void prepareTeamMenu();
 
 public:
+	bool isGameRunning;
+
+	void mainMenu();
 	void init();
 
 	MenuUIHelper();

@@ -205,8 +205,8 @@ public:
 
 	// Initialize character[mainly used for loading from file].
 	void InitializeCharacter(int initST, int initDX, int initHT,
-		std::vector<Skill> initSkills, Weapon initWeapon,
-		Armour initArmour, Shield initShield);
+		std::string initName, std::vector<Skill> initSkills,
+		Weapon initWeapon, Armour initArmour, Shield initShield);
 
 	// Check the values of extra attributes depending on base Attributes
 	// calculate values like movement, passive/active defenses
@@ -272,7 +272,6 @@ class GameMaster
 {
 private:
 	static DiceRoller diceRoller;
-	char* map;
 
 	// Vectors containing all the data app needs.
 
