@@ -38,10 +38,12 @@ void MenuUIHelper::MainMenu()
 	{
 		if (isPlayerInit)
 		{
+			mainMenuOptions[0] = "Edit Character";
 			mainMenuOptions[1] = "Prepare the battle";
 		}
 		else
 		{
+			mainMenuOptions[0] = "Create Character";
 			mainMenuOptions[1] = "Create character before preparing battle";
 		}
 
@@ -139,7 +141,24 @@ void MenuUIHelper::PlayerCreationMenu()
 		"Go back"
 	};
 
+	std::vector<Weapon> weaponsToChoose = gm.getWeapons();
+	std::vector<Shield> shieldsToChoose = gm.getShields();
+	std::vector<Armour> armoursToChoose = gm.getArmours();
+
+	// Checks if player has "money" to buy more attributes.
+	bool outOfPoints = false;
+
+	// Checks if the user has chosen his character name.
 	bool isPlayerNameSet = true;
+
+	// Checks whether the weapon user chooses can go with a shield.
+	bool weaponWithShield = true;
+
+	if (weaponsToChoose[playerCurrentWeapon].isTwoHanded
+		|| !(weaponsToChoose[playerCurrentWeapon].isMelee))
+	{
+		weaponWithShield = false;
+	}
 
 	if (player->name == "Nobody")
 		isPlayerNameSet = false;
@@ -152,20 +171,39 @@ void MenuUIHelper::PlayerCreationMenu()
 
 	while (true)
 	{
-		playerCreationMenuOptions[0] = "Name: " + player->name;
+		if (isPlayerNameSet)
+		{
+			playerCreationMenuOptions[0] = "Name: " + player->name;
+		}
+		else
+		{
+			playerCreationMenuOptions[0] = "Name: ";
+		}
 		playerCreationMenuOptions[1] = "ST: " + std::to_string(playerST);
 		playerCreationMenuOptions[2] = "DX: " + std::to_string(playerDX);
 		playerCreationMenuOptions[3] = "HT: " + std::to_string(playerHT);
-		playerCreationMenuOptions[4] = "Weapon: " + player->currentWeapon.name;
-		playerCreationMenuOptions[5] = "Armour: " + player->currentArmour.name;
+		playerCreationMenuOptions[4] = "Weapon: " + weaponsToChoose[playerCurrentWeapon].name;
+		playerCreationMenuOptions[5] = "Armour: " + armoursToChoose[playerCurrentArmour].name;
 
-		
-		if (player->currentWeapon.isTwoHanded || player->currentWeapon.isMelee)
-			playerCreationMenuOptions[6] = "Shield: None [Ranged or Two-Handed Weapon Equipped]";
+
+		if (weaponWithShield)
+		{
+			playerCreationMenuOptions[6] = "Shield: " + shieldsToChoose[playerCurrentShield].name;
+		}
 		else
-			playerCreationMenuOptions[6] = "Shield: " + player->currentShield.name;
-		
-		playerCreationMenuOptions[7] = "Character Points left: " + player->characterPoints;
+		{
+			playerCreationMenuOptions[6] = "Shield: None [Ranged or Two-Handed Weapon Equipped]";
+		}
+		if (outOfPoints)
+		{
+			playerCreationMenuOptions[7] = "Character Points Left: " + std::to_string(player->characterPoints);
+			playerCreationMenuOptions[7].append("(Stats at minimum/Not enough points!)");
+		}
+		else
+		{
+			playerCreationMenuOptions[7] = "Character Points Left: " + std::to_string(player->characterPoints);
+		}
+
 
 
 		int j = 0;
@@ -205,70 +243,275 @@ void MenuUIHelper::PlayerCreationMenu()
 			}
 			break;
 		case KEY_LEFT:
+		{
 			switch (currentOption)
 			{
 				// ST
 			case 1:
+				if (player->ModifyAttribute(-1, 'S'))
+				{
+					--playerST;
+					outOfPoints = false;
+				}
+				else
+				{
+					outOfPoints = true;
+				}
 				break;
 
 				// DX
 			case 2:
+				if (player->ModifyAttribute(-1, 'D'))
+				{
+					--playerDX;
+					outOfPoints = false;
+				}
+				else
+				{
+					outOfPoints = true;
+				}
 				break;
 
 				// HT
 			case 3:
+				if (player->ModifyAttribute(-1, 'H'))
+				{
+					--playerHT;
+					outOfPoints = false;
+				}
+				else
+				{
+					outOfPoints = true;
+				}
 				break;
 
 				// Weapon
 			case 4:
+				if (playerCurrentWeapon == 0)
+				{
+					break;
+				}
+				else
+				{
+					--playerCurrentWeapon;
+
+					if (weaponsToChoose[playerCurrentWeapon].isTwoHanded
+						|| !(weaponsToChoose[playerCurrentWeapon].isMelee))
+					{
+						weaponWithShield = false;
+					}
+					else
+					{
+						weaponWithShield = true;
+					}
+				}
 				break;
 
 				// Armour
 			case 5:
+				if (playerCurrentArmour == 0)
+				{
+					break;
+				}
+				else
+				{
+					--playerCurrentArmour;
+				}
 				break;
 
 				// Shield
 			case 6:
+				if (weaponWithShield)
+				{
+
+					if (playerCurrentShield == 0)
+					{
+						break;
+					}
+					else
+					{
+						--playerCurrentShield;
+					}
+				}
 				break;
 			}
+		}
+		break;
 
 		case KEY_RIGHT:
+		{
 			switch (currentOption)
 			{
 				// ST
 			case 1:
+				if (player->ModifyAttribute(1, 'S'))
+				{
+					++playerST;
+					outOfPoints = false;
+				}
+				else
+				{
+					outOfPoints = true;
+				}
 				break;
 
 				// DX
 			case 2:
+				if (player->ModifyAttribute(1, 'D'))
+				{
+					++playerDX;
+					outOfPoints = false;
+				}
+				else
+				{
+					outOfPoints = true;
+				}
 				break;
 
 				// HT
 			case 3:
+				if (player->ModifyAttribute(1, 'H'))
+				{
+					++playerHT;
+					outOfPoints = false;
+				}
+				else
+				{
+					outOfPoints = true;
+				}
 				break;
 
 				// Weapon
 			case 4:
+				if (playerCurrentWeapon == weaponsToChoose.size() - 1)
+				{
+					break;
+				}
+				else
+				{
+					++playerCurrentWeapon;
+
+					if (weaponsToChoose[playerCurrentWeapon].isTwoHanded
+						|| !(weaponsToChoose[playerCurrentWeapon].isMelee))
+					{
+						weaponWithShield = false;
+					}
+					else
+					{
+						weaponWithShield = true;
+					}
+				}
 				break;
 
 				// Armour
 			case 5:
+				if (playerCurrentArmour == armoursToChoose.size() - 1)
+				{
+					break;
+				}
+				else
+				{
+					++playerCurrentArmour;
+				}
 				break;
 
 				// Shield
 			case 6:
+				if (weaponWithShield)
+				{
+
+					if (playerCurrentShield == shieldsToChoose.size() - 1)
+					{
+						break;
+					}
+					else
+					{
+						++playerCurrentShield;
+					}
+				}
 				break;
 			}
+		}
+		break;
+
 		case 10:
 		{
 			switch (currentOption)
 			{
 				// Name
 			case 0:
-				break;
+			{
+				if (isPlayerNameSet)
+				{
+					wmove(menu, optionPos[0],
+						menuOptionXPos + playerCreationMenuOptions[0].size() - player->name.length());
+					
+					std::string emptyLine(20, ' ');
 
+					wprintw(menu, emptyLine.c_str());
+
+					wmove(menu, optionPos[0],
+						menuOptionXPos + playerCreationMenuOptions[0].size() - player->name.length());
+				}
+				else
+				{
+					wmove(menu, optionPos[0], menuOptionXPos + playerCreationMenuOptions[0].size());
+				}
+				curs_set(1);
+				echo();
+
+				char nameBuf[20];
+
+				nameBuf[19] = '\0';
+
+				wgetnstr(menu, nameBuf, 19);
+
+				std::string newName = nameBuf;
+				if (newName.empty())
+				{
+					noecho();
+					curs_set(0);
+
+					isPlayerNameSet = false;
+					break;
+				}
+
+				player->name = newName;
+				isPlayerNameSet = true;
+
+				noecho();
+				curs_set(0);
+				break;
+			}
 				// Done
 			case 8:
+				// Update character.
+				if (isPlayerNameSet)
+				{
+					player->currentWeapon = weaponsToChoose[playerCurrentWeapon];
+					player->currentArmour = armoursToChoose[playerCurrentArmour];
+
+					if (weaponWithShield)
+					{
+						player->currentShield = shieldsToChoose[playerCurrentShield];
+					}
+					else
+					{
+						player->currentShield = shieldsToChoose[0];
+					}
+					player->CalculateExtraAttributes();
+					player->CalculateSkillsDefaults();
+
+					isPlayerInit = true;
+
+					wclear(menu);
+					return;
+				}
+				else
+				{
+					isPlayerInit = false;
+					playerCreationMenuOptions[8] = "[Name is not set!]";
+				}
 				break;
 
 				// Go back
@@ -285,7 +528,7 @@ void MenuUIHelper::PlayerCreationMenu()
 			break;
 		}
 
-
+		wclear(menu);
 	}
 }
 
@@ -930,24 +1173,38 @@ void MenuUIHelper::ShowShields()
 
 MenuUIHelper::MenuUIHelper()
 {
+	// Init PDCurses.
 	initscr();
+	// Clear screen.
 	clear();
+	// For reading arrow-keys.
 	keypad(stdscr, true);
 
+	// Refresh screen.
 	refresh();
 
+	// "Logo" window.
 	logo = newwin(7, 30, 1, 30);
+	// "Menu" window.
 	menu = newwin(0, 0, 8, 0);
+
+	// Refresh both new windows.
 
 	wrefresh(logo);
 	wrefresh(menu);
 
+	// Turn off cursor.
 	curs_set(0);
 
+	// Default menu options start column.
 	menuOptionXPos = 30;
 
 	isPlayerInit = false;
 	isGameRunning = true;
+
+	playerCurrentWeapon = 0;
+	playerCurrentArmour = 0;
+	playerCurrentShield = 0;
 
 	playerST = 10;
 	playerDX = 10;

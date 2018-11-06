@@ -563,30 +563,39 @@ Character::~Character()
 
 
 
-void Character::ModifyAttribute(int value, char attribute)
+bool Character::ModifyAttribute(int value, char attribute)
 {
-	if (value * 15 > characterPoints)
-		return;
+	if (characterPoints < value * 10)
+		return false;
 
 	switch (attribute)
 	{
 	case 'S':
+		// Can't go lower than 1.
+		if (value < 0 && strength == 1)
+			return false;
 		strength += value;
-		characterPoints -= value * 10;
+		characterPoints -= (value * 10);
 		break;
 	case 'D':
+		// Can't go lower than 1.
+		if (value < 0 && dexterity == 1)
+			return false;
 		dexterity += value;
-		characterPoints -= value * 10;
+		characterPoints -= (value * 10);
 		break;
 	case 'H':
+		// Can't go lower than 1.
+		if (value < 0 && health == 1)
+			return false;
 		health += value;
-		characterPoints -= value * 10;
+		characterPoints -= (value * 10);
 		break;
 	default:
 		break;
 	}
 
-	return;
+	return true;
 }
 
 int Character::GetCharacterPoints() { return characterPoints; }

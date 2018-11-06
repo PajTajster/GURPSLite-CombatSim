@@ -13,6 +13,12 @@ private:
 	bool isPlayerInit;
 	Character* player;
 
+	// Indexes of player's items.
+
+	int playerCurrentWeapon;
+	int playerCurrentArmour;
+	int playerCurrentShield;
+
 	// Player stats to keep
 
 	int playerST;
@@ -28,7 +34,6 @@ private:
 
 
 	void PlayerCreationMenu();
-	void ShowPlayer();
 
 	void BattleMenu();
 

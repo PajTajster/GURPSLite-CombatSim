@@ -211,7 +211,8 @@ public:
 
 
 	// Modifies given attribute by value at the cost of characterPoints.
-	void ModifyAttribute(int value, char attribute);
+	// Returns true if attribute was succesfully modified, false if not.
+	bool ModifyAttribute(int value, char attribute);
 	// Returns Character characterPoints;
 	int GetCharacterPoints();
 
