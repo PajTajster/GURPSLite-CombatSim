@@ -317,7 +317,7 @@ public:
 	// Load all the data in JSON files.
 	void InitializeGameMaster();
 	// Init base player (returns Character which is Player).
-	Character InitBasePlayer();
+	Character* InitBasePlayer();
 
 	std::vector<Character> getCharacters();
 	std::vector<Skill> getSkills();

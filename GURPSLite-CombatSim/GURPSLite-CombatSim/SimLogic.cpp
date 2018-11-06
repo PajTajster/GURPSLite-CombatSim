@@ -387,7 +387,7 @@ void Character::CalculateExtraAttributes()
 
 	// If no weapon is used, then parry is 0
 	// but if it is, then parry is half of weapon's skill's proficiency.
-	if (currentWeapon.name == "Bare Hands")
+	if (currentWeapon.name == "Bare Fists")
 		parry = 0;
 	else
 	{
@@ -407,6 +407,11 @@ void Character::CalculateExtraAttributes()
 		
 	// If there is armour on character's body, then he "inherits" it's bonuses
 	// if not, it's 0.
+	if (currentArmour.name == "Ordinary Clothes")
+		isWearingArmour = false;
+	else
+		isWearingArmour = true;
+
 	if (isWearingArmour)
 	{
 		passiveDefence = currentArmour.passiveDefence;
@@ -454,7 +459,7 @@ void Character::CalculateSkillsDefaults()
 		{
 			// S - Strength, D - Dexterity, H - Health
 			// Calculate default proficiency.
-			switch (i.name[0])
+			switch (i.defaultAttribute[0])
 			{
 			case 'S':
 				defaultAttProf = strength + i.defaultBonus;
@@ -473,7 +478,7 @@ void Character::CalculateSkillsDefaults()
 			// If there's a second optional default Attribute, we calculate it also.
 			if (i.defaultOptionalAttribute != "None")
 			{
-				switch (i.name[0])
+				switch (i.defaultOptionalAttribute[0])
 				{
 				case 'S':
 					defaultOptionalProf = strength + i.defaultBonus;
@@ -766,16 +771,20 @@ void GameMaster::InitializeGameMaster()
 	LoadCharacters();
 }
 
-Character GameMaster::InitBasePlayer()
+Character* GameMaster::InitBasePlayer()
 {
-	Character player;
-	player.currentArmour = allArmours[0];
-	player.currentWeapon = allWeapons[0];
-	player.skills = allSkills;
-	player.CalculateExtraAttributes();
-	player.CalculateSkillsDefaults();
+	Character* player = new Character();
 
-	player.isPlayer = true;
+	player->name = "Nobody";
+	player->currentArmour = allArmours[0];
+	player->currentWeapon = allWeapons[0];
+	player->skills = allSkills;
+	player->CalculateExtraAttributes();
+	player->CalculateSkillsDefaults();
+
+	player->isPlayer = true;
+
+	player->characterPoints = 100;
 
 
 	return player;

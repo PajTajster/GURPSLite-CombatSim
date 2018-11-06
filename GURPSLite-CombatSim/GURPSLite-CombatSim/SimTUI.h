@@ -11,7 +11,7 @@ private:
 	GameMaster gm;
 
 	bool isPlayerInit;
-	Character player;
+	Character* player;
 
 	// Player stats to keep
 

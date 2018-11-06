@@ -91,7 +91,9 @@ void MenuUIHelper::MainMenu()
 				break;
 			case 1:
 				if (isPlayerInit)
-				//PrepareTeamMenu();
+				{
+					//PrepareTeamMenu();
+				}
 				break;
 			case 2:
 				ShowItemsMenu();
@@ -129,9 +131,9 @@ void MenuUIHelper::PlayerCreationMenu()
 		"ST: ",
 		"DX: ",
 		"HT: ",
-		"Weapon: Bare Hands",
-		"Armour: None",
-		"Shield: None",
+		"Weapon: ",
+		"Armour: ",
+		"Shield: ",
 		"Character Points left: ",
 		"Done",
 		"Go back"
@@ -139,19 +141,33 @@ void MenuUIHelper::PlayerCreationMenu()
 
 	bool isPlayerNameSet = true;
 
-	if (player.name == "Nobody")
+	if (player->name == "Nobody")
 		isPlayerNameSet = false;
 
-	// TODO
-
 	int currentOption = 0;
-	int optionPos[] = { 1, 3, 5, 7, 9, 11, 13, 16, 19, 22 };
+	int optionPos[] = { 1, 2, 3, 4, 6, 7, 8, 10, 12, 14 };
 
 	int previousPos = 0;
 	int currentPos = optionPos[0];
 
 	while (true)
 	{
+		playerCreationMenuOptions[0] = "Name: " + player->name;
+		playerCreationMenuOptions[1] = "ST: " + std::to_string(playerST);
+		playerCreationMenuOptions[2] = "DX: " + std::to_string(playerDX);
+		playerCreationMenuOptions[3] = "HT: " + std::to_string(playerHT);
+		playerCreationMenuOptions[4] = "Weapon: " + player->currentWeapon.name;
+		playerCreationMenuOptions[5] = "Armour: " + player->currentArmour.name;
+
+		
+		if (player->currentWeapon.isTwoHanded || player->currentWeapon.isMelee)
+			playerCreationMenuOptions[6] = "Shield: None [Ranged or Two-Handed Weapon Equipped]";
+		else
+			playerCreationMenuOptions[6] = "Shield: " + player->currentShield.name;
+		
+		playerCreationMenuOptions[7] = "Character Points left: " + player->characterPoints;
+
+
 		int j = 0;
 		for (auto& i : playerCreationMenuOptions)
 		{
@@ -188,14 +204,9 @@ void MenuUIHelper::PlayerCreationMenu()
 				currentPos = optionPos[currentOption];
 			}
 			break;
-		case 10:
-		{
+		case KEY_LEFT:
 			switch (currentOption)
 			{
-				// Name
-			case 0:
-				break;
-
 				// ST
 			case 1:
 				break;
@@ -218,6 +229,42 @@ void MenuUIHelper::PlayerCreationMenu()
 
 				// Shield
 			case 6:
+				break;
+			}
+
+		case KEY_RIGHT:
+			switch (currentOption)
+			{
+				// ST
+			case 1:
+				break;
+
+				// DX
+			case 2:
+				break;
+
+				// HT
+			case 3:
+				break;
+
+				// Weapon
+			case 4:
+				break;
+
+				// Armour
+			case 5:
+				break;
+
+				// Shield
+			case 6:
+				break;
+			}
+		case 10:
+		{
+			switch (currentOption)
+			{
+				// Name
+			case 0:
 				break;
 
 				// Done
@@ -923,4 +970,6 @@ MenuUIHelper::MenuUIHelper()
 
 }
 MenuUIHelper::~MenuUIHelper()
-{}
+{
+	delete player;
+}
