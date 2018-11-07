@@ -1,5 +1,6 @@
 #include "SimTUI.h"
 
+
 void MenuUIHelper::Init()
 {
 	gm.InitializeGameMaster();
@@ -63,8 +64,8 @@ void MenuUIHelper::MainMenu()
 		
 		wrefresh(menu);
 
-		int choosenOption = getch();
-		switch (choosenOption)
+		int chosenOption = getch();
+		switch (chosenOption)
 		{
 		case KEY_UP:
 			if (currentOption != 0)
@@ -94,7 +95,11 @@ void MenuUIHelper::MainMenu()
 			case 1:
 				if (isPlayerInit)
 				{
-					//PrepareTeamMenu();
+					PrepareTeamMenu();
+				}
+				if (!isGameRunning)
+				{
+					return;
 				}
 				break;
 			case 2:
@@ -223,8 +228,8 @@ void MenuUIHelper::PlayerCreationMenu()
 
 		wrefresh(menu);
 
-		int choosenOption = getch();
-		switch (choosenOption)
+		int chosenOption = getch();
+		switch (chosenOption)
 		{
 		case KEY_UP:
 			if (currentOption != 0)
@@ -532,6 +537,126 @@ void MenuUIHelper::PlayerCreationMenu()
 	}
 }
 
+void MenuUIHelper::PrepareTeamMenu()
+{
+	wclear(menu);
+
+	std::vector<std::string> battleSizeOptions = 
+	{
+		"Choose battle size: ",
+		"1 vs 1",
+		"2 vs 2",
+		"3 vs 3",
+		"Go back"
+	};
+
+	int currentOption = 0;
+
+	int optionPos[] = { 2, 5, 7, 9, 12};
+
+	int previousPos = 0;
+	int currentPos = optionPos[0];
+
+	// Choosing battle size first.
+	while (true)
+	{
+		int j = 0;
+		for (auto& i : battleSizeOptions)
+		{
+			if (optionPos[j] == currentPos)
+			{
+				mvwaddch(menu, previousPos, menuOptionXPos - 1, ' ');
+				mvwaddch(menu, currentPos, menuOptionXPos - 1, '>');
+			}
+
+			mvwprintw(menu, optionPos[j], menuOptionXPos, i.c_str());
+
+			++j;
+		}
+
+		wrefresh(menu);
+
+		int chosenOption = getch();
+		switch (chosenOption)
+		{
+		case KEY_UP:
+			if (!(currentPos <= 2))
+			{
+				previousPos = currentPos;
+				currentPos -= 2;
+			}
+			break;
+		case KEY_DOWN:
+			if (!(currentPos >= 13))
+			{
+				previousPos = currentPos;
+				currentPos += 2;
+			}
+			break;
+		case 10:
+		{
+			switch (currentPos)
+			{				
+				// 1 vs 1
+			case 5:
+				teamSize = 1;
+				break;
+
+				// 2 vs 2 
+			case 7:
+				teamSize = 2;
+				break;
+
+				// 3 vs 3
+			case 10:
+				teamSize = 3;
+				break;
+
+				// Go back
+			case 12:
+				teamSize = 0;
+				return;
+			default:
+				break;
+
+			}
+		}
+			break;
+		default:
+			break;
+		}
+		wclear(menu);
+
+		if (!isGameRunning)
+		{
+			return;
+		}
+	}
+
+}
+
+void MenuUIHelper::SelectFightersMenu()
+{
+	std::vector<std::string> chooseFightersOptions =
+	{
+		"Choose Team 1 Fighters:"
+		"Choose Team 2 Fighters:"
+		"Go back"
+	};
+
+	int currentOption = 0;
+//4 5 6 7
+	int optionPos[] = { 2, 2, 9, 9, 12 };
+
+	int previousPos = 0;
+	int currentPos = optionPos[0];
+
+	// Keep record for Team 1 Characters [Player is team1]
+	int team1Characters = 1;
+	// Keep record for Team 2 Characters
+	int team2Characters = 0;
+}
+
 void MenuUIHelper::ShowItemsMenu()
 {
 	wclear(menu);
@@ -573,8 +698,8 @@ void MenuUIHelper::ShowItemsMenu()
 
 		wrefresh(menu);
 
-		int choosenOption = getch();
-		switch (choosenOption)
+		int chosenOption = getch();
+		switch (chosenOption)
 		{
 		case KEY_UP:
 			if (!(currentPos <= 2))
@@ -686,8 +811,8 @@ void MenuUIHelper::ShowCharacters()
 
 		wrefresh(menu);
 		
-		int choosenOption = getch();
-		switch (choosenOption)
+		int chosenOption = getch();
+		switch (chosenOption)
 		{
 		case KEY_LEFT:
 			if (currentOption != 0)
@@ -794,8 +919,8 @@ void MenuUIHelper::ShowSkills()
 
 		wrefresh(menu);
 
-		int choosenOption = getch();
-		switch (choosenOption)
+		int chosenOption = getch();
+		switch (chosenOption)
 		{
 		case KEY_LEFT:
 			if (currentOption != 0)
@@ -902,8 +1027,8 @@ void MenuUIHelper::ShowArmours()
 
 		wrefresh(menu);
 
-		int choosenOption = getch();
-		switch (choosenOption)
+		int chosenOption = getch();
+		switch (chosenOption)
 		{
 		case KEY_LEFT:
 			if (currentOption != 0)
@@ -1010,8 +1135,8 @@ void MenuUIHelper::ShowWeapons()
 
 		wrefresh(menu);
 
-		int choosenOption = getch();
-		switch (choosenOption)
+		int chosenOption = getch();
+		switch (chosenOption)
 		{
 		case KEY_LEFT:
 			if (currentOption != 0)
@@ -1118,8 +1243,8 @@ void MenuUIHelper::ShowShields()
 
 		wrefresh(menu);
 
-		int choosenOption = getch();
-		switch (choosenOption)
+		int chosenOption = getch();
+		switch (chosenOption)
 		{
 		case KEY_LEFT:
 			if (currentOption != 0)

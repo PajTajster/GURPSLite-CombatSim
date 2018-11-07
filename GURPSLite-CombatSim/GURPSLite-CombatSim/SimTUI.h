@@ -5,10 +5,13 @@
 #include <vector>
 #include "SimLogic.h"
 
+
 class MenuUIHelper
 {
 private:
 	GameMaster gm;
+	// Related to BattleSize
+	int teamSize;
 
 	bool isPlayerInit;
 	Character* player;
@@ -35,6 +38,8 @@ private:
 
 	void PlayerCreationMenu();
 
+	void PrepareTeamMenu();
+	void SelectFightersMenu();
 	void BattleMenu();
 
 	void ShowItemsMenu();
@@ -44,7 +49,6 @@ private:
 	void ShowWeapons();
 	void ShowShields();
 
-	void PrepareTeamMenu();
 
 public:
 	bool isGameRunning;
