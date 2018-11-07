@@ -35,8 +35,10 @@ void MenuUIHelper::MainMenu()
 	int previousPos = 0;
 	int currentPos = optionPos[0];
 
-	while (true)
+	while (isGameRunning)
 	{
+		wclear(menu);
+
 		if (isPlayerInit)
 		{
 			mainMenuOptions[0] = "Edit Character";
@@ -119,8 +121,6 @@ void MenuUIHelper::MainMenu()
 		default:
 			break;
 		}
-
-
 	}
 	delwin(menu);
 	delwin(logo);
@@ -146,9 +146,9 @@ void MenuUIHelper::PlayerCreationMenu()
 		"Go back"
 	};
 
-	std::vector<Weapon> weaponsToChoose = gm.getWeapons();
-	std::vector<Shield> shieldsToChoose = gm.getShields();
-	std::vector<Armour> armoursToChoose = gm.getArmours();
+	std::vector<Weapon> weaponsToChoose = gm.GetWeapons();
+	std::vector<Shield> shieldsToChoose = gm.GetShields();
+	std::vector<Armour> armoursToChoose = gm.GetArmours();
 
 	// Checks if player has "money" to buy more attributes.
 	bool outOfPoints = false;
@@ -209,7 +209,10 @@ void MenuUIHelper::PlayerCreationMenu()
 			playerCreationMenuOptions[7] = "Character Points Left: " + std::to_string(player->characterPoints);
 		}
 
-
+		if (isPlayerNameSet)
+		{
+			playerCreationMenuOptions[8] = "Done";
+		}
 
 		int j = 0;
 		for (auto& i : playerCreationMenuOptions)
@@ -550,15 +553,15 @@ void MenuUIHelper::PrepareTeamMenu()
 		"Go back"
 	};
 
-	int currentOption = 0;
+	int currentOption = 1;
 
 	int optionPos[] = { 2, 5, 7, 9, 12};
 
 	int previousPos = 0;
-	int currentPos = optionPos[0];
+	int currentPos = optionPos[1];
 
 	// Choosing battle size first.
-	while (true)
+	while (isGameRunning)
 	{
 		int j = 0;
 		for (auto& i : battleSizeOptions)
@@ -579,18 +582,21 @@ void MenuUIHelper::PrepareTeamMenu()
 		int chosenOption = getch();
 		switch (chosenOption)
 		{
+
 		case KEY_UP:
-			if (!(currentPos <= 2))
+			if (currentOption != 1)
 			{
+				--currentOption;
 				previousPos = currentPos;
-				currentPos -= 2;
+				currentPos = optionPos[currentOption];
 			}
 			break;
 		case KEY_DOWN:
-			if (!(currentPos >= 13))
+			if (currentOption != 4)
 			{
+				++currentOption;
 				previousPos = currentPos;
-				currentPos += 2;
+				currentPos = optionPos[currentOption];
 			}
 			break;
 		case 10:
@@ -600,16 +606,19 @@ void MenuUIHelper::PrepareTeamMenu()
 				// 1 vs 1
 			case 5:
 				teamSize = 1;
+				SelectFightersMenu();
 				break;
 
 				// 2 vs 2 
 			case 7:
 				teamSize = 2;
+				SelectFightersMenu();
 				break;
 
 				// 3 vs 3
 			case 10:
 				teamSize = 3;
+				SelectFightersMenu();
 				break;
 
 				// Go back
@@ -627,10 +636,6 @@ void MenuUIHelper::PrepareTeamMenu()
 		}
 		wclear(menu);
 
-		if (!isGameRunning)
-		{
-			return;
-		}
 	}
 
 }
@@ -639,22 +644,132 @@ void MenuUIHelper::SelectFightersMenu()
 {
 	std::vector<std::string> chooseFightersOptions =
 	{
-		"Choose Team 1 Fighters:"
-		"Choose Team 2 Fighters:"
+		"Choose Team 1 Fighters:",
+		"Choose Team 2 Fighters:",
+		"Back",
+		"Next",
 		"Go back"
 	};
-
-	int currentOption = 0;
-//4 5 6 7
-	int optionPos[] = { 2, 2, 9, 9, 12 };
-
-	int previousPos = 0;
-	int currentPos = optionPos[0];
 
 	// Keep record for Team 1 Characters [Player is team1]
 	int team1Characters = 1;
 	// Keep record for Team 2 Characters
 	int team2Characters = 0;
+
+	// 1 for Team 1, 2 for Team 2
+	int currentTeamBeingChosen = 1;
+
+
+	std::vector<std::string> showOptions =
+	{
+		// 15
+		"Previous",
+		// 25
+		"Go back",
+		// 35
+		"Select",
+		// 45
+		"Next"
+	};
+
+
+	std::vector<Character> allCharacters = gm.GetCharacters();
+
+	// Currently showed character
+	int currentChar = 0;
+	int maxChar = allCharacters.size() - 1;
+
+	// Menu Positions
+
+	// Horizontal line for options
+	int menuOptionsPos = 2;
+	// Positions for all 3 options
+	int optionPos[] = { 15, 25, 35, 45 };
+	// Current option indicated by an arrow
+	int currentOption = 0;
+	// Holds previous arrow position
+	int previousPos = 0;
+	// Current arrow position
+	int currentPos = optionPos[0] - 1;
+
+	while (true)
+	{
+		wclear(menu);
+
+		mvwprintw(menu, menuOptionsPos - 1, menuOptionXPos, "Choose Team 2 Fighter");
+
+		// Print Character
+		mvwprintw(menu, menuOptionsPos + 4, 0, allCharacters[currentChar].PrintCharacter().c_str());
+
+		int j = 0;
+		for (auto &i : showOptions)
+		{
+			if ((optionPos[j] - 1) == currentPos)
+			{
+				mvwaddch(menu, menuOptionsPos, previousPos, ' ');
+				mvwaddch(menu, menuOptionsPos, currentPos, '>');
+			}
+
+			mvwprintw(menu, menuOptionsPos, optionPos[j], i.c_str());
+
+			j++;
+		}
+
+
+		wrefresh(menu);
+
+		int chosenOption = getch();
+		switch (chosenOption)
+		{
+		case KEY_LEFT:
+			if (currentOption != 0)
+			{
+				--currentOption;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption] - 1;
+			}
+			break;
+		case KEY_RIGHT:
+			if (currentOption != 3)
+			{
+				++currentOption;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption] - 1;
+			}
+			break;
+		case 10:
+		{
+			switch (currentOption)
+			{
+				// Previous
+			case 0:
+				if (currentChar != 0)
+					--currentChar;
+				break;
+
+				// Go back
+			case 1:
+				return;
+
+				// Select
+			case 2:
+				return;
+
+				// Next
+			case 3:
+				if (currentChar != maxChar)
+					++currentChar;
+				break;
+
+			default:
+				break;
+			}
+		}
+		break;
+		default:
+			break;
+		}
+	}
 }
 
 void MenuUIHelper::ShowItemsMenu()
@@ -701,18 +816,21 @@ void MenuUIHelper::ShowItemsMenu()
 		int chosenOption = getch();
 		switch (chosenOption)
 		{
+
 		case KEY_UP:
-			if (!(currentPos <= 2))
+			if (currentOption != 0)
 			{
+				--currentOption;
 				previousPos = currentPos;
-				currentPos -= 2;
+				currentPos = optionPos[currentOption];
 			}
 			break;
 		case KEY_DOWN:
-			if (!(currentPos >= 13))
+			if (currentOption != 5)
 			{
+				++currentOption;
 				previousPos = currentPos;
-				currentPos += 2;
+				currentPos = optionPos[currentOption];
 			}
 			break;
 		case 10:
@@ -767,7 +885,7 @@ void MenuUIHelper::ShowCharacters()
 	};
 
 
-	std::vector<Character> allCharacters = gm.getCharacters();
+	std::vector<Character> allCharacters = gm.GetCharacters();
 
 	// Currently showed character
 	int currentChar = 0;
@@ -875,7 +993,7 @@ void MenuUIHelper::ShowSkills()
 	};
 
 
-	std::vector<Skill> allSkills = gm.getSkills();
+	std::vector<Skill> allSkills = gm.GetSkills();
 
 	// Currently showed character
 	int currentChar = 0;
@@ -983,7 +1101,7 @@ void MenuUIHelper::ShowArmours()
 	};
 
 
-	std::vector<Armour> allArmours = gm.getArmours();
+	std::vector<Armour> allArmours = gm.GetArmours();
 
 	// Currently showed character
 	int currentChar = 0;
@@ -1091,7 +1209,7 @@ void MenuUIHelper::ShowWeapons()
 	};
 
 
-	std::vector<Weapon> allWeapons = gm.getWeapons();
+	std::vector<Weapon> allWeapons = gm.GetWeapons();
 
 	// Currently showed character
 	int currentChar = 0;
@@ -1199,7 +1317,7 @@ void MenuUIHelper::ShowShields()
 	};
 
 
-	std::vector<Shield> allShields = gm.getShields();
+	std::vector<Shield> allShields = gm.GetShields();
 
 	// Currently showed character
 	int currentChar = 0;

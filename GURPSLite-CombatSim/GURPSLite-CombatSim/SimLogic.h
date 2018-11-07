@@ -320,11 +320,11 @@ public:
 	// Init base player (returns Character which is Player).
 	Character* InitBasePlayer();
 
-	std::vector<Character> getCharacters();
-	std::vector<Skill> getSkills();
-	std::vector<Armour> getArmours();
-	std::vector<Weapon> getWeapons();
-	std::vector<Shield> getShields();
+	std::vector<Character> GetCharacters();
+	std::vector<Skill> GetSkills();
+	std::vector<Armour> GetArmours();
+	std::vector<Weapon> GetWeapons();
+	std::vector<Shield> GetShields();
 
 	GameMaster();
 	~GameMaster();

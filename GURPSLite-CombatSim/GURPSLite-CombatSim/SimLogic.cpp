@@ -966,23 +966,23 @@ int GameMaster::LoadShields()
 	return 0;
 }
 
-std::vector<Character> GameMaster::getCharacters()
+std::vector<Character> GameMaster::GetCharacters()
 {
 	return allCharacters;
 }
-std::vector<Skill> GameMaster::getSkills()
+std::vector<Skill> GameMaster::GetSkills()
 {
 	return allSkills;
 }
-std::vector<Armour> GameMaster::getArmours()
+std::vector<Armour> GameMaster::GetArmours()
 {
 	return allArmours;
 }
-std::vector<Weapon> GameMaster::getWeapons()
+std::vector<Weapon> GameMaster::GetWeapons()
 {
 	return allWeapons;
 }
-std::vector<Shield> GameMaster::getShields()
+std::vector<Shield> GameMaster::GetShields()
 {
 	return allShields;
 }
