@@ -698,11 +698,17 @@ void MenuUIHelper::SelectFightersMenu()
 
 		mvwprintw(menu, menuOptionsPos - 1, menuOptionXPos, "Choose Team 2 Fighter");
 
+		std::vector<std::string> charPrinted = allCharacters[currentChar].PrintCharacter();
+
+		int i = menuOptionsPos + 4;
 		// Print Character
-		mvwprintw(menu, menuOptionsPos + 4, 0, allCharacters[currentChar].PrintCharacter().c_str());
+		for (auto& it : charPrinted)
+		{
+			mvwprintw(menu, i++, menuOptionXPos, it.c_str());
+		}
 
 		int j = 0;
-		for (auto &i : showOptions)
+		for (auto &it : showOptions)
 		{
 			if ((optionPos[j] - 1) == currentPos)
 			{
@@ -710,7 +716,7 @@ void MenuUIHelper::SelectFightersMenu()
 				mvwaddch(menu, menuOptionsPos, currentPos, '>');
 			}
 
-			mvwprintw(menu, menuOptionsPos, optionPos[j], i.c_str());
+			mvwprintw(menu, menuOptionsPos, optionPos[j], it.c_str());
 
 			j++;
 		}
@@ -887,7 +893,7 @@ void MenuUIHelper::ShowCharacters()
 
 	std::vector<Character> allCharacters = gm.GetCharacters();
 
-	// Currently showed character
+	// Currently shown character
 	int currentChar = 0;
 	int maxChar = allCharacters.size() - 1;
 	
@@ -908,12 +914,17 @@ void MenuUIHelper::ShowCharacters()
 	{
 		wclear(menu);
 
+		std::vector<std::string> charPrinted = allCharacters[currentChar].PrintCharacter();
 
+		int i = menuOptionsPos + 4;
 		// Print Character
-		mvwprintw(menu, menuOptionsPos+4, 0, allCharacters[currentChar].PrintCharacter().c_str());
+		for (auto& it : charPrinted)
+		{
+			mvwprintw(menu, i++, menuOptionXPos, it.c_str());
+		}
 
 		int j = 0;
-		for (auto &i : showOptions)
+		for (auto &it : showOptions)
 		{
 			if ((optionPos[j] - 1) == currentPos)
 			{
@@ -921,7 +932,7 @@ void MenuUIHelper::ShowCharacters()
 				mvwaddch(menu, menuOptionsPos, currentPos, '>');
 			}
 
-			mvwprintw(menu, menuOptionsPos, optionPos[j], i.c_str());
+			mvwprintw(menu, menuOptionsPos, optionPos[j], it.c_str());
 
 			j++;
 		}
@@ -995,9 +1006,9 @@ void MenuUIHelper::ShowSkills()
 
 	std::vector<Skill> allSkills = gm.GetSkills();
 
-	// Currently showed character
-	int currentChar = 0;
-	int maxChar = allSkills.size() - 1;
+	// Currently shown skill
+	int currentSkill = 0;
+	int maxSkill = allSkills.size() - 1;
 
 	// Menu Positions
 
@@ -1017,11 +1028,17 @@ void MenuUIHelper::ShowSkills()
 		wclear(menu);
 
 
+		std::vector<std::string> skillPrinted = allSkills[currentSkill].PrintSkill();
+
+		int i = menuOptionsPos + 4;
 		// Print Character
-		mvwprintw(menu, menuOptionsPos + 4, 0, allSkills[currentChar].PrintSkill().c_str());
+		for (auto& it : skillPrinted)
+		{
+			mvwprintw(menu, i++, menuOptionXPos, it.c_str());
+		}
 
 		int j = 0;
-		for (auto &i : showOptions)
+		for (auto &it : showOptions)
 		{
 			if ((optionPos[j] - 1) == currentPos)
 			{
@@ -1029,7 +1046,7 @@ void MenuUIHelper::ShowSkills()
 				mvwaddch(menu, menuOptionsPos, currentPos, '>');
 			}
 
-			mvwprintw(menu, menuOptionsPos, optionPos[j], i.c_str());
+			mvwprintw(menu, menuOptionsPos, optionPos[j], it.c_str());
 
 			j++;
 		}
@@ -1062,8 +1079,8 @@ void MenuUIHelper::ShowSkills()
 			{
 				// Previous
 			case 0:
-				if (currentChar != 0)
-					--currentChar;
+				if (currentSkill != 0)
+					--currentSkill;
 				break;
 
 				// Go back
@@ -1072,8 +1089,8 @@ void MenuUIHelper::ShowSkills()
 
 				// Next
 			case 2:
-				if (currentChar != maxChar)
-					++currentChar;
+				if (currentSkill != maxSkill)
+					++currentSkill;
 				break;
 
 			default:
@@ -1103,9 +1120,9 @@ void MenuUIHelper::ShowArmours()
 
 	std::vector<Armour> allArmours = gm.GetArmours();
 
-	// Currently showed character
-	int currentChar = 0;
-	int maxChar = allArmours.size() - 1;
+	// Currently shown armour
+	int currentArmour = 0;
+	int maxArmour = allArmours.size() - 1;
 
 	// Menu Positions
 
@@ -1125,11 +1142,17 @@ void MenuUIHelper::ShowArmours()
 		wclear(menu);
 
 
+		std::vector<std::string> armourPrinted = allArmours[currentArmour].PrintArmour();
+
+		int i = menuOptionsPos + 4;
 		// Print Character
-		mvwprintw(menu, menuOptionsPos + 4, 0, allArmours[currentChar].PrintArmour().c_str());
+		for (auto& it : armourPrinted)
+		{
+			mvwprintw(menu, i++, menuOptionXPos, it.c_str());
+		}
 
 		int j = 0;
-		for (auto &i : showOptions)
+		for (auto &it : showOptions)
 		{
 			if ((optionPos[j] - 1) == currentPos)
 			{
@@ -1137,7 +1160,7 @@ void MenuUIHelper::ShowArmours()
 				mvwaddch(menu, menuOptionsPos, currentPos, '>');
 			}
 
-			mvwprintw(menu, menuOptionsPos, optionPos[j], i.c_str());
+			mvwprintw(menu, menuOptionsPos, optionPos[j], it.c_str());
 
 			j++;
 		}
@@ -1170,8 +1193,8 @@ void MenuUIHelper::ShowArmours()
 			{
 				// Previous
 			case 0:
-				if (currentChar != 0)
-					--currentChar;
+				if (currentArmour != 0)
+					--currentArmour;
 				break;
 
 				// Go back
@@ -1180,8 +1203,8 @@ void MenuUIHelper::ShowArmours()
 
 				// Next
 			case 2:
-				if (currentChar != maxChar)
-					++currentChar;
+				if (currentArmour != maxArmour)
+					++currentArmour;
 				break;
 
 			default:
@@ -1211,9 +1234,9 @@ void MenuUIHelper::ShowWeapons()
 
 	std::vector<Weapon> allWeapons = gm.GetWeapons();
 
-	// Currently showed character
-	int currentChar = 0;
-	int maxChar = allWeapons.size() - 1;
+	// Currently shown weapon
+	int currentWeapon = 0;
+	int maxWeapon = allWeapons.size() - 1;
 
 	// Menu Positions
 
@@ -1233,11 +1256,17 @@ void MenuUIHelper::ShowWeapons()
 		wclear(menu);
 
 
+		std::vector<std::string> weaponPrinted = allWeapons[currentWeapon].PrintWeapon();
+
+		int i = menuOptionsPos + 4;
 		// Print Character
-		mvwprintw(menu, menuOptionsPos + 4, 0, allWeapons[currentChar].PrintWeapon().c_str());
+		for (auto& it : weaponPrinted)
+		{
+			mvwprintw(menu, i++, menuOptionXPos, it.c_str());
+		}
 
 		int j = 0;
-		for (auto &i : showOptions)
+		for (auto &it : showOptions)
 		{
 			if ((optionPos[j] - 1) == currentPos)
 			{
@@ -1245,7 +1274,7 @@ void MenuUIHelper::ShowWeapons()
 				mvwaddch(menu, menuOptionsPos, currentPos, '>');
 			}
 
-			mvwprintw(menu, menuOptionsPos, optionPos[j], i.c_str());
+			mvwprintw(menu, menuOptionsPos, optionPos[j], it.c_str());
 
 			j++;
 		}
@@ -1278,8 +1307,8 @@ void MenuUIHelper::ShowWeapons()
 			{
 				// Previous
 			case 0:
-				if (currentChar != 0)
-					--currentChar;
+				if (currentWeapon != 0)
+					--currentWeapon;
 				break;
 
 				// Go back
@@ -1288,8 +1317,8 @@ void MenuUIHelper::ShowWeapons()
 
 				// Next
 			case 2:
-				if (currentChar != maxChar)
-					++currentChar;
+				if (currentWeapon != maxWeapon)
+					++currentWeapon;
 				break;
 
 			default:
@@ -1319,9 +1348,9 @@ void MenuUIHelper::ShowShields()
 
 	std::vector<Shield> allShields = gm.GetShields();
 
-	// Currently showed character
-	int currentChar = 0;
-	int maxChar = allShields.size() - 1;
+	// Currently shown shield
+	int currentShield = 0;
+	int maxShield = allShields.size() - 1;
 
 	// Menu Positions
 
@@ -1340,12 +1369,17 @@ void MenuUIHelper::ShowShields()
 	{
 		wclear(menu);
 
+		std::vector<std::string> shieldPrinted = allShields[currentShield].PrintShield();
 
+		int i = menuOptionsPos + 4;
 		// Print Character
-		mvwprintw(menu, menuOptionsPos + 4, 0, allShields[currentChar].PrintShield().c_str());
+		for (auto& it : shieldPrinted)
+		{
+			mvwprintw(menu, i++, menuOptionXPos, it.c_str());
+		}
 
 		int j = 0;
-		for (auto &i : showOptions)
+		for (auto &it : showOptions)
 		{
 			if ((optionPos[j] - 1) == currentPos)
 			{
@@ -1353,7 +1387,7 @@ void MenuUIHelper::ShowShields()
 				mvwaddch(menu, menuOptionsPos, currentPos, '>');
 			}
 
-			mvwprintw(menu, menuOptionsPos, optionPos[j], i.c_str());
+			mvwprintw(menu, menuOptionsPos, optionPos[j], it.c_str());
 
 			j++;
 		}
@@ -1386,8 +1420,8 @@ void MenuUIHelper::ShowShields()
 			{
 				// Previous
 			case 0:
-				if (currentChar != 0)
-					--currentChar;
+				if (currentShield != 0)
+					--currentShield;
 				break;
 
 				// Go back
@@ -1396,8 +1430,8 @@ void MenuUIHelper::ShowShields()
 
 				// Next
 			case 2:
-				if (currentChar != maxChar)
-					++currentChar;
+				if (currentShield != maxShield)
+					++currentShield;
 				break;
 
 			default:

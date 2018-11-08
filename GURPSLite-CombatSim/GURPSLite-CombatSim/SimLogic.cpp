@@ -26,21 +26,21 @@ DiceRoller::DiceRoller() {}
 DiceRoller::~DiceRoller() {}
 
 
-std::string Skill::PrintSkill()
+std::vector<std::string> Skill::PrintSkill()
 {
-	std::string message;
+	std::vector<std::string> message;
 
-	message.append("Name: " + name + "\n");
+	message.push_back("Name: " + name);
 
 	if (noDefaults)
 	{
-		message.append("Skill has no base proficiency");
+		message.push_back("Skill has no base proficiency");
 	}
 	else
 	{
-		message.append("Bonus: " + std::to_string(defaultBonus) + 
-		"\nDefault Attribute: " + defaultAttribute +
-		"\nOptional Attribute: " + defaultOptionalAttribute);
+		message.push_back("Bonus: " + std::to_string(defaultBonus));
+		message.push_back("Default Attribute: " + defaultAttribute);
+		message.push_back("Optional Attribute: " + defaultOptionalAttribute);
 	}
 
 	return message;
@@ -54,12 +54,12 @@ Skill::Skill(std::string nm, std::string dftAt, std::string dftOptAt,
 			defaultBonus(dB), noDefaults(noDef) { }			
 
 
-std::string Shield::PrintShield()
+std::vector<std::string> Shield::PrintShield()
 {
-	std::string message;
+	std::vector<std::string> message;
 
-	message.append("Name: " + name +
-		"\nArmor bonus: " + std::to_string(bonus));
+	message.push_back("Name: " + name);
+	message.push_back("Armor bonus: " + std::to_string(bonus));
 
 	return message;
 }
@@ -70,13 +70,13 @@ Shield::Shield() : name("Undefined") { }
 Shield::Shield(std::string n, int b) : name(n), bonus(b) { }
 
 
-std::string Armour::PrintArmour()
+std::vector<std::string> Armour::PrintArmour()
 {
-	std::string message;
+	std::vector<std::string> message;
 
-	message.append("Name: " + name +
-		"\nPassive Defence: " + std::to_string(passiveDefence) +
-		"\nDamage Resistance: " + std::to_string(damageResistance));
+	message.push_back("Name: " + name);
+	message.push_back("Passive Defence: " + std::to_string(passiveDefence));
+	message.push_back("Damage Resistance: " + std::to_string(damageResistance));
 
 	return message;
 }
@@ -87,30 +87,30 @@ Armour::Armour(std::string n, int pD, int dR) :
 	name(n), passiveDefence(pD), damageResistance(dR) { }
 
 
-std::string Weapon::PrintWeapon()
+std::vector<std::string> Weapon::PrintWeapon()
 {
-	std::string message;
+	std::vector<std::string> message;
 
-	message.append("Name: " + name +
-		"\nDamage: " + std::to_string(damage.dices) + "(Dices), " +
-		std::to_string(damage.bonus) + "(Bonus)" +
-		"\nSkill used: " + skill.name + "\n");
+	message.push_back("Name: " + name);
+	message.push_back("Damage: " + std::to_string(damage.dices) + "(Dices), "
+		+ std::to_string(damage.bonus) + "(Bonus)");
+	message.push_back("Skill used: " + skill.name);
 
 	if (isMelee)
 	{
 		if (isTwoHanded)
 		{
-			message.append("This is Two-Handed weapon.");
+			message.push_back("This is Two-Handed weapon.");
 		}
 		else
 		{
-			message.append("This is One-Handed weapon.");
+			message.push_back("This is One-Handed weapon.");
 		}
 	}
 	else
 	{
-		message.append("This is Ranged weapon" \
-			"\nRate of Fire: " + std::to_string(rateOfFire));
+		message.push_back("This is Ranged weapon");
+		message.push_back("Rate of Fire: " + std::to_string(rateOfFire));
 	}
 
 	return message;
@@ -534,18 +534,18 @@ void Character::SetTeam(int teamToSet)
 
 int Character::GetTeam() { return team; }
 
-std::string Character::PrintCharacter()
+std::vector<std::string> Character::PrintCharacter()
 {
-	std::string message;
+	std::vector<std::string> message;
 
 
-	message.append("Name: " + name +
-		"\nStrength: " + std::to_string(strength) +
-		"\nDexterity: " + std::to_string(dexterity) +
-		"\nHealth: " + std::to_string(health) +
-	"\nEquipped Weapon: " + currentWeapon.name +
-	"\nEquipped Shield: " + currentShield.name +
-	"\nEquipped Armour: " + currentArmour.name);
+	message.push_back("Name: " + name);
+	message.push_back("Strength: " + std::to_string(strength));
+	message.push_back("Dexterity: " + std::to_string(dexterity));
+	message.push_back("Health: " + std::to_string(health));
+	message.push_back("Equipped Weapon: " + currentWeapon.name);
+	message.push_back("Equipped Shield: " + currentShield.name);
+	message.push_back("Equipped Armour: " + currentArmour.name);
 
 	return message;
 }

@@ -62,7 +62,7 @@ public:
 	// Set true if skill doesn't have default value.
 	bool noDefaults;
 
-	std::string PrintSkill();
+	std::vector<std::string> PrintSkill();
 
 	Skill();
 	Skill(std::string nm, std::string dftAt, std::string dftOptAt,
@@ -74,7 +74,7 @@ public:
 	std::string name;
 	int bonus;
 
-	std::string PrintShield();
+	std::vector<std::string> PrintShield();
 
 	Shield();
 	Shield(std::string n, int b);
@@ -90,7 +90,7 @@ public:
 	// How much damage it blocks.
 	int damageResistance;
 
-	std::string PrintArmour();
+	std::vector<std::string> PrintArmour();
 
 	Armour();
 	Armour(std::string n, int pD, int dR);
@@ -112,7 +112,7 @@ public:
 	// Whether character uses both hands or not[if yes, then no shield possible].
 	bool isTwoHanded;
 
-	std::string PrintWeapon();
+	std::vector<std::string> PrintWeapon();
 
 	Weapon();
 	Weapon(std::string n, Damage d, Skill s, bool isM, int rOF, bool isTH);
@@ -257,7 +257,7 @@ public:
 	void SetTeam(int teamToSet);
 	int GetTeam();
 
-	std::string PrintCharacter();
+	std::vector<std::string> PrintCharacter();
 
 
 	Character& operator=(const Character& original);
