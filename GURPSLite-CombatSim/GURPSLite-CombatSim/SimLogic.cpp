@@ -13,7 +13,7 @@ using json = nlohmann::json;
 
 int DiceRoller::RollDice(int dices, int bonus)
 {
-	srand((unsigned)time(NULL));
+
 	int diceResult = 0;
 	for (int i = 0; i < dices; ++i)
 		diceResult += rand() % 6 + 1;
@@ -551,7 +551,14 @@ std::vector<std::string> Character::PrintCharacter()
 Character::Character(const Character& original)
 {
 	*this = original;
-	this->ID = ++nextID;
+}
+Character::Character(const Character& original, bool deep)
+{
+	*this = original;
+	if (deep)
+	{
+		this->ID = ++nextID;
+	}
 }
 Character::Character() : isWieldingShield(false), isDead(false), isPlayer(false),
 isKnockedDown(false), hasAttackedThisTurn(false),
@@ -560,8 +567,6 @@ health(10)
 {
 	isPlayer = false;
 	ID = ++nextID;
-
-	srand((unsigned)time(NULL));
 
 	usedAI = static_cast<AI>(rand() % AI_NULL);
 
@@ -652,7 +657,6 @@ void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 		// NPC chooses random opponent.
 	case AI_TARGET_RANDOM:
 	{
-		srand((unsigned)time(NULL));
 		int randTarget = 0;
 		randTarget = rand() % charactersToChoose.size();
 		newTarget = charactersToChoose[randTarget];

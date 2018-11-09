@@ -1,8 +1,11 @@
 #include "SimTUI.h"
+#include <ctime>
 
 
 void MenuUIHelper::Init()
 {
+	srand((unsigned)time(NULL));
+
 	gm.InitializeGameMaster();
 
 	player = gm.InitBasePlayer();
@@ -19,13 +22,6 @@ void MenuUIHelper::MainMenu()
 
 	noecho();
 	cbreak();
-
-	std::vector<Character> tmp;
-	std::vector<Character> tmp2 = gm.GetCharacters();
-
-	tmp.push_back(Character(tmp2[0]));
-	tmp.push_back(Character(tmp2[0]));
-	tmp.push_back(Character(tmp2[0]));
 	
 
 	std::vector<std::string> mainMenuOptions =

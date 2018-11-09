@@ -265,7 +265,8 @@ public:
 	//Character& operator=(const Character& original);
 
 	Character();
-	Character(const Character& orig);
+	Character(const Character&);
+	Character(const Character&, bool);
 
 	~Character();
 };
