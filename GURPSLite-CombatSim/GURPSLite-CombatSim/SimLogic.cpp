@@ -688,20 +688,25 @@ void Character::NPCAssessSituation()
 
 
 
-void GameMaster::AddCharacterToTeam(Character c, int teamToSet)
+void GameMaster::AddCharacterToTeam(int id, int teamToSet)
 {
+	int IDToFind = id;
+
+	auto characterToPush = std::find_if(charactersInPlay.begin(), charactersInPlay.end(),
+		[IDToFind](const auto &c) -> bool {return c.ID == IDToFind; });
+
 	if (teamToSet == 1 || teamToSet == 2)
 	{
 		switch (teamToSet)
 		{
 		case 1:
-			team1.push_back(c);
+			team1.push_back(*characterToPush);
 			break;
 		case 2:
-			team2.push_back(c);
+			team2.push_back(*characterToPush);
 			break;
 		}
-		c.SetTeam(teamToSet);
+		characterToPush->SetTeam(teamToSet);
 	}
 	return;
 }
@@ -715,28 +720,28 @@ void GameMaster::CalculateInitiative()
 		});
 }
 
-void GameMaster::KillCharacter(Character character)
+void GameMaster::KillCharacter(int id)
 {
-	// Don't kill character that's not dead! :((
-	if (!character.isDead)
-		return;
-
-	int charID = character.ID;
+	int charID = id;
 
 	// Search charactersInPlay vector in order to delete character.
-	auto characterToDelete = std::find_if(charactersInPlay.cbegin(), charactersInPlay.cend(),
-							[charID](const auto &c) -> bool {return c.ID == charID; });
+	auto characterToDelete = std::find_if(charactersInPlay.begin(), charactersInPlay.end(),
+		[charID](const auto &c) -> bool {return c.ID == charID; });
 	if (characterToDelete == charactersInPlay.cend())
+		return;
+
+	// Don't kill character that's not dead! :((
+	if (characterToDelete->isDead)
 		return;
 
 	charactersInPlay.erase(characterToDelete);
 
 	// Search adequate team vector in order to delete character.
-	switch (character.GetTeam())
+	switch (characterToDelete->GetTeam())
 	{
 		// If team 1
 	case 1:
-		characterToDelete = std::find_if(team1.cbegin(), team1.cend(),
+		characterToDelete = std::find_if(team1.begin(), team1.end(),
 			[charID](const auto &c) -> bool {return c.ID == charID; });
 		if (characterToDelete == team1.cend())
 			return;
@@ -744,7 +749,7 @@ void GameMaster::KillCharacter(Character character)
 		break;
 		// If team 2
 	case 2:
-		characterToDelete = std::find_if(team2.cbegin(), team2.cend(),
+		characterToDelete = std::find_if(team2.begin(), team2.end(),
 			[charID](const auto &c) -> bool { return c.ID == charID; });
 		if (characterToDelete == team2.cend())
 			return;
@@ -761,7 +766,7 @@ void GameMaster::NextTurn()
 	for (auto i : charactersInPlay)
 	{
 		if (i.isDead)
-			KillCharacter(i);
+			KillCharacter(i.ID);
 		if (i.knockDownTimer)
 		{
 			if (--i.knockDownTimer);
@@ -776,16 +781,22 @@ void GameMaster::NextTurn()
 	}
 }
 
-void GameMaster::AddCharacterToMainVector(Character character)
+void GameMaster::AddCharacterToMainVector(int id)
 {
-	int IDToFind = character.ID;
+	int IDToFind = id;
+
+	auto characterToPush = std::find_if(charactersInPlay.cbegin(), charactersInPlay.cend(),
+		[IDToFind](const auto &c) -> bool {return c.ID == IDToFind; });
 
 	// Check whether character is placed in such vector, if not, add them.
-	if (std::find_if(charactersInPlay.cbegin(), charactersInPlay.cend(),
-		[IDToFind](const auto &c) -> bool {return c.ID == IDToFind; }) != charactersInPlay.cend())
+	if ( characterToPush != charactersInPlay.cend())
+	{
 		return;
+	}
 	else
-		charactersInPlay.push_back(character);
+	{
+		charactersInPlay.push_back(*characterToPush);
+	}
 }
 
 void GameMaster::InitializeGameMaster()

@@ -17,6 +17,16 @@ void MenuUIHelper::MainMenu()
 {
 	keypad(menu, true);
 
+	// "Logo" window.
+	logo = newwin(7, 30, 1, 40);
+	// "Menu" window.
+	menu = newwin(0, 0, 8, 0);
+
+	// Refresh both new windows.
+
+	wrefresh(logo);
+	wrefresh(menu);
+
 	wprintw(logo, bigLogo.c_str());
 	wrefresh(logo);
 
@@ -681,38 +691,11 @@ void MenuUIHelper::PrepareTeamMenu()
 }
 
 void MenuUIHelper::SelectFightersMenu()
-{
-	std::vector<std::string> chooseFightersOptions =
-	{
-		"Choose Team 1 Fighters:",
-		"Choose Team 2 Fighters:",
-		"Back",
-		"Next",
-		"Go back"
-	};
-
-	// Keep record for Team 1 Characters [Player is team1]
-	int team1Characters = 1;
-	// Keep record for Team 2 Characters
-	int team2Characters = 0;
-
-	// 1 for Team 1, 2 for Team 2
-	int currentTeamBeingChosen = 1;
-
+{	
 	// Whether all the fighters the user is happy with his choices.
 	bool isUserDoneChoosing = false;
 
-	std::vector<std::string> showOptions =
-	{
-		// 15
-		"Previous",
-		// 25
-		"Go back",
-		// 35
-		"Select",
-		// 45
-		"Next"
-	};
+
 
 
 	std::vector<Character> allCharacters = gm.GetCharacters();
@@ -721,23 +704,38 @@ void MenuUIHelper::SelectFightersMenu()
 	int currentChar = 0;
 	int maxChar = allCharacters.size() - 1;
 
-	// Menu Positions
-
-	// Horizontal line for options
-	int menuOptionsPos = 2;
-	// Positions for all 3 options
-	int optionPos[] = { 26, 36, 46, 56 };
-	// Current option indicated by an arrow
-	int currentOption = 0;
-	// Holds previous arrow position
-	int previousPos = 0;
-	// Current arrow position
-	int currentPos = optionPos[0] - 1;
 
 
-	// For 1vs1
+	//
+	// FOR 1VS1
+	//
 	if (teamSize == 1)
 	{
+		std::vector<std::string> showOptions =
+		{
+			// 15
+			"Previous",
+			// 25
+			"Go back",
+			// 35
+			"Select",
+			// 45
+			"Next"
+		};
+
+		// Menu Positions
+
+		// Horizontal line for options
+		int menuOptionsPos = 2;
+		// Positions for all options
+		int optionPos[] = { 36, 46, 56, 66 };
+		// Current option indicated by an arrow
+		int currentOption = 0;
+		// Holds previous arrow position
+		int previousPos = 0;
+		// Current arrow position
+		int currentPos = optionPos[0] - 1;
+
 		while (!isUserDoneChoosing)
 		{
 			wclear(menu);
@@ -780,11 +778,23 @@ void MenuUIHelper::SelectFightersMenu()
 					previousPos = currentPos;
 					currentPos = optionPos[currentOption] - 1;
 				}
+				else
+				{
+					currentOption = showOptions.size() - 1;
+					previousPos = currentPos;
+					currentPos = optionPos[currentOption] - 1;
+				}
 				break;
 			case KEY_RIGHT:
-				if (currentOption != 3)
+				if (currentOption != showOptions.size() - 1)
 				{
 					++currentOption;
+					previousPos = currentPos;
+					currentPos = optionPos[currentOption] - 1;
+				}
+				else
+				{
+					currentOption = 0;
 					previousPos = currentPos;
 					currentPos = optionPos[currentOption] - 1;
 				}
@@ -823,14 +833,267 @@ void MenuUIHelper::SelectFightersMenu()
 			}
 		}
 	}
+	// 
+	//	FOR 2VS2 OR 3VS3
+	// 
 	else
 	{
-		std::vector<Character> tempChars;
+		std::vector<std::string> showOptions =
+		{
+			// 13
+			"Previous",
+			// 23
+			"Go back",
+			// 33
+			"Select",
+			// 43
+			"Reset",
+			// 53
+			"Change Team",
+			// 68
+			"Next"
+		};
+
+		// Whether user wanted to reset team composition.
+		bool displayTeamReset = false;
+		// Whether user tried to reset empty teams.
+		bool displayTeamEmpty = false;
+		// Whether user tried to add character to full team.
+		bool displayTeamFull = false;
+
+		// Menu Positions
+
+		// Horizontal line for options
+		int menuOptionsPos = 2;
+		// Positions for all options
+		int optionPos[] = { 23, 33, 43, 53, 63, 78 };
+		// Current option indicated by an arrow
+		int currentOption = 0;
+		// Holds previous arrow position
+		int previousPos = 0;
+		// Current arrow position
+		int currentPos = optionPos[0] - 1;
+
+		// Keep record for Team 1 Characters [Player is team1]
+		int team1Characters = 1;
+		// Keep record for Team 2 Characters
+		int team2Characters = 0;
+
+		// 1 for Team 1, 2 for Team 2
+		int currentTeamBeingChosen = 1;
+
+		std::vector<Character> team1Chars;
+		std::vector<Character> team2Chars;
 		
 		// For 2vs2/3vs3
-		while (isUserDoneChoosing)
+		while (!isUserDoneChoosing)
 		{
+			wclear(menu);
 
+			// Displaying what team is being currently created.
+			switch (currentTeamBeingChosen)
+			{
+				// Team 1
+			case 1:
+				mvwprintw(menu, menuOptionsPos - 1, menuOptionXPos, "Choose Team 1 Fighter");
+				mvwprintw(menu, menuOptionsPos + 1, menuOptionXPos,
+					("Team members: " + std::to_string(team1Characters)).c_str());
+				break;
+				// Team 2
+			case 2:
+				mvwprintw(menu, menuOptionsPos - 1, menuOptionXPos, "Choose Team 2 Fighter");
+				mvwprintw(menu, menuOptionsPos + 1, menuOptionXPos,
+					("Team members: " + std::to_string(team2Characters)).c_str());
+				break;
+				// At this point the app can as well end. [Shouldn't happen]
+			default:
+				return;
+			}
+
+			// Displaying info about reset, team being full/empty.
+
+			if (displayTeamReset)
+			{
+				mvwprintw(menu, menuOptionsPos + 2, menuOptionXPos, "Team has been reset!");
+				displayTeamReset = false;
+			}
+			if (displayTeamFull)
+			{
+				mvwprintw(menu, menuOptionsPos + 2, menuOptionXPos, "Team is full!");
+				displayTeamFull = false;
+			}
+			if (displayTeamEmpty)
+			{
+				mvwprintw(menu, menuOptionsPos + 2, menuOptionXPos, "Nothing to reset!");
+				displayTeamEmpty = false;
+			}
+
+
+			std::vector<std::string> charPrinted = allCharacters[currentChar].PrintCharacter();
+
+			int i = menuOptionsPos + 4;
+			// Print Character
+			for (auto& it : charPrinted)
+			{
+				mvwprintw(menu, i++, menuOptionXPos, it.c_str());
+			}
+
+			int j = 0;
+			for (auto &it : showOptions)
+			{
+				if ((optionPos[j] - 1) == currentPos)
+				{
+					mvwaddch(menu, menuOptionsPos, previousPos, ' ');
+					mvwaddch(menu, menuOptionsPos, currentPos, '>');
+				}
+
+				mvwprintw(menu, menuOptionsPos, optionPos[j], it.c_str());
+
+				j++;
+			}
+
+
+			wrefresh(menu);
+
+			int chosenOption = getch();
+			switch (chosenOption)
+			{
+			case KEY_LEFT:
+				if (currentOption != 0)
+				{
+					--currentOption;
+					previousPos = currentPos;
+					currentPos = optionPos[currentOption] - 1;
+				}
+				else
+				{
+					currentOption = showOptions.size() - 1;
+					previousPos = currentPos;
+					currentPos = optionPos[currentOption] - 1;
+				}
+				break;
+			case KEY_RIGHT:
+				if (currentOption != showOptions.size() - 1)
+				{
+					++currentOption;
+					previousPos = currentPos;
+					currentPos = optionPos[currentOption] - 1;
+				}
+				else
+				{
+					currentOption = 0;
+					previousPos = currentPos;
+					currentPos = optionPos[currentOption] - 1;
+				}
+				break;
+			case 10:
+			{
+				switch (currentOption)
+				{
+					// Previous
+				case 0:
+					if (currentChar != 0)
+						--currentChar;
+					break;
+
+					// Go back
+				case 1:
+					return;
+
+					// Select
+				case 2:
+				{
+					switch (currentTeamBeingChosen)
+					{
+					case 1:
+						if (team1Characters == teamSize)
+						{
+							displayTeamFull = true;
+							break;
+						}
+						++team1Characters;
+						team1Chars.push_back(allCharacters[currentChar]);
+						break;
+					case 2:
+						if (team2Characters == teamSize)
+						{
+							displayTeamFull = true;
+							break;
+						}
+						++team2Characters;
+						team2Chars.push_back(allCharacters[currentChar]);
+						break;
+					default:
+						return;
+					}
+				}
+					break;
+
+					// Reset
+				case 3:
+				{
+					switch (currentTeamBeingChosen)
+					{
+					case 1:
+						if (team1Characters == 1)
+						{
+							displayTeamEmpty = true;
+							break;
+						}
+						else
+						{
+							team1Characters = 1;
+							team1Chars.clear();
+							displayTeamReset = true;
+						}
+						break;
+
+					case 2:
+						if (team2Characters == 0)
+						{
+							displayTeamEmpty = true;
+							break;
+						}
+						else
+						{
+							team2Characters = 0;
+							team2Chars.clear();
+							displayTeamReset = true;
+						}
+						break;
+
+					default:
+						break;
+					}
+				}
+					break;
+
+					// Change Team
+				case 4:
+					if (currentTeamBeingChosen == 1)
+					{
+						currentTeamBeingChosen = 2;
+					}
+					else
+					{
+						currentTeamBeingChosen = 1;
+					}
+					break;
+
+					// Next
+				case 5:
+					if (currentChar != maxChar)
+						++currentChar;
+					break;
+
+				default:
+					break;
+				}
+			}
+			break;
+			default:
+				break;
+			}
 		}
 	}
 }
@@ -971,7 +1234,7 @@ void MenuUIHelper::ShowCharacters()
 	// Horizontal line for options
 	int menuOptionsPos = 2;
 	// Positions for all 3 options
-	int optionPos[] = { 29, 39, 49 };
+	int optionPos[] = { 39, 49, 59 };
 	// Current option indicated by an arrow
 	int currentOption = 0;
 	// Holds previous arrow position
@@ -1084,7 +1347,7 @@ void MenuUIHelper::ShowSkills()
 	// Horizontal line for options
 	int menuOptionsPos = 2;
 	// Positions for all 3 options
-	int optionPos[] = { 29, 39, 49 };
+	int optionPos[] = { 39, 49, 59 };
 	// Current option indicated by an arrow
 	int currentOption = 0;
 	// Holds previous arrow position
@@ -1198,7 +1461,7 @@ void MenuUIHelper::ShowArmours()
 	// Horizontal line for options
 	int menuOptionsPos = 2;
 	// Positions for all 3 options
-	int optionPos[] = { 29, 39, 49 };
+	int optionPos[] = { 39, 49, 59 };
 	// Current option indicated by an arrow
 	int currentOption = 0;
 	// Holds previous arrow position
@@ -1312,7 +1575,7 @@ void MenuUIHelper::ShowWeapons()
 	// Horizontal line for options
 	int menuOptionsPos = 2;
 	// Positions for all 3 options
-	int optionPos[] = { 29, 39, 49 };
+	int optionPos[] = { 39, 49, 59 };
 	// Current option indicated by an arrow
 	int currentOption = 0;
 	// Holds previous arrow position
@@ -1426,7 +1689,7 @@ void MenuUIHelper::ShowShields()
 	// Horizontal line for options
 	int menuOptionsPos = 2;
 	// Positions for all 3 options
-	int optionPos[] = { 29, 39, 49 };
+	int optionPos[] = { 39, 49, 59 };
 	// Current option indicated by an arrow
 	int currentOption = 0;
 	// Holds previous arrow position
@@ -1529,21 +1792,11 @@ MenuUIHelper::MenuUIHelper()
 	// Refresh screen.
 	refresh();
 
-	// "Logo" window.
-	logo = newwin(7, 30, 1, 30);
-	// "Menu" window.
-	menu = newwin(0, 0, 8, 0);
-
-	// Refresh both new windows.
-
-	wrefresh(logo);
-	wrefresh(menu);
-
 	// Turn off cursor.
 	curs_set(0);
 
 	// Default menu options start column.
-	menuOptionXPos = 33;
+	menuOptionXPos = 43;
 
 	isPlayerInit = false;
 	isGameRunning = true;

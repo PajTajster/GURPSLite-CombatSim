@@ -303,21 +303,23 @@ private:
 	int LoadShields();
 public:
 
-	// Adds given character to 'teamToSet" vector (either 1 or 2).
-	void AddCharacterToTeam(Character c, int teamToSet);
 
 	// Takes a vector of 'charactersInPlay' and sorts it by initiative.
 	void CalculateInitiative();
 
 	// Remove given character from play.
-	void KillCharacter(Character);
+	void KillCharacter(int id);
 
 	// Run through all the present characters and refresh their
 	// actions and decrement knockdowntimer (if they have one active).
 	void NextTurn();
 
+	// Taken 2 vectors of teams, gamemaster applies those character to his data and sets correct teams.
+	void PrepareTeams(std::vector<Character> team1, std::vector<Character> team2);
+	// Adds given character to adequate team vector (either 1 or 2).
+	void AddCharacterToTeam(int id, int teamToSet);
 	// Adds character into 'charactersInPlay' vector.
-	void AddCharacterToMainVector(Character);
+	void AddCharacterToMainVector(int id);
 
 	// Load all the data in JSON files.
 	void InitializeGameMaster();
