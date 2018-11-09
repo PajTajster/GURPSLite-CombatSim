@@ -13,6 +13,9 @@ private:
 	// Related to BattleSize
 	int teamSize;
 
+	// Checks whether user launched battle mode [for easier returning from it].
+	bool enteredBattleMode;
+
 	bool isPlayerInit;
 	Character* player;
 

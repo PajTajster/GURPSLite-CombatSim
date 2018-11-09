@@ -125,8 +125,9 @@ void MenuUIHelper::MainMenu()
 				{
 					PrepareTeamMenu();
 				}
-				if (!isGameRunning)
+				if (enteredBattleMode)
 				{
+					enteredBattleMode = false;
 					return;
 				}
 				break;
@@ -657,18 +658,33 @@ void MenuUIHelper::PrepareTeamMenu()
 			case 5:
 				teamSize = 1;
 				SelectFightersMenu();
+
+				if (enteredBattleMode)
+				{
+					return;
+				}
 				break;
 
 				// 2 vs 2 
 			case 7:
 				teamSize = 2;
 				SelectFightersMenu();
+
+				if (enteredBattleMode)
+				{
+					return;
+				}
 				break;
 
 				// 3 vs 3
 			case 10:
 				teamSize = 3;
 				SelectFightersMenu();
+
+				if (enteredBattleMode)
+				{
+					return;
+				}
 				break;
 
 				// Go back
@@ -1096,6 +1112,33 @@ void MenuUIHelper::SelectFightersMenu()
 			}
 		}
 	}
+}
+void MenuUIHelper::BattleMenu()
+{
+	// Get rid of old menu
+	wclear(menu);
+	wclear(logo);
+	delwin(menu);
+	delwin(logo);
+
+
+	// And create something better
+
+	int defaultMenuWidth = (COLS / 2) + (COLS / 4);
+	int defaultMenuHeight = (LINES / 4) + (LINES / 4);
+
+	WINDOW* battleWindow = newwin(defaultMenuHeight, defaultMenuWidth, 0, 0);
+	WINDOW* actionsWindow = newwin(defaultMenuHeight, 0, 0, COLS - (COLS - defaultMenuWidth));
+	WINDOW* logWindow = newwin(0, defaultMenuWidth, LINES - (LINES - defaultMenuHeight), 0);
+	WINDOW* logoWindow = newwin(0, 0,
+		(LINES + 4) - (LINES - defaultMenuHeight),
+		(COLS + 4) - (COLS - defaultMenuWidth));
+
+
+	delwin(battleWindow);
+	delwin(actionsWindow);
+	delwin(logWindow);
+	delwin(logoWindow);
 }
 
 void MenuUIHelper::ShowItemsMenu()
@@ -1800,6 +1843,7 @@ MenuUIHelper::MenuUIHelper()
 
 	isPlayerInit = false;
 	isGameRunning = true;
+	enteredBattleMode = false;
 
 	playerCurrentWeapon = 0;
 	playerCurrentArmour = 0;
