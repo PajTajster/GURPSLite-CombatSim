@@ -20,6 +20,14 @@ void MenuUIHelper::MainMenu()
 	noecho();
 	cbreak();
 
+	std::vector<Character> tmp;
+	std::vector<Character> tmp2 = gm.GetCharacters();
+
+	tmp.push_back(Character(tmp2[0]));
+	tmp.push_back(Character(tmp2[0]));
+	tmp.push_back(Character(tmp2[0]));
+	
+
 	std::vector<std::string> mainMenuOptions =
 	{
 		"Create Character",
@@ -76,11 +84,23 @@ void MenuUIHelper::MainMenu()
 				previousPos = currentPos;
 				currentPos = optionPos[currentOption];
 			}
+			else
+			{
+				currentOption = 3;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption];
+			}
 			break;
 		case KEY_DOWN:
 			if (currentOption != 3)
 			{
 				++currentOption;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption];
+			}
+			else
+			{
+				currentOption = 0;
 				previousPos = currentPos;
 				currentPos = optionPos[currentOption];
 			}
@@ -241,11 +261,23 @@ void MenuUIHelper::PlayerCreationMenu()
 				previousPos = currentPos;
 				currentPos = optionPos[currentOption];
 			}
+			else
+			{
+				currentOption = 9;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption];
+			}
 			break;
 		case KEY_DOWN:
 			if (currentOption != 9)
 			{
 				++currentOption;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption];
+			}
+			else
+			{
+				currentOption = 0;
 				previousPos = currentPos;
 				currentPos = optionPos[currentOption];
 			}
@@ -590,11 +622,23 @@ void MenuUIHelper::PrepareTeamMenu()
 				previousPos = currentPos;
 				currentPos = optionPos[currentOption];
 			}
+			else
+			{
+				currentOption = 4;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption];
+			}
 			break;
 		case KEY_DOWN:
 			if (currentOption != 4)
 			{
 				++currentOption;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption];
+			}
+			else
+			{
+				currentOption = 1;
 				previousPos = currentPos;
 				currentPos = optionPos[currentOption];
 			}
@@ -659,6 +703,8 @@ void MenuUIHelper::SelectFightersMenu()
 	// 1 for Team 1, 2 for Team 2
 	int currentTeamBeingChosen = 1;
 
+	// Whether all the fighters the user is happy with his choices.
+	bool isUserDoneChoosing = false;
 
 	std::vector<std::string> showOptions =
 	{
@@ -684,7 +730,7 @@ void MenuUIHelper::SelectFightersMenu()
 	// Horizontal line for options
 	int menuOptionsPos = 2;
 	// Positions for all 3 options
-	int optionPos[] = { 15, 25, 35, 45 };
+	int optionPos[] = { 26, 36, 46, 56 };
 	// Current option indicated by an arrow
 	int currentOption = 0;
 	// Holds previous arrow position
@@ -692,88 +738,103 @@ void MenuUIHelper::SelectFightersMenu()
 	// Current arrow position
 	int currentPos = optionPos[0] - 1;
 
-	while (true)
+
+	// For 1vs1
+	if (teamSize == 1)
 	{
-		wclear(menu);
-
-		mvwprintw(menu, menuOptionsPos - 1, menuOptionXPos, "Choose Team 2 Fighter");
-
-		std::vector<std::string> charPrinted = allCharacters[currentChar].PrintCharacter();
-
-		int i = menuOptionsPos + 4;
-		// Print Character
-		for (auto& it : charPrinted)
+		while (!isUserDoneChoosing)
 		{
-			mvwprintw(menu, i++, menuOptionXPos, it.c_str());
-		}
+			wclear(menu);
 
-		int j = 0;
-		for (auto &it : showOptions)
-		{
-			if ((optionPos[j] - 1) == currentPos)
+			mvwprintw(menu, menuOptionsPos - 1, menuOptionXPos, "Choose Team 2 Fighter");
+
+			std::vector<std::string> charPrinted = allCharacters[currentChar].PrintCharacter();
+
+			int i = menuOptionsPos + 4;
+			// Print Character
+			for (auto& it : charPrinted)
 			{
-				mvwaddch(menu, menuOptionsPos, previousPos, ' ');
-				mvwaddch(menu, menuOptionsPos, currentPos, '>');
+				mvwprintw(menu, i++, menuOptionXPos, it.c_str());
 			}
 
-			mvwprintw(menu, menuOptionsPos, optionPos[j], it.c_str());
-
-			j++;
-		}
-
-
-		wrefresh(menu);
-
-		int chosenOption = getch();
-		switch (chosenOption)
-		{
-		case KEY_LEFT:
-			if (currentOption != 0)
+			int j = 0;
+			for (auto &it : showOptions)
 			{
-				--currentOption;
-				previousPos = currentPos;
-				currentPos = optionPos[currentOption] - 1;
+				if ((optionPos[j] - 1) == currentPos)
+				{
+					mvwaddch(menu, menuOptionsPos, previousPos, ' ');
+					mvwaddch(menu, menuOptionsPos, currentPos, '>');
+				}
+
+				mvwprintw(menu, menuOptionsPos, optionPos[j], it.c_str());
+
+				j++;
+			}
+
+
+			wrefresh(menu);
+
+			int chosenOption = getch();
+			switch (chosenOption)
+			{
+			case KEY_LEFT:
+				if (currentOption != 0)
+				{
+					--currentOption;
+					previousPos = currentPos;
+					currentPos = optionPos[currentOption] - 1;
+				}
+				break;
+			case KEY_RIGHT:
+				if (currentOption != 3)
+				{
+					++currentOption;
+					previousPos = currentPos;
+					currentPos = optionPos[currentOption] - 1;
+				}
+				break;
+			case 10:
+			{
+				switch (currentOption)
+				{
+					// Previous
+				case 0:
+					if (currentChar != 0)
+						--currentChar;
+					break;
+
+					// Go back
+				case 1:
+					return;
+
+					// Select
+				case 2:
+					return;
+
+					// Next
+				case 3:
+					if (currentChar != maxChar)
+						++currentChar;
+					break;
+
+				default:
+					break;
+				}
 			}
 			break;
-		case KEY_RIGHT:
-			if (currentOption != 3)
-			{
-				++currentOption;
-				previousPos = currentPos;
-				currentPos = optionPos[currentOption] - 1;
-			}
-			break;
-		case 10:
-		{
-			switch (currentOption)
-			{
-				// Previous
-			case 0:
-				if (currentChar != 0)
-					--currentChar;
-				break;
-
-				// Go back
-			case 1:
-				return;
-
-				// Select
-			case 2:
-				return;
-
-				// Next
-			case 3:
-				if (currentChar != maxChar)
-					++currentChar;
-				break;
-
 			default:
 				break;
 			}
 		}
-		break;
-		default:
-			break;
+	}
+	else
+	{
+		std::vector<Character> tempChars;
+		
+		// For 2vs2/3vs3
+		while (isUserDoneChoosing)
+		{
+
 		}
 	}
 }
@@ -830,11 +891,23 @@ void MenuUIHelper::ShowItemsMenu()
 				previousPos = currentPos;
 				currentPos = optionPos[currentOption];
 			}
+			else
+			{
+				currentOption = 5;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption];
+			}
 			break;
 		case KEY_DOWN:
 			if (currentOption != 5)
 			{
 				++currentOption;
+				previousPos = currentPos;
+				currentPos = optionPos[currentOption];
+			}
+			else
+			{
+				currentOption = 0;
 				previousPos = currentPos;
 				currentPos = optionPos[currentOption];
 			}
@@ -1474,7 +1547,7 @@ MenuUIHelper::MenuUIHelper()
 	curs_set(0);
 
 	// Default menu options start column.
-	menuOptionXPos = 30;
+	menuOptionXPos = 33;
 
 	isPlayerInit = false;
 	isGameRunning = true;

@@ -13,7 +13,9 @@ enum AI
 	// NPC will treat weakest opponent as primary target.
 	AI_TARGET_WEAKEST,
 	// NPC will randomly choose his target.
-	AI_TARGET_RANDOM
+	AI_TARGET_RANDOM,
+	// Nonexistant AI.
+	AI_NULL
 };
 
 // GURPS system uses dices to apply damage, so it uses
@@ -103,8 +105,8 @@ public:
 	std::string name;
 	// Weapon's damage.
 	Damage damage;
-	// Skill proficiency used by weapon.
-	Skill skill;
+	// Skill's name, of which proficiency is used by weapon.
+	std::string skill;
 	// Decides whether weapon has to use ST-related bonus damage. [Ranged or not]
 	bool isMelee;
 	// How many "bullets" weapon shoots, if it's melee then it's value = 1.
@@ -115,7 +117,7 @@ public:
 	std::vector<std::string> PrintWeapon();
 
 	Weapon();
-	Weapon(std::string n, Damage d, Skill s, bool isM, int rOF, bool isTH);
+	Weapon(std::string n, Damage d, std::string s, bool isM, int rOF, bool isTH);
 };
 
 class Character
@@ -260,11 +262,12 @@ public:
 	std::vector<std::string> PrintCharacter();
 
 
-	Character& operator=(const Character& original);
+	//Character& operator=(const Character& original);
 
 	Character();
+	Character(const Character& orig);
 
-	virtual ~Character();
+	~Character();
 };
 
 class GameMaster

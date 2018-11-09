@@ -94,7 +94,7 @@ std::vector<std::string> Weapon::PrintWeapon()
 	message.push_back("Name: " + name);
 	message.push_back("Damage: " + std::to_string(damage.dices) + "(Dices), "
 		+ std::to_string(damage.bonus) + "(Bonus)");
-	message.push_back("Skill used: " + skill.name);
+	message.push_back("Skill used: " + skill);
 
 	if (isMelee)
 	{
@@ -118,7 +118,7 @@ std::vector<std::string> Weapon::PrintWeapon()
 
 Weapon::Weapon() : name("Undefined") { }
 
-Weapon::Weapon(std::string n, Damage d, Skill s, bool isM,
+Weapon::Weapon(std::string n, Damage d, std::string s, bool isM,
 				int rOF, bool isTH) :
 	name(n), damage(d), skill(s), isMelee(isM), rateOfFire(rOF), isTwoHanded(isTH) { }
 
@@ -130,6 +130,15 @@ std::string Character::Attack(Character target, DiceRoller dr)
 	// If target happens to be on the same team, abort.
 	if (target.team == team)
 		return "You can't attack your allies!";
+
+	// Before calculating damage, find the skill the weapon uses in attacker's skills vector.
+	std::string skillToFind = currentWeapon.skill;
+
+	auto weaponSkill = std::find_if(skills.cbegin(), skills.cend(),
+		[skillToFind](const Skill& s)->bool {return s.name == skillToFind; });
+
+	if (weaponSkill == skills.cend())
+		return name + " wants to use some abnormal technology!";
 
 	std::string message = "";
 	// A little speed up for concatenating. 
@@ -176,7 +185,7 @@ std::string Character::Attack(Character target, DiceRoller dr)
 				}
 			}
 			// Normal hit, needs to roll for defend 
-			else if (roll < currentWeapon.skill.proficiency)
+			else if (roll < weaponSkill->proficiency)
 			{
 				// If yes, apply damage to target
 				if (DidGetHit(target, dr))
@@ -259,7 +268,7 @@ std::string Character::Attack(Character target, DiceRoller dr)
 					}
 				}
 			// Normal hit, needs to roll for defend 
-			else if (roll < currentWeapon.skill.proficiency)
+			else if (roll < weaponSkill->proficiency)
 				{
 					// If yes, apply damage to target
 					if (DidGetHit(target, dr))
@@ -365,12 +374,15 @@ void Character::InitializeCharacter(int initST, int initDX, int initHT,
 	if (currentArmour.name != "None")
 		isWearingArmour = true;
 	currentShield = initShield;
-	// If somehow character passed in is using twohanded weapon the shield won't be added.
-	if (currentShield.name != "None" || currentWeapon.isTwoHanded)
+	if (currentShield.name != "None")
 		isWieldingShield = true;
+	// If somehow character passed in is using twohanded weapon the shield won't be added.
+	if (currentWeapon.isTwoHanded)
+		isWieldingShield = false;
 
 	skills = initSkills;
 
+	CalculateSkillsDefaults();
 	CalculateExtraAttributes();
 
 	return;
@@ -380,7 +392,7 @@ void Character::CalculateExtraAttributes()
 {
 	// If no shield, then block is 0
 	// if there's one, then it's half of "Shield" skill proficiency.
-	if (!isWieldingShield || currentWeapon.isTwoHanded)
+	if (!isWieldingShield)
 		block = 0;
 	else
 		block = skills[0].proficiency;
@@ -391,7 +403,7 @@ void Character::CalculateExtraAttributes()
 		parry = 0;
 	else
 	{
-		std::string skillToFind = currentWeapon.skill.name;
+		std::string skillToFind = currentWeapon.skill;
 
 		auto weaponSkill = std::find_if(skills.cbegin(), skills.cend(),
 			[skillToFind](const Skill& s)->bool {return s.name == skillToFind; });
@@ -510,20 +522,6 @@ int Character::GetHealth() { return health; }
 
 float Character::GetInitiative() { return basicSpeed; }
 
-Character::Character() : isWieldingShield(false), isDead(false),
-						isKnockedDown(false), hasAttackedThisTurn(false),
-						knockDownTimer(0), strength(10), dexterity(10),
-						health(10)
-{
-	isPlayer = false;
-	ID = ++nextID;
-
-	skills =
-	{
-		Skill("Undefined", "None", "None", 0, false),
-	};
-}
-
 int Character::nextID = 0;
 
 void Character::SetTeam(int teamToSet)
@@ -550,10 +548,27 @@ std::vector<std::string> Character::PrintCharacter()
 	return message;
 }
 
-Character& Character::operator=(const Character& original)
+Character::Character(const Character& original)
 {
-	ID = original.ID;
-	return (*this);
+	*this = original;
+	this->ID = ++nextID;
+}
+Character::Character() : isWieldingShield(false), isDead(false), isPlayer(false),
+isKnockedDown(false), hasAttackedThisTurn(false),
+knockDownTimer(0), strength(10), dexterity(10),
+health(10)
+{
+	isPlayer = false;
+	ID = ++nextID;
+
+	srand((unsigned)time(NULL));
+
+	usedAI = static_cast<AI>(rand() % AI_NULL);
+
+	skills =
+	{
+		Skill("Undefined", "None", "None", 0, false),
+	};
 }
 
 Character::~Character()
@@ -850,6 +865,7 @@ int GameMaster::LoadCharacters()
 			continue;
 		Shield newShield = *searchedShield;
 
+		//std::shared_ptr<Character> newCharacter(new Character());
 		Character newCharacter;
 		newCharacter.InitializeCharacter(newST, newDX, newHT, newName, allSkills, newWeapon, newArmour, newShield);
 
@@ -936,7 +952,7 @@ int GameMaster::LoadWeapons()
 			newDamage.bonus = newDB;
 
 			// Take skill from the iterator.
-			Skill newSkill = *foundSkill;
+			std::string newSkill = foundSkill->name;
 
 			Weapon newWeapon(newName, newDamage, newSkill, 
 					newIsM, newRoF, newIsTH);
