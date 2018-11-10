@@ -168,6 +168,7 @@
   <ItemGroup>
     <None Include="armours.json" />
     <None Include="characters.json" />
+    <None Include="names.json" />
     <None Include="shields.json" />
     <None Include="skills.json" />
     <None Include="weapons.json" />

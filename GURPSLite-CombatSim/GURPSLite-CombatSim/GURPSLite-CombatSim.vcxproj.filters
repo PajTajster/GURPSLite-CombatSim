@@ -52,5 +52,8 @@
     <None Include="shields.json">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="names.json">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

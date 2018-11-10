@@ -276,6 +276,10 @@ class GameMaster
 private:
 	static DiceRoller diceRoller;
 
+	// Names that will be appended to characters.
+	// [just to skip fighting against Bandit, and Bandit and Bandit]
+	std::vector<std::string> names;
+
 	// Vectors containing all the data app needs.
 
 	// All the characters available to choose.
@@ -301,6 +305,7 @@ private:
 	int LoadArmours();
 	int LoadWeapons();
 	int LoadShields();
+	void LoadNames();
 public:
 
 
@@ -322,6 +327,9 @@ public:
 	void AddCharacterToTeam(int id, int teamToSet);
 	// Adds character into 'charactersInPlay' vector, then add them to team.
 	void AddCharacterToMainVector(Character c, int team);
+
+	// Gives character a random name, result is {name}, the {oldName}.
+	void RandomizeName(Character& c);
 
 	// Load all the data in JSON files.
 	void InitializeGameMaster();

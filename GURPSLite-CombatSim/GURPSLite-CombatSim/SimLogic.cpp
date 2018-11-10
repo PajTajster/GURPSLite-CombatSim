@@ -390,6 +390,10 @@ void Character::InitializeCharacter(int initST, int initDX, int initHT,
 
 void Character::CalculateExtraAttributes()
 {
+	// Player has his own intelligence, no need for extra ones.
+	if (isPlayer)
+		usedAI = AI_NULL;
+
 	// If no shield, then block is 0
 	// if there's one, then it's half of "Shield" skill proficiency.
 	if (!isWieldingShield)
@@ -766,13 +770,11 @@ void GameMaster::PrepareTeams(std::vector<Character> t1, std::vector<Character> 
 {
 	for (auto& it : t1)
 	{
-		charactersInPlay.push_back(it);
-		AddCharacterToTeam(it.ID, 1);
+		AddCharacterToMainVector(it, 1);
 	}
 	for (auto& it : t2)
 	{
-		charactersInPlay.push_back(it);
-		AddCharacterToTeam(it.ID, 2);
+		AddCharacterToMainVector(it, 2);
 	}
 }
 void GameMaster::AddCharacterToTeam(int id, int teamToSet)
@@ -803,7 +805,7 @@ void GameMaster::AddCharacterToMainVector(Character c, int team)
 
 	auto characterToPush = std::find_if(charactersInPlay.cbegin(), charactersInPlay.cend(),
 		[IDToFind](const auto &c) -> bool {return c.ID == IDToFind; });
-
+	
 	// Check whether character is placed in such vector, if not, add them.
 	if ( characterToPush != charactersInPlay.cend())
 	{
@@ -811,15 +813,32 @@ void GameMaster::AddCharacterToMainVector(Character c, int team)
 	}
 	else
 	{
+		if (!c.isPlayer)
+		{
+			RandomizeName(c);
+		}
 		charactersInPlay.push_back(c);
 		AddCharacterToTeam(c.ID, team);
 	}
 }
 
+void GameMaster::RandomizeName(Character& c)
+{
+	std::string oldName = c.name;
+	std::string newName = "";
+
+	// Take a random name from app data.
+	newName = names[rand() % names.size()];
+
+	newName.append(", the " + oldName);
+
+	c.name = newName;
+}
+
 void GameMaster::InitializeGameMaster()
 {
 	// Init data
-
+	LoadNames();
 	LoadSkills();
 	LoadArmours();
 	LoadShields();
@@ -1012,6 +1031,21 @@ int GameMaster::LoadShields()
 		allShields.push_back(newShield);
 	}
 	return 0;
+}
+
+void GameMaster::LoadNames()
+{
+	std::ifstream ifs("names.json");
+	json j = json::parse(ifs);
+
+	json namesArray = j["names"];
+
+	for (auto& it : namesArray)
+	{
+		std::string newName = it;
+
+		names.push_back(newName);
+	}
 }
 
 std::vector<Character> GameMaster::GetCharacters()
