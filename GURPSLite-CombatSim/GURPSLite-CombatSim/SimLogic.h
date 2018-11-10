@@ -320,8 +320,8 @@ public:
 	void PrepareTeams(std::vector<Character> t1, std::vector<Character> t2);
 	// Adds given character to adequate team vector (either 1 or 2).
 	void AddCharacterToTeam(int id, int teamToSet);
-	// Adds character into 'charactersInPlay' vector.
-	void AddCharacterToMainVector(int id);
+	// Adds character into 'charactersInPlay' vector, then add them to team.
+	void AddCharacterToMainVector(Character c, int team);
 
 	// Load all the data in JSON files.
 	void InitializeGameMaster();

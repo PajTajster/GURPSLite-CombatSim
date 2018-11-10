@@ -797,9 +797,9 @@ void GameMaster::AddCharacterToTeam(int id, int teamToSet)
 	}
 	return;
 }
-void GameMaster::AddCharacterToMainVector(int id)
+void GameMaster::AddCharacterToMainVector(Character c, int team)
 {
-	int IDToFind = id;
+	int IDToFind = c.ID;
 
 	auto characterToPush = std::find_if(charactersInPlay.cbegin(), charactersInPlay.cend(),
 		[IDToFind](const auto &c) -> bool {return c.ID == IDToFind; });
@@ -811,7 +811,8 @@ void GameMaster::AddCharacterToMainVector(int id)
 	}
 	else
 	{
-		charactersInPlay.push_back(*characterToPush);
+		charactersInPlay.push_back(c);
+		AddCharacterToTeam(c.ID, team);
 	}
 }
 

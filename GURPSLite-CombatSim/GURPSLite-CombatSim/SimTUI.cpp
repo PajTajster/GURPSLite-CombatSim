@@ -708,18 +708,11 @@ void MenuUIHelper::PrepareTeamMenu()
 
 void MenuUIHelper::SelectFightersMenu()
 {	
-	// Whether all the fighters the user is happy with his choices.
-	bool isUserDoneChoosing = false;
-
-
-
-
 	std::vector<Character> allCharacters = gm.GetCharacters();
 
 	// Currently shown character
 	int currentChar = 0;
 	int maxChar = allCharacters.size() - 1;
-
 
 
 	//
@@ -757,7 +750,7 @@ void MenuUIHelper::SelectFightersMenu()
 		// What character has been chosen.
 		int selectedChar = 0;
 
-		while (!isUserDoneChoosing)
+		while (true)
 		{
 			wclear(menu);
 
@@ -862,6 +855,8 @@ void MenuUIHelper::SelectFightersMenu()
 			case 'y':
 				if (isEnemySelected)
 				{
+					gm.AddCharacterToMainVector(*player, 1);
+					gm.AddCharacterToMainVector(allCharacters[selectedChar], 2);
 					BattleMenu();
 					return;
 				}
@@ -926,7 +921,7 @@ void MenuUIHelper::SelectFightersMenu()
 		std::vector<Character> team2Chars;
 		
 		// For 2vs2/3vs3
-		while (!isUserDoneChoosing)
+		while (true)
 		{
 			if ((team1Members == teamSize) && (team2Members == teamSize))
 				isAllDone = true;
@@ -1069,7 +1064,8 @@ void MenuUIHelper::SelectFightersMenu()
 							break;
 						}
 						++team1Members;
-						team1Chars.push_back(allCharacters[currentChar]);
+						// Push a copy of character.
+						team1Chars.push_back(Character(allCharacters[currentChar], true));
 						break;
 					case 2:
 						if (team2Members == teamSize)
@@ -1078,7 +1074,8 @@ void MenuUIHelper::SelectFightersMenu()
 							break;
 						}
 						++team2Members;
-						team2Chars.push_back(allCharacters[currentChar]);
+						// Push a copy of character.
+						team2Chars.push_back(Character(allCharacters[currentChar], true));
 						break;
 					default:
 						return;
@@ -1153,6 +1150,8 @@ void MenuUIHelper::SelectFightersMenu()
 			case 'y':
 				if (isAllDone)
 				{
+					team1Chars.push_back(*player);
+					gm.PrepareTeams(team1Chars, team2Chars);
 					BattleMenu();
 					return;
 				}
