@@ -314,8 +314,10 @@ public:
 	// actions and decrement knockdowntimer (if they have one active).
 	void NextTurn();
 
+	// Clears team and charactersInPlay vector.
+	void ClearBattleData();
 	// Taken 2 vectors of teams, gamemaster applies those character to his data and sets correct teams.
-	void PrepareTeams(std::vector<Character> team1, std::vector<Character> team2);
+	void PrepareTeams(std::vector<Character> t1, std::vector<Character> t2);
 	// Adds given character to adequate team vector (either 1 or 2).
 	void AddCharacterToTeam(int id, int teamToSet);
 	// Adds character into 'charactersInPlay' vector.

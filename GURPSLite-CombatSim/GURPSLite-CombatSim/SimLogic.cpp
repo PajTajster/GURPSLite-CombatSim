@@ -686,31 +686,6 @@ void Character::NPCAssessSituation()
 	return;
 }
 
-
-
-void GameMaster::AddCharacterToTeam(int id, int teamToSet)
-{
-	int IDToFind = id;
-
-	auto characterToPush = std::find_if(charactersInPlay.begin(), charactersInPlay.end(),
-		[IDToFind](const auto &c) -> bool {return c.ID == IDToFind; });
-
-	if (teamToSet == 1 || teamToSet == 2)
-	{
-		switch (teamToSet)
-		{
-		case 1:
-			team1.push_back(*characterToPush);
-			break;
-		case 2:
-			team2.push_back(*characterToPush);
-			break;
-		}
-		characterToPush->SetTeam(teamToSet);
-	}
-	return;
-}
-
 void GameMaster::CalculateInitiative()
 {
 	std::sort(charactersInPlay.begin(), charactersInPlay.end(),
@@ -781,6 +756,47 @@ void GameMaster::NextTurn()
 	}
 }
 
+void GameMaster::ClearBattleData()
+{
+	charactersInPlay.clear();
+	team1.clear();
+	team2.clear();
+}
+void GameMaster::PrepareTeams(std::vector<Character> t1, std::vector<Character> t2)
+{
+	for (auto& it : t1)
+	{
+		charactersInPlay.push_back(it);
+		AddCharacterToTeam(it.ID, 1);
+	}
+	for (auto& it : t2)
+	{
+		charactersInPlay.push_back(it);
+		AddCharacterToTeam(it.ID, 2);
+	}
+}
+void GameMaster::AddCharacterToTeam(int id, int teamToSet)
+{
+	int IDToFind = id;
+
+	auto characterToPush = std::find_if(charactersInPlay.begin(), charactersInPlay.end(),
+		[IDToFind](const auto &c) -> bool {return c.ID == IDToFind; });
+
+	if (teamToSet == 1 || teamToSet == 2)
+	{
+		switch (teamToSet)
+		{
+		case 1:
+			team1.push_back(*characterToPush);
+			break;
+		case 2:
+			team2.push_back(*characterToPush);
+			break;
+		}
+		characterToPush->SetTeam(teamToSet);
+	}
+	return;
+}
 void GameMaster::AddCharacterToMainVector(int id)
 {
 	int IDToFind = id;
