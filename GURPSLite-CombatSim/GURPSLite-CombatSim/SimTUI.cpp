@@ -1170,11 +1170,14 @@ void MenuUIHelper::BattleMenu()
 	delwin(menu);
 	delwin(logo);
 
+	refresh();
+
 
 	// And create something better
 
 	int defaultMenuWidth = (COLS / 2) + (COLS / 4);
 	int defaultMenuHeight = (LINES / 4) + (LINES / 4);
+
 
 	WINDOW* battleWindow = newwin(defaultMenuHeight, defaultMenuWidth, 0, 0);
 	WINDOW* actionsWindow = newwin(defaultMenuHeight, 0, 0, COLS - (COLS - defaultMenuWidth));
@@ -1183,9 +1186,57 @@ void MenuUIHelper::BattleMenu()
 		(LINES + 4) - (LINES - defaultMenuHeight),
 		(COLS + 4) - (COLS - defaultMenuWidth));
 
+	// For writing into log.
+	int logHeight = LINES - (LINES - defaultMenuHeight) - 2;
+
 	box(battleWindow, 0, 0);
 	box(actionsWindow, 0, 0);
 	box(logWindow, 0, 0);
+	mvwprintw(battleWindow, 0, 0, "Battle Screen");
+	mvwprintw(actionsWindow, 0, 0, "Actions");
+	mvwprintw(logWindow, 0, 0, "Logs");
+	wprintw(smallLogoWindow, smallLogo.c_str());
+
+
+	std::vector<std::string> actionsOptions =
+	{
+		"Attack",
+		"Examine",
+		"Skip Turn",
+		"Surrender"
+	};
+
+	// Action menu options positions.
+	int actionsYPos[] = { 2, 3, 4, 6 };
+
+	// Position y for Team 1.
+	int team1YPos = 2;
+	// Position y for Team 2.
+	int team2YPos = 6;
+	// Positions on X for both teams.
+	int teamsXPos[] = { 1, 21, 41};
+	
+	int currentPos = 0;
+	int previousPos = 0;
+
+	while (true)
+	{
+		int j = 0;
+		for (auto& i : actionsOptions)
+		{
+			if (actionsYPos[j] == currentPos)
+			{
+				mvwaddch(menu, previousPos, menuOptionXPos - 1, ' ');
+				mvwaddch(menu, currentPos, menuOptionXPos - 1, '>');
+			}
+
+			mvwprintw(menu, actionsYPos[j], menuOptionXPos, i.c_str());
+
+			++j;
+		}
+
+		wrefresh(menu);
+	}
 
 	wrefresh(battleWindow);
 	wrefresh(actionsWindow);
@@ -1194,10 +1245,26 @@ void MenuUIHelper::BattleMenu()
 
 	getch();
 
+	clear();
+	refresh();
+
 	delwin(battleWindow);
 	delwin(actionsWindow);
 	delwin(logWindow);
 	delwin(smallLogoWindow);
+}
+void MenuUIHelper::WriteToLog(WINDOW* logScreen, int logCurrentPos, int logHeight, const char* text)
+{
+	if (logCurrentPos == logHeight)
+	{
+		logCurrentPos = 1;
+		wclear(logScreen);
+		mvwprintw(logScreen, 0, 0, "Logs");
+	}
+
+	mvwprintw(logScreen, logCurrentPos, 0, text);
+
+	wrefresh(logScreen);
 }
 
 void MenuUIHelper::ShowItemsMenu()
