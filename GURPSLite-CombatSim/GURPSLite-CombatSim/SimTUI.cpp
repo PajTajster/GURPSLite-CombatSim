@@ -716,7 +716,7 @@ void MenuUIHelper::SelectFightersMenu()
 
 	std::vector<Character> allCharacters = gm.GetCharacters();
 
-	// Currently showed character
+	// Currently shown character
 	int currentChar = 0;
 	int maxChar = allCharacters.size() - 1;
 
@@ -752,11 +752,24 @@ void MenuUIHelper::SelectFightersMenu()
 		// Current arrow position
 		int currentPos = optionPos[0] - 1;
 
+		// Whether player has chosen his opponent.
+		bool isEnemySelected = false;
+		// What character has been chosen.
+		int selectedChar = 0;
+
 		while (!isUserDoneChoosing)
 		{
 			wclear(menu);
 
-			mvwprintw(menu, menuOptionsPos - 1, menuOptionXPos, "Choose Team 2 Fighter");
+			if (isEnemySelected)
+			{
+				mvwprintw(menu, menuOptionsPos - 1, menuOptionXPos - 6, "Duel ready[Press 'y' to proceed]");
+				mvwprintw(menu, menuOptionsPos + 2, menuOptionXPos, ("Your enemy: " + allCharacters[selectedChar].name).c_str());
+			}
+			else
+			{
+				mvwprintw(menu, menuOptionsPos - 1, menuOptionXPos, "Choose Team 2 Fighter");
+			}
 
 			std::vector<std::string> charPrinted = allCharacters[currentChar].PrintCharacter();
 
@@ -831,7 +844,9 @@ void MenuUIHelper::SelectFightersMenu()
 
 					// Select
 				case 2:
-					return;
+					isEnemySelected = true;
+					selectedChar = currentChar;
+					break;
 
 					// Next
 				case 3:
@@ -844,6 +859,13 @@ void MenuUIHelper::SelectFightersMenu()
 				}
 			}
 			break;
+			case 'y':
+				if (isEnemySelected)
+				{
+					BattleMenu();
+					return;
+				}
+				break;
 			default:
 				break;
 			}
@@ -876,6 +898,8 @@ void MenuUIHelper::SelectFightersMenu()
 		bool displayTeamEmpty = false;
 		// Whether user tried to add character to full team.
 		bool displayTeamFull = false;
+		// Show extra info if all teams are full.
+		bool isAllDone = false;
 
 		// Menu Positions
 
@@ -891,9 +915,9 @@ void MenuUIHelper::SelectFightersMenu()
 		int currentPos = optionPos[0] - 1;
 
 		// Keep record for Team 1 Characters [Player is team1]
-		int team1Characters = 1;
+		int team1Members = 1;
 		// Keep record for Team 2 Characters
-		int team2Characters = 0;
+		int team2Members = 0;
 
 		// 1 for Team 1, 2 for Team 2
 		int currentTeamBeingChosen = 1;
@@ -904,6 +928,9 @@ void MenuUIHelper::SelectFightersMenu()
 		// For 2vs2/3vs3
 		while (!isUserDoneChoosing)
 		{
+			if ((team1Members == teamSize) && (team2Members == teamSize))
+				isAllDone = true;
+
 			wclear(menu);
 
 			// Displaying what team is being currently created.
@@ -911,15 +938,29 @@ void MenuUIHelper::SelectFightersMenu()
 			{
 				// Team 1
 			case 1:
-				mvwprintw(menu, menuOptionsPos - 1, menuOptionXPos, "Choose Team 1 Fighter");
+				if (isAllDone)
+				{
+					mvwprintw(menu, menuOptionsPos - 1, menuOptionXPos - 15, "All Teams are ready [Press 'y' to accept changes]");
+				}
+				else
+				{
+					mvwprintw(menu, menuOptionsPos - 1, menuOptionXPos, "Choose Team 1 Fighter");
+				}
 				mvwprintw(menu, menuOptionsPos + 1, menuOptionXPos,
-					("Team members: " + std::to_string(team1Characters)).c_str());
+					("Team members: " + std::to_string(team1Members)).c_str());
 				break;
 				// Team 2
 			case 2:
-				mvwprintw(menu, menuOptionsPos - 1, menuOptionXPos, "Choose Team 2 Fighter");
+				if (isAllDone)
+				{
+					mvwprintw(menu, menuOptionsPos - 1, menuOptionXPos - 15, "All Teams are ready [Press 'y' to accept changes]");
+				}
+				else
+				{
+					mvwprintw(menu, menuOptionsPos - 1, menuOptionXPos, "Choose Team 2 Fighter");
+				}
 				mvwprintw(menu, menuOptionsPos + 1, menuOptionXPos,
-					("Team members: " + std::to_string(team2Characters)).c_str());
+					("Team members: " + std::to_string(team2Members)).c_str());
 				break;
 				// At this point the app can as well end. [Shouldn't happen]
 			default:
@@ -1022,21 +1063,21 @@ void MenuUIHelper::SelectFightersMenu()
 					switch (currentTeamBeingChosen)
 					{
 					case 1:
-						if (team1Characters == teamSize)
+						if (team1Members == teamSize)
 						{
 							displayTeamFull = true;
 							break;
 						}
-						++team1Characters;
+						++team1Members;
 						team1Chars.push_back(allCharacters[currentChar]);
 						break;
 					case 2:
-						if (team2Characters == teamSize)
+						if (team2Members == teamSize)
 						{
 							displayTeamFull = true;
 							break;
 						}
-						++team2Characters;
+						++team2Members;
 						team2Chars.push_back(allCharacters[currentChar]);
 						break;
 					default:
@@ -1051,30 +1092,32 @@ void MenuUIHelper::SelectFightersMenu()
 					switch (currentTeamBeingChosen)
 					{
 					case 1:
-						if (team1Characters == 1)
+						if (team1Members == 1)
 						{
 							displayTeamEmpty = true;
 							break;
 						}
 						else
 						{
-							team1Characters = 1;
+							team1Members = 1;
 							team1Chars.clear();
 							displayTeamReset = true;
+							isAllDone = false;
 						}
 						break;
 
 					case 2:
-						if (team2Characters == 0)
+						if (team2Members == 0)
 						{
 							displayTeamEmpty = true;
 							break;
 						}
 						else
 						{
-							team2Characters = 0;
+							team2Members = 0;
 							team2Chars.clear();
 							displayTeamReset = true;
+							isAllDone = false;
 						}
 						break;
 
@@ -1107,6 +1150,13 @@ void MenuUIHelper::SelectFightersMenu()
 				}
 			}
 			break;
+			case 'y':
+				if (isAllDone)
+				{
+					BattleMenu();
+					return;
+				}
+				break;
 			default:
 				break;
 			}
@@ -1130,15 +1180,25 @@ void MenuUIHelper::BattleMenu()
 	WINDOW* battleWindow = newwin(defaultMenuHeight, defaultMenuWidth, 0, 0);
 	WINDOW* actionsWindow = newwin(defaultMenuHeight, 0, 0, COLS - (COLS - defaultMenuWidth));
 	WINDOW* logWindow = newwin(0, defaultMenuWidth, LINES - (LINES - defaultMenuHeight), 0);
-	WINDOW* logoWindow = newwin(0, 0,
+	WINDOW* smallLogoWindow = newwin(0, 0,
 		(LINES + 4) - (LINES - defaultMenuHeight),
 		(COLS + 4) - (COLS - defaultMenuWidth));
 
+	box(battleWindow, 0, 0);
+	box(actionsWindow, 0, 0);
+	box(logWindow, 0, 0);
+
+	wrefresh(battleWindow);
+	wrefresh(actionsWindow);
+	wrefresh(logWindow);
+	wrefresh(smallLogoWindow);
+
+	getch();
 
 	delwin(battleWindow);
 	delwin(actionsWindow);
 	delwin(logWindow);
-	delwin(logoWindow);
+	delwin(smallLogoWindow);
 }
 
 void MenuUIHelper::ShowItemsMenu()
