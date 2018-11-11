@@ -144,10 +144,11 @@ std::string Character::Attack(Character target, DiceRoller dr)
 	// A little speed up for concatenating. 
 	message.reserve(120);
 	if (isPlayer)
-		message = this->name + " tries to attack: ";
-	else
 		message = "Attempting to attack: ";
-	message.append(name + " ...");
+	else
+		message = this->name + " tries to attack: ";
+
+	message.append(target.name + " ...");
 
 	// If attacker's using melee weapon:
 	if (currentWeapon.isMelee)
@@ -571,13 +572,17 @@ void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 	if (isDead || isKnockedDown)
 		return;
 
-	if (doesNPCHaveTarget == true)
+	if (doesNPCHaveTarget)
 	{
 		if (!currentTarget->isDead)
 			return;
 	}
+	else
+	{
+		currentTarget = std::make_shared<Character>();
+	}
 
-	Character newTarget;
+	std::shared_ptr<Character> newTarget = std::make_shared<Character>();
 
 	switch (usedAI)
 	{
@@ -585,10 +590,12 @@ void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 	case AI_TARGET_STRONGEST:
 	{
 		int max = 0;
-		for (auto i : charactersToChoose)
+		for (auto it : charactersToChoose)
 		{
-			if (i.GetHealth() > max)
-				newTarget = i;
+			if (this->team == it.team || this->ID == it.ID)
+				continue;
+			if (it.GetHealth() > max)
+				*newTarget = it;
 		}
 		break;
 	}
@@ -596,10 +603,12 @@ void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 	case AI_TARGET_WEAKEST:
 	{
 		int min = 999;
-		for (auto i : charactersToChoose)
+		for (auto it : charactersToChoose)
 		{
-			if (i.GetHealth() < min)
-				newTarget = i;
+			if (this->team == it.team || this->ID == it.ID)
+				continue;
+			if (it.GetHealth() < min)
+				*newTarget = it;
 		}
 		break;
 	}
@@ -608,31 +617,38 @@ void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 	{
 		int randTarget = 0;
 		randTarget = rand() % charactersToChoose.size();
-		newTarget = charactersToChoose[randTarget];
+		*newTarget = charactersToChoose[randTarget];
+
+		while(newTarget->ID == this->ID || newTarget->team == this->team)
+			randTarget = rand() % charactersToChoose.size();
+
+		*newTarget = charactersToChoose[randTarget];
 	}
 	break;
 	default:
 		return;
 	}
 
-	*currentTarget = newTarget;
+	currentTarget = newTarget;
 }
 
-void Character::NPCAssessSituation()
+std::string Character::NPCAssessSituation()
 {
+	std::string message = "";
+
 	// If NPC uses melee weapon resolve this branch.
 	if (currentWeapon.isMelee)
 	{
-		Attack(*currentTarget, diceRoller);
+		message = Attack(*currentTarget, diceRoller);
 	}
 	// If NPC uses ranged weapon instead, do that:
 	else
 	{
 		// Well, shoot stuff!
-		Attack(*currentTarget, diceRoller);
+		message = Attack(*currentTarget, diceRoller);
 	}
 
-	return;
+	return message;
 }
 
 void Character::SetTeam(int teamToSet)
@@ -1068,10 +1084,9 @@ std::vector<Shield> GameMaster::GetShields()
 {
 	return allShields;
 }
-int GameMaster::GetCurrentTurn() { return currentTurn; }
-int GameMaster::GetDead() { return howManyDied; }
+std::vector<Character>& GameMaster::GetCharactersInPlay(){ return charactersInPlay; }
 
-GameMaster::GameMaster() : currentCharacterTurn(0), currentTurn(0), howManyDied(0) { }
+GameMaster::GameMaster() { }
 
 GameMaster::~GameMaster()
 {

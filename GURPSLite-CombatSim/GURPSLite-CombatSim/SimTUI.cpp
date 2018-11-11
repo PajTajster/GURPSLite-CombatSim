@@ -1185,10 +1185,7 @@ void MenuUIHelper::BattleMenu()
 	WINDOW* smallLogoWindow = newwin(0, 0,
 		(LINES + 4) - (LINES - defaultMenuHeight),
 		(COLS + 4) - (COLS - defaultMenuWidth));
-
-	// For writing into log.
-	int logHeight = LINES - (LINES - defaultMenuHeight) - 2;
-
+	
 	box(battleWindow, 0, 0);
 	box(actionsWindow, 0, 0);
 	box(logWindow, 0, 0);
@@ -1197,6 +1194,11 @@ void MenuUIHelper::BattleMenu()
 	mvwprintw(logWindow, 0, 0, "Logs");
 	wprintw(smallLogoWindow, smallLogo.c_str());
 
+
+	wrefresh(battleWindow);
+	wrefresh(actionsWindow);
+	wrefresh(logWindow);
+	wrefresh(smallLogoWindow);
 
 	std::vector<std::string> actionsOptions =
 	{
@@ -1216,42 +1218,227 @@ void MenuUIHelper::BattleMenu()
 	// Positions on X for both teams.
 	int teamsXPos[] = { 1, 21, 41};
 	
-	int currentPos = 0;
+	int currentPos = actionsYPos[0];
 	int previousPos = 0;
+
+	int currentOption = 0;
+
+	// For writing into log.
+	int logHeight = LINES - (LINES - defaultMenuHeight) - 2;
+	// Current log position.
+	int currentLogPos = 1;
+
+	// What character has it's move now.
+	int currentCharacterTurn = 0;
+	// Keeps record of turns played.
+	int currentTurn = 0;
+	// Keeps record of fallen characters.
+	int howManyDied = 0;
+
+	bool isBattleFinished = false;
 
 	// Let GM sort it's data.
 	gm.CalculateInitiative();
 
+	std::vector<Character> charactersInPlay = gm.GetCharactersInPlay();
+
+	WriteToLog(logWindow, currentLogPos++, logHeight, "Battle Started! Press 'Enter' to move game forward.");
+
+	// Print Action menu
+	{
+		int i = 0;
+		for (auto& it : actionsOptions)
+		{
+			mvwprintw(actionsWindow, actionsYPos[i], 2, it.c_str());
+			++i;
+		}
+	}
+	wrefresh(actionsWindow);
+
+	// Print BattleScreen
+	{
+		int t1 = 0;
+		int t2 = 0;
+		for (auto& it : charactersInPlay)
+		{
+			switch (it.GetTeam())
+			{
+			case 1:
+				if (teamSize == 1)
+				{
+					mvwprintw(battleWindow, team1YPos, teamsXPos[1], it.name.c_str());
+				}
+				else if (teamSize == 2)
+				{
+					mvwprintw(battleWindow, team1YPos, teamsXPos[0], it.name.c_str());
+					t1 = 2;
+				}
+				else
+				{
+					mvwprintw(battleWindow, team1YPos, teamsXPos[t1++], it.name.c_str());
+				}
+				break;
+			case 2:
+				if (teamSize == 1)
+				{
+					mvwprintw(battleWindow, team2YPos, teamsXPos[1], it.name.c_str());
+				}
+				else if (teamSize == 2)
+				{
+					mvwprintw(battleWindow, team2YPos, teamsXPos[0], it.name.c_str());
+					t2 = 2;
+				}
+				else
+				{
+					mvwprintw(battleWindow, team2YPos, teamsXPos[t2++], it.name.c_str());
+				}
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	wrefresh(battleWindow);
+
+	// Result of attacking.
+	std::string messageToLog = "";
+
 	while (true)
 	{
-		
-
-		int j = 0;
-		for (auto& i : actionsOptions)
+		if (isBattleFinished)
 		{
-			if (actionsYPos[j] == currentPos)
-			{
-				mvwaddch(menu, previousPos, menuOptionXPos - 1, ' ');
-				mvwaddch(menu, currentPos, menuOptionXPos - 1, '>');
-			}
-
-			mvwprintw(menu, actionsYPos[j], menuOptionXPos, i.c_str());
-
-			++j;
+			WriteToLog(logWindow, logHeight, logHeight, "Battle is finished, press ENTER to finish and go back to menu.");
 		}
+		else
+		{
+			WriteToLog(logWindow, currentLogPos++, logHeight, ("Turn " + std::to_string(currentTurn + 1)).c_str());
+			for (auto& it : charactersInPlay)
+			{
+				if (isBattleFinished)
+					break;
 
-		wrefresh(menu);
+				// Player actions
+				if (it.isPlayer)
+				{
+					WriteToLog(logWindow, currentLogPos++, logHeight, "Your Turn.");
+
+					bool playerFinished = false;
+					while (playerFinished)
+					{
+						{
+							int j = 0;
+							for (auto& i : actionsOptions)
+							{
+								if ((actionsYPos[j] - 1) == currentPos)
+								{
+									mvwaddch(actionsWindow, previousPos, 1, ' ');
+									mvwaddch(actionsWindow, currentPos, 1, '>');
+								}
+
+								mvwprintw(actionsWindow, actionsYPos[j], 2, i.c_str());
+
+								++j;
+							}
+						}
+
+						wrefresh(actionsWindow);
+
+						int chosenOption = getch();
+						switch (chosenOption)
+						{
+
+						case KEY_UP:
+							if (currentOption != 0)
+							{
+								--currentOption;
+								previousPos = currentPos;
+								currentPos = actionsYPos[currentOption];
+							}
+							else
+							{
+								currentOption = actionsOptions.size() - 1;
+								previousPos = currentPos;
+								currentPos = actionsYPos[currentOption];
+							}
+							break;
+						case KEY_DOWN:
+							if (currentOption != actionsOptions.size() - 1)
+							{
+								++currentOption;
+								previousPos = currentPos;
+								currentPos = actionsYPos[currentOption];
+							}
+							else
+							{
+								currentOption = 0;
+								previousPos = currentPos;
+								currentPos = actionsYPos[currentOption];
+							}
+							break;
+						case 10:
+						{
+							switch (currentPos)
+							{
+								// Attack
+							case 2:
+							{
+
+							}
+							break;
+
+							// Examine
+							case 4:
+							{
+
+							}
+							break;
+
+							// Skip Turn
+							case 6:
+								WriteToLog(logWindow, currentLogPos++, logHeight, "You've decided to do nothing. Press 'enter' to continue.");
+								break;
+
+								// Surrender
+							case 8:
+								WriteToLog(logWindow, logHeight, logHeight, "You've surrendered. You lost, press 'enter' to continue.");
+								gm.ClearBattleData();
+								getch();
+								enteredBattleMode = true;
+								isBattleFinished = true;
+								return;
+
+							default:
+								break;
+							}
+						}
+						break;
+						default:
+							break;
+						}
+						wrefresh(actionsWindow);
+					}
+
+					mvwaddch(actionsWindow, currentPos, 1, ' ');
+					wrefresh(actionsWindow);				
+					
+				}
+				// NPC actions
+				else
+				{
+					it.NPCSelectTarget(charactersInPlay);
+					messageToLog = it.NPCAssessSituation();
+					WriteToLog(logWindow, currentLogPos++, logHeight, messageToLog.c_str());
+				}
+
+				getch();
+			}
+			if (!isBattleFinished)
+			{
+				gm.NextTurn();
+			}
+			++currentTurn;
+		}
 	}
-
-	wrefresh(battleWindow);
-	wrefresh(actionsWindow);
-	wrefresh(logWindow);
-	wrefresh(smallLogoWindow);
-
-	getch();
-
-	clear();
-	refresh();
 
 	delwin(battleWindow);
 	delwin(actionsWindow);
@@ -1267,7 +1454,7 @@ void MenuUIHelper::WriteToLog(WINDOW* logScreen, int logCurrentPos, int logHeigh
 		mvwprintw(logScreen, 0, 0, "Logs");
 	}
 
-	mvwprintw(logScreen, logCurrentPos, 0, text);
+	mvwprintw(logScreen, logCurrentPos, 1, text);
 
 	wrefresh(logScreen);
 }

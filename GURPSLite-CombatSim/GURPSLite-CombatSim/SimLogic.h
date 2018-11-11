@@ -225,7 +225,7 @@ public:
 	void NPCSelectTarget(std::vector<Character> charactersToChoose);
 
 	// NPC tries to decide it's next move depending on their situation.
-	void NPCAssessSituation();
+	std::string NPCAssessSituation();
 
 	// Taken the character, try to attack him/her/whatever-the-hell-it-is
 	//	returns string message with adequate message.
@@ -282,13 +282,6 @@ private:
 	// [just to skip fighting against Bandit, and Bandit and Bandit]
 	std::vector<std::string> names;
 
-	// What character has it's move now.
-	int currentCharacterTurn;
-	// Keeps record of turns played.
-	int currentTurn;
-	// Keeps record of fallen characters.
-	int howManyDied;
-
 	// Vectors containing all the data app needs.
 
 	// All the characters available to choose.
@@ -337,8 +330,6 @@ public:
 	// Adds character into 'charactersInPlay' vector, then add them to team.
 	void AddCharacterToMainVector(Character c, int team);
 
-	int PlayTurn();
-
 	// Gives character a random name, result is {name}, the {oldName}.
 	void RandomizeName(Character& c);
 
@@ -352,8 +343,7 @@ public:
 	std::vector<Armour> GetArmours();
 	std::vector<Weapon> GetWeapons();
 	std::vector<Shield> GetShields();
-	int GetCurrentTurn();
-	int GetDead();
+	std::vector<Character>& GetCharactersInPlay();
 
 	GameMaster();
 	~GameMaster();
