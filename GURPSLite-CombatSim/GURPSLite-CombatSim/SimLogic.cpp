@@ -182,14 +182,14 @@ std::string Character::Attack(Character& target, DiceRoller dr)
 				else
 				{
 					message.append("Critically hit for ");
-					message.append(damageApplied + " hp!");
+					message.append(std::to_string(damageApplied) + " hp!");
 				}
 			}
 			// Normal hit, needs to roll for defend 
-			else if (roll < weaponSkill->proficiency)
+			else if (roll <= weaponSkill->proficiency)
 			{
 				// If yes, apply damage to target
-				if (DidGetHit(target, dr))
+				if (target.DidGetHit(dr))
 				{
 					int damageApplied = dr.RollDice(currentWeapon.damage.dices + baseMeleeDamage.dices,
 						currentWeapon.damage.bonus + baseMeleeDamage.bonus);
@@ -204,7 +204,7 @@ std::string Character::Attack(Character& target, DiceRoller dr)
 					else
 					{
 						message.append("Target hit for ");
-						message.append(damageApplied + " hp!");
+						message.append(std::to_string(damageApplied) + " hp!");
 					}
 
 				}
@@ -265,14 +265,14 @@ std::string Character::Attack(Character& target, DiceRoller dr)
 					else
 					{
 						message.append("Critically hit for ");
-						message.append(damageApplied + " hp!");
+						message.append(std::to_string(damageApplied) + " hp!");
 					}
 				}
 			// Normal hit, needs to roll for defend 
-			else if (roll < weaponSkill->proficiency)
+			else if (roll <= weaponSkill->proficiency)
 				{
 					// If yes, apply damage to target
-					if (DidGetHit(target, dr))
+					if (target.DidGetHit(dr))
 					{
 						int damageApplied = dr.RollDice(currentWeapon.damage.dices,
 														currentWeapon.damage.bonus);
@@ -285,7 +285,7 @@ std::string Character::Attack(Character& target, DiceRoller dr)
 						else
 						{
 							message.append("Target hit for ");
-							message.append(damageApplied + " hp!");
+							message.append(std::to_string(damageApplied) + " hp!");
 						}
 					}
 					// If no, then attack is blocked and round goes on.
@@ -302,10 +302,13 @@ std::string Character::Attack(Character& target, DiceRoller dr)
 		// projectiles(Rate of Fire) were shot.
 		hasAttackedThisTurn = true;
 	}	
+	if (target.isDead)
+		message.append("\n" + target.name + " lifeless body landed on the floor.");
+
 	return message;
 }
 
-bool Character::DidGetHit(Character attacker, DiceRoller dr)
+bool Character::DidGetHit(DiceRoller dr)
 {
 	// Firstly calculate our total defence, which is sum of all
 	// defences the character has. [if knockdown then only passive]
@@ -313,8 +316,25 @@ bool Character::DidGetHit(Character attacker, DiceRoller dr)
 
 	if (isKnockedDown)
 		totalDefense = passiveDefence;
+	// Choose what type of active defence will be considered.
 	else
-		totalDefense = (dodge + parry + block + passiveDefence);
+	{
+		int whatDef = rand() % 3;
+		switch (whatDef)
+		{
+		case 0:
+			totalDefense = block + passiveDefence;
+			break;
+		case 1:
+			totalDefense = dodge + passiveDefence;
+			break;
+		case 2:
+			totalDefense = parry + passiveDefence;
+			break;
+		default:
+			return true;
+		}
+	}
 
 	// Now we roll 3d6 against it.
 	int diceRoll = dr.RollDice(3, 0);
@@ -326,10 +346,10 @@ bool Character::DidGetHit(Character attacker, DiceRoller dr)
 	else if (diceRoll >= 17)
 		return true;
 	// If roll is less than or equal to totalDefense, then it's a success.
-	else if (diceRoll < 17)
+	else if (diceRoll < totalDefense)
 		return false;
 
-	// Shouldn't happen
+	// If still nothing, then it's a hit.
 	return true;
 }
 
@@ -341,13 +361,14 @@ int Character::ReceiveDamage(int damage)
 	if (finalDamage < 0)
 		return 0;
 
-	// If character got damaged for 1/2 of it's HP, they get knocked down.
-	if (health / 2 == finalDamage)
+	// If character got damaged for more or equal 1/2 of it's HP, they get knocked down.
+	if ((health / 2) >= finalDamage)
 	{
 		isKnockedDown = true;
 		knockDownTimer++;
 	}
 
+	health -= finalDamage;
 
 	// R.I.P.
 	if (health <= 0)
@@ -398,12 +419,23 @@ void Character::CalculateExtraAttributes()
 	if (!isWieldingShield)
 		block = 0;
 	else
-		block = skills[0].proficiency;
+	{
+		std::string skillToFind = "Shield";
+
+		auto shieldSkill = std::find_if(skills.cbegin(), skills.cend(),
+			[skillToFind](const Skill& s)->bool {return s.name == skillToFind; });
+
+		if (shieldSkill == skills.cend())
+			block = 0;
+		else
+			block = shieldSkill->proficiency;
+	}
 
 	// If no weapon is used, then parry is 0
 	// but if it is, then parry is half of weapon's skill's proficiency.
 	if (currentWeapon.name == "Bare Fists")
 		parry = 0;
+
 	else
 	{
 		std::string skillToFind = currentWeapon.skill;
@@ -611,6 +643,8 @@ void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 	}
 
 	std::shared_ptr<Character> newTarget = std::make_shared<Character>();
+	newTarget->ID = 32765;
+
 
 	switch (usedAI)
 	{
@@ -620,7 +654,7 @@ void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 		int max = 0;
 		for (auto it : charactersToChoose)
 		{
-			if (this->team == it.team || this->ID == it.ID)
+			if (this->team == it.team || this->ID == it.ID || it.isDead)
 				continue;
 			if (it.GetHealth() > max)
 				*newTarget = it;
@@ -633,7 +667,7 @@ void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 		int min = 999;
 		for (auto it : charactersToChoose)
 		{
-			if (this->team == it.team || this->ID == it.ID)
+			if (this->team == it.team || this->ID == it.ID || it.isDead)
 				continue;
 			if (it.GetHealth() < min)
 				*newTarget = it;
@@ -647,7 +681,7 @@ void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 		randTarget = rand() % charactersToChoose.size();
 		*newTarget = charactersToChoose[randTarget];
 
-		while(newTarget->ID == this->ID || newTarget->team == this->team)
+		while(newTarget->ID == this->ID || newTarget->team == this->team || newTarget->isDead)
 			randTarget = rand() % charactersToChoose.size();
 
 		*newTarget = charactersToChoose[randTarget];
@@ -657,12 +691,24 @@ void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 		return;
 	}
 
-	currentTarget = newTarget;
+	if (newTarget->ID == 32765)
+		currentTarget == nullptr;
+	else
+		currentTarget = newTarget;
 }
 
-std::string Character::NPCAssessSituation()
+std::string Character::NPCAssessSituation(std::vector<Character> charactersToChoose)
 {
 	std::string message = "";
+
+	if (currentTarget == nullptr || currentTarget->isDead)
+	{
+		NPCSelectTarget(charactersToChoose);
+		if (currentTarget == nullptr)
+		{
+			return message;
+		}
+	}
 
 	// If NPC uses melee weapon resolve this branch.
 	if (currentWeapon.isMelee)

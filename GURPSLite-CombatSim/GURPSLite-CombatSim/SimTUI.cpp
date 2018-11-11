@@ -1239,9 +1239,9 @@ void MenuUIHelper::BattleMenu()
 	int actionsYPos[] = { 2, 3, 4, 6 };
 
 	// Positions y for both teams.
-	constexpr int teamsYPos[] = { 2, 4, 6 };
+	constexpr int teamsYPos[] = { 3, 5, 7 };
 	// Positions on X for both teams.
-	constexpr int teamsXPos[] = { 2, 20 };
+	constexpr int teamsXPos[] = { 5, 50 };
 
 	
 	int currentPos = actionsYPos[0];
@@ -1262,13 +1262,15 @@ void MenuUIHelper::BattleMenu()
 	int howManyDied = 0;
 
 	bool isBattleFinished = false;
+	bool allEnemiesDied = false;
+	// Keeps track who died.
+	int enemiesDead[] = { -1, -1, -1 };
 
 	// Let GM sort it's data.
 	gm.CalculateInitiative();
 
 	std::vector<Character> charactersInPlay = gm.GetCharactersInPlay();
 
-	logWriter.WriteToLog(logWindow, false, "Battle Started! Press 'Enter' to move game forward.");
 
 	// Print Action menu
 	{
@@ -1320,13 +1322,23 @@ void MenuUIHelper::BattleMenu()
 					team2Characters[0] = index;
 					break;
 				case 2:
-					mvwprintw(battleWindow, teamsYPos[t2], teamsXPos[0], it.name.c_str());
-					team2Characters[t2] = index;
+					mvwprintw(battleWindow, teamsYPos[t2], teamsXPos[1], it.name.c_str());
+					if (t2 == 0)
+					{
+						team2Characters[t2] = index;
+						enemiesDead[t2] = 0;
+					}
+					else
+					{
+						team2Characters[t2 - 1] = index;
+						enemiesDead[t2 - 1] = 0;
+					}
 					t2 = 2;
 					break;
 				case 3:
-					mvwprintw(battleWindow, teamsYPos[t2], teamsXPos[0], it.name.c_str());
+					mvwprintw(battleWindow, teamsYPos[t2], teamsXPos[1], it.name.c_str());
 					team2Characters[t2] = index;
+					enemiesDead[t2] = 0;
 					++t2;
 					break;
 				default:
@@ -1345,17 +1357,56 @@ void MenuUIHelper::BattleMenu()
 	// Result of attacking.
 	std::string messageToLog = "";
 
+	logWriter.WriteToLog(logWindow, false, "Battle Started! Press 'Enter' to move game forward.");
+	getch();
+
 	while (true)
 	{
 		if (isBattleFinished)
 		{
 			logWriter.WriteToLog(logWindow, true, "Battle is finished, press ENTER to finish and go back to menu.");
+			logWriter.WriteToLog(logWindow, false, (std::to_string(howManyDied) + " brave fighters died today.").c_str());
+			getch();
+			break;
 		}
 		else
 		{
+			currentCharacterTurn = 0;
 			logWriter.WriteToLog(logWindow, false, ("Turn " + std::to_string(currentTurn + 1)).c_str());
 			for (auto& it : charactersInPlay)
 			{
+				// Check if dead.
+				if (it.isDead)
+				{
+					// Check if character is player's enemy.
+					if (it.GetTeam() == 2)
+					{
+						int team2Died = 0;
+						
+						int i = 0;
+						// See how many enemies died
+						for (;team2Characters[i] != currentCharacterTurn; ++i)
+						{
+							if (enemiesDead[i] == 1)
+								++team2Died;
+						}
+						enemiesDead[i] = 1;
+
+						// If all enemies died, battle is over.
+						if (team2Died == teamSize)
+							allEnemiesDied = true;
+
+					}
+					// Increment dead characters counter.
+					++howManyDied;
+				}
+
+				if (allEnemiesDied)
+				{
+					isBattleFinished = true;
+					logWriter.WriteToLog(logWindow, true, "All your enemies perished! Press 'enter' to proceed.");
+				}
+
 				if (isBattleFinished)
 					break;
 
@@ -1480,12 +1531,24 @@ void MenuUIHelper::BattleMenu()
 				// NPC actions
 				else
 				{
-					it.NPCSelectTarget(charactersInPlay);
-					messageToLog = it.NPCAssessSituation();
+					messageToLog = it.NPCAssessSituation(charactersInPlay);
+					if (messageToLog == "")
+						break;
 					logWriter.WriteToLog(logWindow, false, messageToLog.c_str());
+
+
+					if (player->isDead)
+					{
+						logWriter.WriteToLog(logWindow, true, "...YOU DIED...\nPress 'enter' to proceed.");
+						isBattleFinished = true;
+					}
+
+					messageToLog.clear();
 				}
 
 				getch();
+
+				++currentCharacterTurn;
 			}
 			if (!isBattleFinished)
 			{

@@ -227,15 +227,14 @@ public:
 	void NPCSelectTarget(std::vector<Character> charactersToChoose);
 
 	// NPC tries to decide it's next move depending on their situation.
-	std::string NPCAssessSituation();
+	std::string NPCAssessSituation(std::vector<Character> charactersToChoose);
 
 	// Taken the character, try to attack him/her/whatever-the-hell-it-is
 	//	returns string message with adequate message.
 	std::string Attack(Character& target, DiceRoller dr);
 
 	// Called usually when there's Attack method called on receiving character
-	// calculate attackers skills vs defenders speed, dodging and defence
-	bool DidGetHit(Character attacker, DiceRoller dr);
+	bool DidGetHit(DiceRoller dr);
 
 	// If character happens not to defend himself, he'll get reduced HT.
 	// returns damage taken.
