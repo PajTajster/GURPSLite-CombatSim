@@ -1250,7 +1250,7 @@ void MenuUIHelper::BattleMenu()
 	int currentOption = 0;
 
 	// For writing into log.
-	int logHeight = LINES - (LINES - defaultMenuHeight) - 2;
+	int logHeight = (LINES - 1) - (LINES - defaultMenuHeight);
 
 	LogWriter logWriter(logHeight);
 
@@ -1391,12 +1391,14 @@ void MenuUIHelper::BattleMenu()
 								++team2Died;
 						}
 						enemiesDead[i] = 1;
+						++team2Died;
 
 						// If all enemies died, battle is over.
 						if (team2Died == teamSize)
 							allEnemiesDied = true;
 
 					}
+
 					// Increment dead characters counter.
 					++howManyDied;
 				}
@@ -1474,7 +1476,37 @@ void MenuUIHelper::BattleMenu()
 								// Attack
 							case 2:
 							{
-								playerFinished = true;
+								int currentPos = 1;
+								int previousPos = 1;
+								while (!playerFinished)
+								{
+									// Player choice.
+									int option = 0;
+
+									switch (teamSize)
+									{
+									case 1:
+										mvwaddch(battleWindow, teamsYPos[1], teamsXPos[1] - 1, '>');
+										wrefresh(battleWindow);
+										option = getch();
+										mvwaddch(battleWindow, teamsYPos[1], teamsXPos[1] - 1, ' ');
+										wrefresh(battleWindow);
+										// ENTER
+										if (option == 10)
+										{
+											messageToLog = player->Attack(charactersInPlay[team2Characters[0]]);
+											logWriter.WriteToLog(logWindow, false, messageToLog.c_str());
+										}
+										break;
+									case 2:
+										break;
+									case 3:
+										break;
+									default:
+										break;
+									}
+									playerFinished = true;
+								}
 							}
 							break;
 

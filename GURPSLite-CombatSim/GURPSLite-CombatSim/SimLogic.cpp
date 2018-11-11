@@ -125,7 +125,7 @@ Weapon::Weapon(std::string n, Damage d, std::string s, bool isM,
 
 
 
-std::string Character::Attack(Character& target, DiceRoller dr)
+std::string Character::Attack(Character& target)
 {
 	// If target happens to be on the same team, abort.
 	if (target.team == team)
@@ -156,7 +156,7 @@ std::string Character::Attack(Character& target, DiceRoller dr)
 		if (true)
 		{
 			// Roll for an attack.
-			int roll = dr.RollDice(3, 0);
+			int roll = diceRoller.RollDice(3, 0);
 
 			// Critical miss, applies knockdown effect for 1 turn.
 			if (roll >= 17)
@@ -169,7 +169,7 @@ std::string Character::Attack(Character& target, DiceRoller dr)
 			else
 			if (roll <= 3)
 			{
-				int damageApplied = dr.RollDice(currentWeapon.damage.dices + baseMeleeDamage.dices,
+				int damageApplied = diceRoller.RollDice(currentWeapon.damage.dices + baseMeleeDamage.dices,
 					currentWeapon.damage.bonus + baseMeleeDamage.bonus);
 
 				int finalDamage = target.ReceiveDamage(damageApplied * 2);
@@ -189,9 +189,9 @@ std::string Character::Attack(Character& target, DiceRoller dr)
 			else if (roll <= weaponSkill->proficiency)
 			{
 				// If yes, apply damage to target
-				if (target.DidGetHit(dr))
+				if (target.DidGetHit())
 				{
-					int damageApplied = dr.RollDice(currentWeapon.damage.dices + baseMeleeDamage.dices,
+					int damageApplied = diceRoller.RollDice(currentWeapon.damage.dices + baseMeleeDamage.dices,
 						currentWeapon.damage.bonus + baseMeleeDamage.bonus);
 
 					int finalDamage = target.ReceiveDamage(damageApplied);
@@ -239,7 +239,7 @@ std::string Character::Attack(Character& target, DiceRoller dr)
 			}
 			message.append("\n[Projectile " + std::to_string(i + 1) + "] ");
 			// Roll for an attack.
-			int roll = dr.RollDice(3, 0);
+			int roll = diceRoller.RollDice(3, 0);
 
 			// Critical miss, applies knockdown effect for 1 turn.
 			if (roll >= 17)
@@ -253,7 +253,7 @@ std::string Character::Attack(Character& target, DiceRoller dr)
 			// Critial hit, ignores whole defending step and applies x2 damage.
 			else if (roll <= 3)
 				{
-					int damageApplied = dr.RollDice(currentWeapon.damage.dices,
+					int damageApplied = diceRoller.RollDice(currentWeapon.damage.dices,
 													currentWeapon.damage.bonus);
 
 					int finalDamage = target.ReceiveDamage(damageApplied * 2);
@@ -272,9 +272,9 @@ std::string Character::Attack(Character& target, DiceRoller dr)
 			else if (roll <= weaponSkill->proficiency)
 				{
 					// If yes, apply damage to target
-					if (target.DidGetHit(dr))
+					if (target.DidGetHit())
 					{
-						int damageApplied = dr.RollDice(currentWeapon.damage.dices,
+						int damageApplied = diceRoller.RollDice(currentWeapon.damage.dices,
 														currentWeapon.damage.bonus);
 						int finalDamage = target.ReceiveDamage(damageApplied);
 
@@ -308,7 +308,7 @@ std::string Character::Attack(Character& target, DiceRoller dr)
 	return message;
 }
 
-bool Character::DidGetHit(DiceRoller dr)
+bool Character::DidGetHit()
 {
 	// Firstly calculate our total defence, which is sum of all
 	// defences the character has. [if knockdown then only passive]
@@ -337,7 +337,7 @@ bool Character::DidGetHit(DiceRoller dr)
 	}
 
 	// Now we roll 3d6 against it.
-	int diceRoll = dr.RollDice(3, 0);
+	int diceRoll = diceRoller.RollDice(3, 0);
 
 	// Roll of 4 or less is always a success.
 	if (diceRoll <= 4)
@@ -713,13 +713,13 @@ std::string Character::NPCAssessSituation(std::vector<Character> charactersToCho
 	// If NPC uses melee weapon resolve this branch.
 	if (currentWeapon.isMelee)
 	{
-		message = Attack(*currentTarget, diceRoller);
+		message = Attack(*currentTarget);
 	}
 	// If NPC uses ranged weapon instead, do that:
 	else
 	{
 		// Well, shoot stuff!
-		message = Attack(*currentTarget, diceRoller);
+		message = Attack(*currentTarget);
 	}
 
 	return message;
