@@ -302,9 +302,6 @@ std::string Character::Attack(Character target, DiceRoller dr)
 		// projectiles(Rate of Fire) were shot.
 		hasAttackedThisTurn = true;
 	}	
-	
-	message.append("\n");
-
 	return message;
 }
 

@@ -1219,14 +1219,14 @@ void MenuUIHelper::BattleMenu()
 	int teamsXPos[] = { 1, 21, 41};
 	
 	int currentPos = actionsYPos[0];
-	int previousPos = 0;
+	int previousPos = 2;
 
 	int currentOption = 0;
 
 	// For writing into log.
 	int logHeight = LINES - (LINES - defaultMenuHeight) - 2;
-	// Current log position.
-	int currentLogPos = 1;
+
+	LogWriter logWriter(logHeight);
 
 	// What character has it's move now.
 	int currentCharacterTurn = 0;
@@ -1242,7 +1242,7 @@ void MenuUIHelper::BattleMenu()
 
 	std::vector<Character> charactersInPlay = gm.GetCharactersInPlay();
 
-	WriteToLog(logWindow, currentLogPos++, logHeight, "Battle Started! Press 'Enter' to move game forward.");
+	logWriter.WriteToLog(logWindow, false, "Battle Started! Press 'Enter' to move game forward.");
 
 	// Print Action menu
 	{
@@ -1307,11 +1307,11 @@ void MenuUIHelper::BattleMenu()
 	{
 		if (isBattleFinished)
 		{
-			WriteToLog(logWindow, logHeight, logHeight, "Battle is finished, press ENTER to finish and go back to menu.");
+			logWriter.WriteToLog(logWindow, true, "Battle is finished, press ENTER to finish and go back to menu.");
 		}
 		else
 		{
-			WriteToLog(logWindow, currentLogPos++, logHeight, ("Turn " + std::to_string(currentTurn + 1)).c_str());
+			logWriter.WriteToLog(logWindow, false, ("Turn " + std::to_string(currentTurn + 1)).c_str());
 			for (auto& it : charactersInPlay)
 			{
 				if (isBattleFinished)
@@ -1320,16 +1320,16 @@ void MenuUIHelper::BattleMenu()
 				// Player actions
 				if (it.isPlayer)
 				{
-					WriteToLog(logWindow, currentLogPos++, logHeight, "Your Turn.");
+					logWriter.WriteToLog(logWindow, false, "Your Turn.");
 
 					bool playerFinished = false;
-					while (playerFinished)
+					while (!playerFinished)
 					{
 						{
 							int j = 0;
 							for (auto& i : actionsOptions)
 							{
-								if ((actionsYPos[j] - 1) == currentPos)
+								if (actionsYPos[j] == currentPos)
 								{
 									mvwaddch(actionsWindow, previousPos, 1, ' ');
 									mvwaddch(actionsWindow, currentPos, 1, '>');
@@ -1346,7 +1346,6 @@ void MenuUIHelper::BattleMenu()
 						int chosenOption = getch();
 						switch (chosenOption)
 						{
-
 						case KEY_UP:
 							if (currentOption != 0)
 							{
@@ -1356,13 +1355,13 @@ void MenuUIHelper::BattleMenu()
 							}
 							else
 							{
-								currentOption = actionsOptions.size() - 1;
+								currentOption = 3;
 								previousPos = currentPos;
 								currentPos = actionsYPos[currentOption];
 							}
 							break;
 						case KEY_DOWN:
-							if (currentOption != actionsOptions.size() - 1)
+							if (currentOption != 3)
 							{
 								++currentOption;
 								previousPos = currentPos;
@@ -1382,29 +1381,39 @@ void MenuUIHelper::BattleMenu()
 								// Attack
 							case 2:
 							{
-
+								playerFinished = true;
 							}
 							break;
 
 							// Examine
-							case 4:
+							case 3:
 							{
-
+								playerFinished = true;
 							}
 							break;
 
 							// Skip Turn
-							case 6:
-								WriteToLog(logWindow, currentLogPos++, logHeight, "You've decided to do nothing. Press 'enter' to continue.");
+							case 4:
+								logWriter.WriteToLog(logWindow, false, "You've decided to do nothing. Press 'enter' to continue.");
+								playerFinished = true;
 								break;
 
 								// Surrender
-							case 8:
-								WriteToLog(logWindow, logHeight, logHeight, "You've surrendered. You lost, press 'enter' to continue.");
+							case 6:
+								logWriter.WriteToLog(logWindow, true, "You've surrendered. You lost, press 'enter' to continue.");
 								gm.ClearBattleData();
 								getch();
+								playerFinished = true;
 								enteredBattleMode = true;
 								isBattleFinished = true;
+								wclear(battleWindow);
+								wclear(actionsWindow);
+								wclear(logWindow);
+								wclear(smallLogoWindow);
+								delwin(battleWindow);
+								delwin(actionsWindow);
+								delwin(logWindow);
+								delwin(smallLogoWindow);
 								return;
 
 							default:
@@ -1427,7 +1436,7 @@ void MenuUIHelper::BattleMenu()
 				{
 					it.NPCSelectTarget(charactersInPlay);
 					messageToLog = it.NPCAssessSituation();
-					WriteToLog(logWindow, currentLogPos++, logHeight, messageToLog.c_str());
+					logWriter.WriteToLog(logWindow, false, messageToLog.c_str());
 				}
 
 				getch();
@@ -1444,19 +1453,6 @@ void MenuUIHelper::BattleMenu()
 	delwin(actionsWindow);
 	delwin(logWindow);
 	delwin(smallLogoWindow);
-}
-void MenuUIHelper::WriteToLog(WINDOW* logScreen, int logCurrentPos, int logHeight, const char* text)
-{
-	if (logCurrentPos == logHeight)
-	{
-		logCurrentPos = 1;
-		wclear(logScreen);
-		mvwprintw(logScreen, 0, 0, "Logs");
-	}
-
-	mvwprintw(logScreen, logCurrentPos, 1, text);
-
-	wrefresh(logScreen);
 }
 
 void MenuUIHelper::ShowItemsMenu()
@@ -2191,3 +2187,23 @@ MenuUIHelper::~MenuUIHelper()
 {
 	delete player;
 }
+
+
+void LogWriter::WriteToLog(WINDOW* logScreen, bool clearScreen, const char* text)
+{
+	if (currentLogPosition == logHeight || clearScreen)
+	{
+		currentLogPosition = 1;
+		wclear(logScreen);
+		box(logScreen, 0, 0);
+		mvwprintw(logScreen, 0, 0, "Logs");
+	}
+
+	mvwprintw(logScreen, currentLogPosition, 1, text);
+
+	wrefresh(logScreen);
+
+	++currentLogPosition;
+}
+LogWriter::LogWriter(int lH) : currentLogPosition(1), logHeight(lH) {}
+LogWriter::~LogWriter() {}

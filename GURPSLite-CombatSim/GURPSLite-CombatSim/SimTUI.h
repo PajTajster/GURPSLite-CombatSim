@@ -44,8 +44,6 @@ private:
 	void PrepareTeamMenu();
 	void SelectFightersMenu();
 	void BattleMenu();
-	// To writing into log screen during battle.
-	void WriteToLog(WINDOW*, int logCurrentPos, int logHeight, const char* text);
 
 	void ShowItemsMenu();
 	void ShowCharacters();
@@ -63,4 +61,18 @@ public:
 
 	MenuUIHelper();
 	~MenuUIHelper();
+};
+
+class LogWriter
+{
+private:
+	int currentLogPosition;
+	int logHeight;
+
+public:
+	// To writing into log screen during battle.
+	void WriteToLog(WINDOW* win, bool clearScreen, const char* text);
+
+	LogWriter(int lH);
+	~LogWriter();
 };
