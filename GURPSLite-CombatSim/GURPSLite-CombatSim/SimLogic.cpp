@@ -125,7 +125,7 @@ Weapon::Weapon(std::string n, Damage d, std::string s, bool isM,
 
 
 
-std::string Character::Attack(Character target, DiceRoller dr)
+std::string Character::Attack(Character& target, DiceRoller dr)
 {
 	// If target happens to be on the same team, abort.
 	if (target.team == team)
@@ -182,7 +182,7 @@ std::string Character::Attack(Character target, DiceRoller dr)
 				else
 				{
 					message.append("Critically hit for ");
-					message.append(damageApplied + "ht!");
+					message.append(damageApplied + " hp!");
 				}
 			}
 			// Normal hit, needs to roll for defend 
@@ -204,7 +204,7 @@ std::string Character::Attack(Character target, DiceRoller dr)
 					else
 					{
 						message.append("Target hit for ");
-						message.append(damageApplied + "ht!");
+						message.append(damageApplied + " hp!");
 					}
 
 				}
@@ -237,7 +237,7 @@ std::string Character::Attack(Character target, DiceRoller dr)
 			{
 				message.append("\nTarget is dead, you lower your " + currentWeapon.name);
 			}
-			message.append("[Bullet " + std::to_string(i + 1) + "]\n");
+			message.append("\n[Projectile " + std::to_string(i + 1) + "] ");
 			// Roll for an attack.
 			int roll = dr.RollDice(3, 0);
 
@@ -265,7 +265,7 @@ std::string Character::Attack(Character target, DiceRoller dr)
 					else
 					{
 						message.append("Critically hit for ");
-						message.append(damageApplied + "ht!");
+						message.append(damageApplied + " hp!");
 					}
 				}
 			// Normal hit, needs to roll for defend 
@@ -285,7 +285,7 @@ std::string Character::Attack(Character target, DiceRoller dr)
 						else
 						{
 							message.append("Target hit for ");
-							message.append(damageApplied + "ht!");
+							message.append(damageApplied + " hp!");
 						}
 					}
 					// If no, then attack is blocked and round goes on.
@@ -743,53 +743,12 @@ void GameMaster::CalculateInitiative()
 		});
 }
 
-void GameMaster::KillCharacter(int id)
-{
-	int charID = id;
-
-	// Search charactersInPlay vector in order to delete character.
-	auto characterToDelete = std::find_if(charactersInPlay.begin(), charactersInPlay.end(),
-		[charID](const auto &c) -> bool {return c.ID == charID; });
-	if (characterToDelete == charactersInPlay.cend())
-		return;
-
-	// Don't kill character that's not dead! :((
-	if (characterToDelete->isDead)
-		return;
-
-	charactersInPlay.erase(characterToDelete);
-
-	// Search adequate team vector in order to delete character.
-	switch (characterToDelete->GetTeam())
-	{
-		// If team 1
-	case 1:
-		characterToDelete = std::find_if(team1.begin(), team1.end(),
-			[charID](const auto &c) -> bool {return c.ID == charID; });
-		if (characterToDelete == team1.cend())
-			return;
-		team1.erase(characterToDelete);
-		break;
-		// If team 2
-	case 2:
-		characterToDelete = std::find_if(team2.begin(), team2.end(),
-			[charID](const auto &c) -> bool { return c.ID == charID; });
-		if (characterToDelete == team2.cend())
-			return;
-		team2.erase(characterToDelete);
-		break;
-		// Shouldn't happen!
-	default:
-		break;
-	}
-}
-
 void GameMaster::NextTurn()
 {
 	for (auto i : charactersInPlay)
 	{
 		if (i.isDead)
-			KillCharacter(i.ID);
+			continue;
 		if (i.knockDownTimer)
 		{
 			if (--i.knockDownTimer);

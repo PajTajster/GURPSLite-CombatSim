@@ -231,7 +231,7 @@ public:
 
 	// Taken the character, try to attack him/her/whatever-the-hell-it-is
 	//	returns string message with adequate message.
-	std::string Attack(Character target, DiceRoller dr);
+	std::string Attack(Character& target, DiceRoller dr);
 
 	// Called usually when there's Attack method called on receiving character
 	// calculate attackers skills vs defenders speed, dodging and defence
@@ -315,9 +315,6 @@ public:
 
 	// Takes a vector of 'charactersInPlay' and sorts it by initiative.
 	void CalculateInitiative();
-
-	// Remove given character from play.
-	void KillCharacter(int id);
 
 	// Run through all the present characters and refresh their
 	// actions and decrement knockdowntimer (if they have one active).

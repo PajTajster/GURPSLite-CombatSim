@@ -559,7 +559,7 @@ void MenuUIHelper::PlayerCreationMenu()
 				break;
 			}
 				// Done
-			case 8:
+			case 9:
 				// Update character.
 				if (isPlayerNameSet)
 				{
@@ -590,7 +590,7 @@ void MenuUIHelper::PlayerCreationMenu()
 				break;
 
 				// Go back
-			case 9:
+			case 10:
 				wclear(menu);
 				return;
 			default:
@@ -1216,7 +1216,6 @@ void MenuUIHelper::BattleMenu()
 	
 	box(battleWindow, 0, 0);
 	box(actionsWindow, 0, 0);
-	box(logWindow, 0, 0);
 	mvwprintw(battleWindow, 0, 0, "Battle Screen");
 	mvwprintw(actionsWindow, 0, 0, "Actions");
 	mvwprintw(logWindow, 0, 0, "Logs");
@@ -1239,12 +1238,11 @@ void MenuUIHelper::BattleMenu()
 	// Action menu options positions.
 	int actionsYPos[] = { 2, 3, 4, 6 };
 
-	// Position y for Team 1.
-	int team1YPos = 2;
-	// Position y for Team 2.
-	int team2YPos = 6;
+	// Positions y for both teams.
+	constexpr int teamsYPos[] = { 2, 4, 6 };
 	// Positions on X for both teams.
-	int teamsXPos[] = { 1, 21, 41};
+	constexpr int teamsXPos[] = { 2, 20 };
+
 	
 	int currentPos = actionsYPos[0];
 	int previousPos = 2;
@@ -1283,47 +1281,63 @@ void MenuUIHelper::BattleMenu()
 	}
 	wrefresh(actionsWindow);
 
+	// To keep indexes of enemies.
+	int team2Characters[3] = { -1, -1, -1 };
+
 	// Print BattleScreen
 	{
 		int t1 = 0;
 		int t2 = 0;
+
+		int index = 0;
 		for (auto& it : charactersInPlay)
 		{
 			switch (it.GetTeam())
 			{
 			case 1:
-				if (teamSize == 1)
+				switch (teamSize)
 				{
-					mvwprintw(battleWindow, team1YPos, teamsXPos[1], it.name.c_str());
-				}
-				else if (teamSize == 2)
-				{
-					mvwprintw(battleWindow, team1YPos, teamsXPos[0], it.name.c_str());
+				case 1:
+					mvwprintw(battleWindow, teamsYPos[1], teamsXPos[0], it.name.c_str());
+					break;
+				case 2:
+					mvwprintw(battleWindow, teamsYPos[t1], teamsXPos[0], it.name.c_str());
 					t1 = 2;
-				}
-				else
-				{
-					mvwprintw(battleWindow, team1YPos, teamsXPos[t1++], it.name.c_str());
+					break;
+				case 3:
+					mvwprintw(battleWindow, teamsYPos[t1], teamsXPos[0], it.name.c_str());
+					++t1;
+					break;
+				default:
+					break;
 				}
 				break;
 			case 2:
-				if (teamSize == 1)
+				switch (teamSize)
 				{
-					mvwprintw(battleWindow, team2YPos, teamsXPos[1], it.name.c_str());
-				}
-				else if (teamSize == 2)
-				{
-					mvwprintw(battleWindow, team2YPos, teamsXPos[0], it.name.c_str());
+				case 1:
+					mvwprintw(battleWindow, teamsYPos[1], teamsXPos[1], it.name.c_str());
+					team2Characters[0] = index;
+					break;
+				case 2:
+					mvwprintw(battleWindow, teamsYPos[t2], teamsXPos[0], it.name.c_str());
+					team2Characters[t2] = index;
 					t2 = 2;
-				}
-				else
-				{
-					mvwprintw(battleWindow, team2YPos, teamsXPos[t2++], it.name.c_str());
+					break;
+				case 3:
+					mvwprintw(battleWindow, teamsYPos[t2], teamsXPos[0], it.name.c_str());
+					team2Characters[t2] = index;
+					++t2;
+					break;
+				default:
+					break;
 				}
 				break;
 			default:
 				break;
 			}
+
+			++index;
 		}
 	}
 	wrefresh(battleWindow);
@@ -1438,6 +1452,10 @@ void MenuUIHelper::BattleMenu()
 								wclear(actionsWindow);
 								wclear(logWindow);
 								wclear(smallLogoWindow);
+								wrefresh(battleWindow);
+								wrefresh(actionsWindow);
+								wrefresh(logWindow);
+								wrefresh(smallLogoWindow);
 								delwin(battleWindow);
 								delwin(actionsWindow);
 								delwin(logWindow);
@@ -2169,6 +2187,8 @@ MenuUIHelper::MenuUIHelper()
 {
 	// Init PDCurses.
 	initscr();
+	// Start colors.
+	start_color();
 	// Clear screen.
 	clear();
 	// For reading arrow-keys.
@@ -2219,11 +2239,10 @@ MenuUIHelper::~MenuUIHelper()
 
 void LogWriter::WriteToLog(WINDOW* logScreen, bool clearScreen, const char* text)
 {
-	if (currentLogPosition == logHeight || clearScreen)
+	if (currentLogPosition >= logHeight || clearScreen)
 	{
 		currentLogPosition = 1;
 		wclear(logScreen);
-		box(logScreen, 0, 0);
 		mvwprintw(logScreen, 0, 0, "Logs");
 	}
 
@@ -2231,7 +2250,7 @@ void LogWriter::WriteToLog(WINDOW* logScreen, bool clearScreen, const char* text
 
 	wrefresh(logScreen);
 
-	++currentLogPosition;
+	currentLogPosition += 2;
 }
 LogWriter::LogWriter(int lH) : currentLogPosition(1), logHeight(lH) {}
 LogWriter::~LogWriter() {}
