@@ -46,6 +46,8 @@ private:
 	void BattleMenu();
 	// To writing into log screen during battle.
 	void WriteToLog(WINDOW*, int logCurrentPos, int logHeight, const char* text);
+	// When it's player's turn to move, he chooses his actions.
+	int TakeUserAction();
 
 	void ShowItemsMenu();
 	void ShowCharacters();

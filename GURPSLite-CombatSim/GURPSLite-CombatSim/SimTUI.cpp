@@ -1219,8 +1219,13 @@ void MenuUIHelper::BattleMenu()
 	int currentPos = 0;
 	int previousPos = 0;
 
+	// Let GM sort it's data.
+	gm.CalculateInitiative();
+
 	while (true)
 	{
+		
+
 		int j = 0;
 		for (auto& i : actionsOptions)
 		{

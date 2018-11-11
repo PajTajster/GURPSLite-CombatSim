@@ -528,65 +528,6 @@ float Character::GetInitiative() { return basicSpeed; }
 
 int Character::nextID = 0;
 
-void Character::SetTeam(int teamToSet)
-{
-	if (teamToSet == 1 || teamToSet == 2)
-		team = teamToSet;
-}
-
-int Character::GetTeam() { return team; }
-
-std::vector<std::string> Character::PrintCharacter()
-{
-	std::vector<std::string> message;
-
-
-	message.push_back("Name: " + name);
-	message.push_back("Strength: " + std::to_string(strength));
-	message.push_back("Dexterity: " + std::to_string(dexterity));
-	message.push_back("Health: " + std::to_string(health));
-	message.push_back("Equipped Weapon: " + currentWeapon.name);
-	message.push_back("Equipped Shield: " + currentShield.name);
-	message.push_back("Equipped Armour: " + currentArmour.name);
-
-	return message;
-}
-
-Character::Character(const Character& original)
-{
-	*this = original;
-}
-Character::Character(const Character& original, bool deep)
-{
-	*this = original;
-	if (deep)
-	{
-		this->ID = ++nextID;
-	}
-}
-Character::Character() : isWieldingShield(false), isDead(false), isPlayer(false),
-isKnockedDown(false), hasAttackedThisTurn(false),
-knockDownTimer(0), strength(10), dexterity(10),
-health(10)
-{
-	isPlayer = false;
-	ID = ++nextID;
-
-	usedAI = static_cast<AI>(rand() % AI_NULL);
-
-	skills =
-	{
-		Skill("Undefined", "None", "None", 0, false),
-	};
-}
-
-Character::~Character()
-{
-	skills.clear();
-}
-
-
-
 bool Character::ModifyAttribute(int value, char attribute)
 {
 	if (characterPoints < value * 10)
@@ -624,15 +565,19 @@ bool Character::ModifyAttribute(int value, char attribute)
 
 int Character::GetCharacterPoints() { return characterPoints; }
 
-
-
 void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 {
 	// If NPC is dead or knocked down, he does nothing.
 	if (isDead || isKnockedDown)
 		return;
 
-	Character newTarget;	
+	if (doesNPCHaveTarget == true)
+	{
+		if (!currentTarget->isDead)
+			return;
+	}
+
+	Character newTarget;
 
 	switch (usedAI)
 	{
@@ -647,7 +592,7 @@ void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 		}
 		break;
 	}
-		// NPC chooses opponent with least health.
+	// NPC chooses opponent with least health.
 	case AI_TARGET_WEAKEST:
 	{
 		int min = 999;
@@ -658,14 +603,14 @@ void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 		}
 		break;
 	}
-		// NPC chooses random opponent.
+	// NPC chooses random opponent.
 	case AI_TARGET_RANDOM:
 	{
 		int randTarget = 0;
 		randTarget = rand() % charactersToChoose.size();
 		newTarget = charactersToChoose[randTarget];
 	}
-		break;
+	break;
 	default:
 		return;
 	}
@@ -689,6 +634,61 @@ void Character::NPCAssessSituation()
 
 	return;
 }
+
+void Character::SetTeam(int teamToSet)
+{
+	if (teamToSet == 1 || teamToSet == 2)
+		team = teamToSet;
+}
+
+int Character::GetTeam() { return team; }
+
+std::vector<std::string> Character::PrintCharacter()
+{
+	std::vector<std::string> message;
+
+
+	message.push_back("Name: " + name);
+	message.push_back("Strength: " + std::to_string(strength));
+	message.push_back("Dexterity: " + std::to_string(dexterity));
+	message.push_back("Health: " + std::to_string(health));
+	message.push_back("Equipped Weapon: " + currentWeapon.name);
+	message.push_back("Equipped Shield: " + currentShield.name);
+	message.push_back("Equipped Armour: " + currentArmour.name);
+
+	return message;
+}
+
+Character::Character(const Character& original)
+{
+	*this = original;
+}
+Character::Character(const Character& original, bool deep)
+{
+	*this = original;
+	if (deep)
+	{
+		this->ID = ++nextID;
+	}
+}
+Character::Character() : isWieldingShield(false), isDead(false), isPlayer(false),
+isKnockedDown(false), hasAttackedThisTurn(false), ID(++nextID), doesNPCHaveTarget(false),
+knockDownTimer(0), strength(10), dexterity(10), health(10)
+{
+	usedAI = static_cast<AI>(rand() % AI_NULL);
+
+	skills =
+	{
+		Skill("Undefined", "None", "None", 0, false),
+	};
+}
+
+Character::~Character()
+{
+	skills.clear();
+}
+
+
 
 void GameMaster::CalculateInitiative()
 {
@@ -1068,8 +1068,10 @@ std::vector<Shield> GameMaster::GetShields()
 {
 	return allShields;
 }
+int GameMaster::GetCurrentTurn() { return currentTurn; }
+int GameMaster::GetDead() { return howManyDied; }
 
-GameMaster::GameMaster() { }
+GameMaster::GameMaster() : currentCharacterTurn(0), currentTurn(0), howManyDied(0) { }
 
 GameMaster::~GameMaster()
 {
