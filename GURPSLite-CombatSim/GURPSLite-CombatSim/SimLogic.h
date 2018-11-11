@@ -139,6 +139,8 @@ protected:
 	int dexterity;
 	// If you get 0 or less, you're done. 
 	int health;
+	// Bonus towards all skills proficiencies. [max: 10]
+	int veterancy;
 	
 	// ** Active Defenses **
 
@@ -240,9 +242,9 @@ public:
 	int ReceiveDamage(int);
 
 	// Initialize character[mainly used for loading from file].
-	void InitializeCharacter(int initST, int initDX, int initHT,
-		std::string initName, std::vector<Skill> initSkills,
-		Weapon initWeapon, Armour initArmour, Shield initShield);
+	void InitializeCharacter(int initST, int initDX, int initHT, int initVet,
+		std::string initName, std::vector<Skill> initSkills, Weapon initWeapon,
+		Armour initArmour, Shield initShield);
 
 	// Check the values of extra attributes depending on base Attributes
 	// calculate values like movement, passive/active defenses

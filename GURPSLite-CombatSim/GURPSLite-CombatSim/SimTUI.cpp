@@ -92,13 +92,13 @@ void MenuUIHelper::MainMenu()
 			}
 			else
 			{
-				currentOption = 3;
+				currentOption = mainMenuOptions.size() - 1;
 				previousPos = currentPos;
 				currentPos = optionPos[currentOption];
 			}
 			break;
 		case KEY_DOWN:
-			if (currentOption != 3)
+			if (currentOption != mainMenuOptions.size() - 1)
 			{
 				++currentOption;
 				previousPos = currentPos;
@@ -165,6 +165,7 @@ void MenuUIHelper::PlayerCreationMenu()
 		"ST: ",
 		"DX: ",
 		"HT: ",
+		"Veterancy: ",
 		"Weapon: ",
 		"Armour: ",
 		"Shield: ",
@@ -196,7 +197,7 @@ void MenuUIHelper::PlayerCreationMenu()
 		isPlayerNameSet = false;
 
 	int currentOption = 0;
-	int optionPos[] = { 1, 2, 3, 4, 6, 7, 8, 10, 12, 14 };
+	int optionPos[] = { 1, 2, 3, 4, 5, 7, 8, 9, 11, 13, 15 };
 
 	int previousPos = 0;
 	int currentPos = optionPos[0];
@@ -214,31 +215,32 @@ void MenuUIHelper::PlayerCreationMenu()
 		playerCreationMenuOptions[1] = "ST: " + std::to_string(playerST);
 		playerCreationMenuOptions[2] = "DX: " + std::to_string(playerDX);
 		playerCreationMenuOptions[3] = "HT: " + std::to_string(playerHT);
-		playerCreationMenuOptions[4] = "Weapon: " + weaponsToChoose[playerCurrentWeapon].name;
-		playerCreationMenuOptions[5] = "Armour: " + armoursToChoose[playerCurrentArmour].name;
+		playerCreationMenuOptions[4] = "Veterancy: " + std::to_string(playerVet);
+		playerCreationMenuOptions[5] = "Weapon: " + weaponsToChoose[playerCurrentWeapon].name;
+		playerCreationMenuOptions[6] = "Armour: " + armoursToChoose[playerCurrentArmour].name;
 
 
 		if (weaponWithShield)
 		{
-			playerCreationMenuOptions[6] = "Shield: " + shieldsToChoose[playerCurrentShield].name;
+			playerCreationMenuOptions[7] = "Shield: " + shieldsToChoose[playerCurrentShield].name;
 		}
 		else
 		{
-			playerCreationMenuOptions[6] = "Shield: None [Ranged or Two-Handed Weapon Equipped]";
+			playerCreationMenuOptions[7] = "Shield: None [Ranged or Two-Handed Weapon Equipped]";
 		}
 		if (outOfPoints)
 		{
-			playerCreationMenuOptions[7] = "Character Points Left: " + std::to_string(player->characterPoints);
-			playerCreationMenuOptions[7].append("(Stats at minimum/Not enough points!)");
+			playerCreationMenuOptions[8] = "Character Points Left: " + std::to_string(player->characterPoints);
+			playerCreationMenuOptions[8].append("(Stats at minimum(maximum)/Not enough points!)");
 		}
 		else
 		{
-			playerCreationMenuOptions[7] = "Character Points Left: " + std::to_string(player->characterPoints);
+			playerCreationMenuOptions[8] = "Character Points Left: " + std::to_string(player->characterPoints);
 		}
 
 		if (isPlayerNameSet)
 		{
-			playerCreationMenuOptions[8] = "Done";
+			playerCreationMenuOptions[9] = "Done";
 		}
 
 		int j = 0;
@@ -270,13 +272,13 @@ void MenuUIHelper::PlayerCreationMenu()
 			}
 			else
 			{
-				currentOption = 9;
+				currentOption = playerCreationMenuOptions.size() - 1;
 				previousPos = currentPos;
 				currentPos = optionPos[currentOption];
 			}
 			break;
 		case KEY_DOWN:
-			if (currentOption != 9)
+			if (currentOption != playerCreationMenuOptions.size() - 1)
 			{
 				++currentOption;
 				previousPos = currentPos;
@@ -332,8 +334,21 @@ void MenuUIHelper::PlayerCreationMenu()
 				}
 				break;
 
-				// Weapon
+				// Veterancy
 			case 4:
+				if (player->ModifyAttribute(-1, 'V'))
+				{
+					--playerVet;
+					outOfPoints = false;
+				}
+				else
+				{
+					outOfPoints = true;
+				}
+				break;
+
+				// Weapon
+			case 5:
 				if (playerCurrentWeapon == 0)
 				{
 					break;
@@ -355,7 +370,7 @@ void MenuUIHelper::PlayerCreationMenu()
 				break;
 
 				// Armour
-			case 5:
+			case 6:
 				if (playerCurrentArmour == 0)
 				{
 					break;
@@ -367,7 +382,7 @@ void MenuUIHelper::PlayerCreationMenu()
 				break;
 
 				// Shield
-			case 6:
+			case 7:
 				if (weaponWithShield)
 				{
 
@@ -428,8 +443,21 @@ void MenuUIHelper::PlayerCreationMenu()
 				}
 				break;
 
-				// Weapon
+				// Veterancy
 			case 4:
+				if (player->ModifyAttribute(1, 'V'))
+				{
+					++playerVet;
+					outOfPoints = false;
+				}
+				else
+				{
+					outOfPoints = true;
+				}
+				break;
+
+				// Weapon
+			case 5:
 				if (playerCurrentWeapon == weaponsToChoose.size() - 1)
 				{
 					break;
@@ -451,7 +479,7 @@ void MenuUIHelper::PlayerCreationMenu()
 				break;
 
 				// Armour
-			case 5:
+			case 6:
 				if (playerCurrentArmour == armoursToChoose.size() - 1)
 				{
 					break;
@@ -463,7 +491,7 @@ void MenuUIHelper::PlayerCreationMenu()
 				break;
 
 				// Shield
-			case 6:
+			case 7:
 				if (weaponWithShield)
 				{
 
@@ -652,10 +680,10 @@ void MenuUIHelper::PrepareTeamMenu()
 			break;
 		case 10:
 		{
-			switch (currentPos)
+			switch (currentOption)
 			{				
 				// 1 vs 1
-			case 5:
+			case 1:
 				teamSize = 1;
 				SelectFightersMenu();
 
@@ -666,7 +694,7 @@ void MenuUIHelper::PrepareTeamMenu()
 				break;
 
 				// 2 vs 2 
-			case 7:
+			case 2:
 				teamSize = 2;
 				SelectFightersMenu();
 
@@ -677,7 +705,7 @@ void MenuUIHelper::PrepareTeamMenu()
 				break;
 
 				// 3 vs 3
-			case 10:
+			case 3:
 				teamSize = 3;
 				SelectFightersMenu();
 
@@ -688,7 +716,7 @@ void MenuUIHelper::PrepareTeamMenu()
 				break;
 
 				// Go back
-			case 12:
+			case 4:
 				teamSize = 0;
 				return;
 			default:

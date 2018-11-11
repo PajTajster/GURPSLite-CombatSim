@@ -356,13 +356,14 @@ int Character::ReceiveDamage(int damage)
 	return finalDamage;
 }
 
-void Character::InitializeCharacter(int initST, int initDX, int initHT,
-	std::string initName, std::vector<Skill> initSkills,
-	Weapon initWeapon, Armour initArmour, Shield initShield)
+void Character::InitializeCharacter(int initST, int initDX, int initHT, int initVet,
+	std::string initName, std::vector<Skill> initSkills, Weapon initWeapon,
+	Armour initArmour, Shield initShield)
 {
 	strength = initST;
 	dexterity = initDX;
 	health = initHT;
+	veterancy = initVet;
 
 	name = initName;
 
@@ -515,8 +516,14 @@ void Character::CalculateSkillsDefaults()
 			else
 				finalProf = defaultAttProf;
 		}
+		// Veterancy raises skill proficiency.
+		finalProf += veterancy;
 
-		i.proficiency = finalProf;
+		// Just for the sake of any success.
+		if (finalProf < 3)
+			i.proficiency = 3;
+		else
+			i.proficiency = finalProf;
 	}
 }
 
@@ -528,8 +535,23 @@ int Character::nextID = 0;
 
 bool Character::ModifyAttribute(int value, char attribute)
 {
-	if (characterPoints < value * 10)
+	// Checks whether modification is possible
+	switch (attribute)
+	{
+	case 'S':
+	case 'D':
+	case 'H':
+		if (characterPoints < value * 10)
+			return false;
+		break;
+	case 'V':
+		if (characterPoints < value * 30)
+			return false;
+		break;
+	default:
 		return false;
+	}
+
 
 	switch (attribute)
 	{
@@ -554,6 +576,15 @@ bool Character::ModifyAttribute(int value, char attribute)
 		health += value;
 		characterPoints -= (value * 10);
 		break;
+	case 'V':
+		// Can't go lower than 0.
+		if (value < 0 && veterancy == 0)
+			return false;
+		// Can't go above 10.
+		if (value > 0 && veterancy == 10)
+			return false;
+		veterancy += value;
+		characterPoints -= (value * 30);
 	default:
 		break;
 	}
@@ -686,7 +717,7 @@ Character::Character(const Character& original, bool deep)
 }
 Character::Character() : isWieldingShield(false), isDead(false), isPlayer(false),
 isKnockedDown(false), hasAttackedThisTurn(false), ID(++nextID), doesNPCHaveTarget(false),
-knockDownTimer(0), strength(10), dexterity(10), health(10)
+knockDownTimer(0), strength(10), dexterity(10), health(10), veterancy(0)
 {
 	usedAI = static_cast<AI>(rand() % AI_NULL);
 
@@ -891,6 +922,7 @@ int GameMaster::LoadCharacters()
 		int newST = it["strength"];
 		int newDX = it["dexterity"];
 		int newHT = it["health"];
+		int newVet = it["veterancy"];
 		std::string newName = it["name"];
 		std::string newWeap = it["weapon"];
 		std::string newArm = it["armour"];
@@ -904,10 +936,14 @@ int GameMaster::LoadCharacters()
 
 		auto searchedWeapon = std::find_if(allWeapons.cbegin(), allWeapons.cend(),
 			[nameToSearch](const Weapon& w) -> bool {return w.name == nameToSearch; });
+		
+		Weapon newWeapon;
 
+		// Take default one if failed to load.
 		if (searchedWeapon == allWeapons.cend())
-			continue;
-		Weapon newWeapon = *searchedWeapon;
+			newWeapon = allWeapons[0];
+		else
+			newWeapon = *searchedWeapon;
 
 		// Armour
 		nameToSearch = newArm;
@@ -915,9 +951,13 @@ int GameMaster::LoadCharacters()
 		auto searchedArmour = std::find_if(allArmours.cbegin(), allArmours.cend(),
 			[nameToSearch](const Armour& a) -> bool {return a.name == nameToSearch; });
 
+		Armour newArmour;
+
+		// Take default one if failed to load.
 		if (searchedArmour == allArmours.cend())
-			continue;
-		Armour newArmour = *searchedArmour;
+			newArmour = allArmours[0];
+		else
+			newArmour = *searchedArmour;
 		
 		// Shield
 		nameToSearch = newShld;
@@ -925,13 +965,17 @@ int GameMaster::LoadCharacters()
 		auto searchedShield = std::find_if(allShields.cbegin(), allShields.cend(),
 			[nameToSearch](const Shield& s) -> bool {return s.name == nameToSearch; });
 
-		if (searchedShield == allShields.cend())
-			continue;
-		Shield newShield = *searchedShield;
+		Shield newShield;
 
-		//std::shared_ptr<Character> newCharacter(new Character());
+		// Take default one if failed to load.
+		if (searchedShield == allShields.cend())
+			newShield = allShields[0];
+		else
+			newShield = *searchedShield;
+
 		Character newCharacter;
-		newCharacter.InitializeCharacter(newST, newDX, newHT, newName, allSkills, newWeapon, newArmour, newShield);
+		newCharacter.InitializeCharacter(newST, newDX, newHT, newVet,
+			newName, allSkills, newWeapon, newArmour, newShield);
 
 		allCharacters.push_back(newCharacter);
 	}

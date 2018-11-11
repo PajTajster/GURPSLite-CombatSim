@@ -30,6 +30,7 @@ private:
 	int playerST;
 	int playerDX;
 	int playerHT;
+	int playerVet;
 
 	std::string bigLogo;
 	std::string smallLogo;
