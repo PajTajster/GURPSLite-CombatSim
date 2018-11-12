@@ -171,8 +171,8 @@ protected:
 	AI usedAI;
 	// Checks whether NPC has selected it's prey.
 	bool doesNPCHaveTarget;
-	// Current character that NPC wants to do something bad.
-	std::shared_ptr<Character> currentTarget;
+	// Current character's ID that NPC wants to do something bad.
+	int currentTargetIndex;
 public:
 	// Character's ID for distinguishability.
 	int ID;
@@ -224,10 +224,10 @@ public:
 
 	// Selects the target AI will try to kill depending on the 'usedAI'.
 	// must be supplied all the possible targets.
-	void NPCSelectTarget(std::vector<Character> charactersToChoose);
+	void NPCSelectTarget(std::vector<Character>& charactersToChoose);
 
 	// NPC tries to decide it's next move depending on their situation.
-	std::string NPCAssessSituation(std::vector<Character> charactersToChoose);
+	std::string NPCAssessSituation(std::vector<Character>& charactersToChoose);
 
 	// Taken the character, try to attack him/her/whatever-the-hell-it-is
 	//	returns string message with adequate message.
@@ -335,6 +335,7 @@ public:
 	void InitializeGameMaster();
 	// Init base player (returns Character which is Player).
 	Character* InitBasePlayer();
+	void UpdatePlayer(Character* player, std::vector<Character>& updatedVector);
 
 	std::vector<Character> GetCharacters();
 	std::vector<Skill> GetSkills();

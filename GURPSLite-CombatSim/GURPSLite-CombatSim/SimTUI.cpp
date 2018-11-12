@@ -585,7 +585,7 @@ void MenuUIHelper::PlayerCreationMenu()
 				else
 				{
 					isPlayerInit = false;
-					playerCreationMenuOptions[8] = "[Name is not set!]";
+					playerCreationMenuOptions[9] = "[Name is not set!]";
 				}
 				break;
 
@@ -1401,6 +1401,8 @@ void MenuUIHelper::BattleMenu()
 
 					// Increment dead characters counter.
 					++howManyDied;
+
+					continue;
 				}
 
 				if (allEnemiesDied)
@@ -1494,11 +1496,69 @@ void MenuUIHelper::BattleMenu()
 										// ENTER
 										if (option == 10)
 										{
-											messageToLog = player->Attack(charactersInPlay[team2Characters[0]]);
+											messageToLog = it.Attack(charactersInPlay[team2Characters[0]]);
 											logWriter.WriteToLog(logWindow, false, messageToLog.c_str());
 										}
 										break;
 									case 2:
+									{
+										int selectedCharacter = 0;
+										// Current cursor position
+										int currentTarget = teamsYPos[0];
+										// Previous cursor position
+										int previousTarget = 1;
+										while (!playerFinished)
+										{
+											for (int i = 0; i < 3; ++i)
+											{
+												if (teamsYPos[i] == currentTarget)
+												{
+													mvwaddch(battleWindow, previousTarget, teamsXPos[1] - 1, ' ');
+													mvwaddch(battleWindow, teamsYPos[i], teamsXPos[1] - 1, '>');
+												}
+											}
+
+											wrefresh(battleWindow);
+
+											int selectedTarget = getch();
+											switch (selectedTarget)
+											{
+											case KEY_UP:
+											case KEY_DOWN:
+												if (currentTarget == teamsYPos[2])
+												{
+													previousTarget = currentTarget;
+													currentTarget = teamsYPos[0];
+													selectedCharacter = team2Characters[0];
+												}
+												else
+												{
+													previousTarget = currentTarget;
+													currentTarget = teamsYPos[2];
+													selectedCharacter = team2Characters[1];
+												}
+												break;
+											case 10:
+											{
+												if (charactersInPlay[selectedCharacter].isDead)
+													logWriter.WriteToLog(logWindow, false, "You're trying to attack dead man");
+												else
+												{
+													messageToLog = it.Attack(charactersInPlay[selectedCharacter]);
+													logWriter.WriteToLog(logWindow, false, messageToLog.c_str());
+													playerFinished = true;
+												}
+											}
+												break;
+											default:
+												break;
+											}
+										}
+
+										mvwaddch(battleWindow, currentTarget, teamsXPos[1] - 1, ' ');
+										wrefresh(battleWindow);
+
+									}
 										break;
 									case 3:
 										break;
@@ -1528,6 +1588,8 @@ void MenuUIHelper::BattleMenu()
 								logWriter.WriteToLog(logWindow, true, "You've surrendered. You lost, press 'enter' to continue.");
 								gm.ClearBattleData();
 								getch();
+								delete player;
+								player = gm.InitBasePlayer();
 								playerFinished = true;
 								enteredBattleMode = true;
 								isBattleFinished = true;
@@ -1568,11 +1630,15 @@ void MenuUIHelper::BattleMenu()
 						break;
 					logWriter.WriteToLog(logWindow, false, messageToLog.c_str());
 
-
+					gm.UpdatePlayer(player, charactersInPlay);
+					
 					if (player->isDead)
 					{
-						logWriter.WriteToLog(logWindow, true, "...YOU DIED...\nPress 'enter' to proceed.");
+						logWriter.WriteToLog(logWindow, false, "...YOU DIED...\nPress 'enter' to proceed.");
 						isBattleFinished = true;
+						++howManyDied;
+						getch();
+						break;
 					}
 
 					messageToLog.clear();
@@ -1590,6 +1656,19 @@ void MenuUIHelper::BattleMenu()
 		}
 	}
 
+	gm.ClearBattleData();
+	delete player;
+	player = gm.InitBasePlayer();
+	enteredBattleMode = true;
+	isBattleFinished = true;
+	wclear(battleWindow);
+	wclear(actionsWindow);
+	wclear(logWindow);
+	wclear(smallLogoWindow);
+	wrefresh(battleWindow);
+	wrefresh(actionsWindow);
+	wrefresh(logWindow);
+	wrefresh(smallLogoWindow);
 	delwin(battleWindow);
 	delwin(actionsWindow);
 	delwin(logWindow);

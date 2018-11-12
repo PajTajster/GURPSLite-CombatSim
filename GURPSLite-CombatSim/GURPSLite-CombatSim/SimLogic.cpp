@@ -153,20 +153,18 @@ std::string Character::Attack(Character& target)
 	// If attacker's using melee weapon:
 	if (currentWeapon.isMelee)
 	{
-		if (true)
-		{
-			// Roll for an attack.
-			int roll = diceRoller.RollDice(3, 0);
+		// Roll for an attack.
+		int roll = diceRoller.RollDice(3, 0);
 
-			// Critical miss, applies knockdown effect for 1 turn.
-			if (roll >= 17)
-			{
-				message.append("Critically missed! You lost balance, knockdown for 1 turn.");
-				isKnockedDown = true;
-				knockDownTimer = 1;
-			}
-			// Critial hit, ignores whole defending step and applies x2 damage.
-			else
+		// Critical miss, applies knockdown effect for 1 turn.
+		if (roll >= 17)
+		{
+			message.append("Critically missed! You lost balance, knockdown for 1 turn.");
+			isKnockedDown = true;
+			knockDownTimer = 1;
+		}
+		// Critial hit, ignores whole defending step and applies x2 damage.
+		else
 			if (roll <= 3)
 			{
 				int damageApplied = diceRoller.RollDice(currentWeapon.damage.dices + baseMeleeDamage.dices,
@@ -185,7 +183,7 @@ std::string Character::Attack(Character& target)
 					message.append(std::to_string(damageApplied) + " hp!");
 				}
 			}
-			// Normal hit, needs to roll for defend 
+		// Normal hit, needs to roll for defend 
 			else if (roll <= weaponSkill->proficiency)
 			{
 				// If yes, apply damage to target
@@ -216,35 +214,25 @@ std::string Character::Attack(Character& target)
 			}
 			else
 				message.append("Miss!");
-				
-			// Since character attacked already then we set bool to true.
-			hasAttackedThisTurn = true;
-		}
-		else
-		{
-			return "You're out of range!";
-		}
+
+		// Since character attacked already then we set bool to true.
+		hasAttackedThisTurn = true;
 	}
 	// If weapon is a ranged one.
 	else
 	{
+		message.append("Target hit for: \n");
 		// Because ranged weapons have Rate Of Fire value, a loop is used
 		// because every projectile is independent to each other.
 		for (int i = 0; i < currentWeapon.rateOfFire; ++i)
 		{
-			// If target is dead, no point in shooting a corpse and wasting time.
-			if (target.isDead)
-			{
-				message.append("\nTarget is dead, you lower your " + currentWeapon.name);
-			}
-			message.append("\n[Projectile " + std::to_string(i + 1) + "] ");
 			// Roll for an attack.
 			int roll = diceRoller.RollDice(3, 0);
 
 			// Critical miss, applies knockdown effect for 1 turn.
 			if (roll >= 17)
 			{
-				message.append("Critically missed! You lost balance, knockdown for 1 turn.");
+				message.append("Critically missed! Lost balance, knockdown for 1 turn.");
 				isKnockedDown = true;
 				knockDownTimer = 1;
 				// Since character landed on the floor, they can't shoot any more bullets.
@@ -260,12 +248,11 @@ std::string Character::Attack(Character& target)
 
 					if (finalDamage == 0)
 					{
-						message.append("Projectile bounced off the " + target.name + " armour!");
+						message.append("0!");
 					}
 					else
 					{
-						message.append("Critically hit for ");
-						message.append(std::to_string(damageApplied) + " hp!");
+						message.append(std::to_string(damageApplied) + " hp! ");
 					}
 				}
 			// Normal hit, needs to roll for defend 
@@ -280,11 +267,10 @@ std::string Character::Attack(Character& target)
 
 						if (finalDamage == 0)
 						{
-							message.append("Projectile bounced off the " + target.name + " armour!");
+							message.append("0 hp!");
 						}
 						else
 						{
-							message.append("Target hit for ");
 							message.append(std::to_string(damageApplied) + " hp!");
 						}
 					}
@@ -362,7 +348,7 @@ int Character::ReceiveDamage(int damage)
 		return 0;
 
 	// If character got damaged for more or equal 1/2 of it's HP, they get knocked down.
-	if ((health / 2) >= finalDamage)
+	if ((health / 2) <= finalDamage)
 	{
 		isKnockedDown = true;
 		knockDownTimer++;
@@ -626,7 +612,7 @@ bool Character::ModifyAttribute(int value, char attribute)
 
 int Character::GetCharacterPoints() { return characterPoints; }
 
-void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
+void Character::NPCSelectTarget(std::vector<Character>& charactersToChoose)
 {
 	// If NPC is dead or knocked down, he does nothing.
 	if (isDead || isKnockedDown)
@@ -634,17 +620,11 @@ void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 
 	if (doesNPCHaveTarget)
 	{
-		if (!currentTarget->isDead)
+		if (!charactersToChoose[currentTargetIndex].isDead)
 			return;
 	}
-	else
-	{
-		currentTarget = std::make_shared<Character>();
-	}
-
-	std::shared_ptr<Character> newTarget = std::make_shared<Character>();
-	newTarget->ID = 32765;
-
+	bool foundTarget = false;
+	int newTargetIndex = 0;
 
 	switch (usedAI)
 	{
@@ -652,26 +632,42 @@ void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 	case AI_TARGET_STRONGEST:
 	{
 		int max = 0;
-		for (auto it : charactersToChoose)
+		int i = 0;
+		for (auto& it : charactersToChoose)
 		{
 			if (this->team == it.team || this->ID == it.ID || it.isDead)
+			{
+				++i;
 				continue;
+			}
 			if (it.GetHealth() > max)
-				*newTarget = it;
+				foundTarget = true;
+
+			++i;
 		}
+
+		currentTargetIndex = i - 1;
 		break;
 	}
 	// NPC chooses opponent with least health.
 	case AI_TARGET_WEAKEST:
 	{
 		int min = 999;
-		for (auto it : charactersToChoose)
+		int i = 0;
+		for (auto& it : charactersToChoose)
 		{
 			if (this->team == it.team || this->ID == it.ID || it.isDead)
+			{
+				++i;
 				continue;
+			}
 			if (it.GetHealth() < min)
-				*newTarget = it;
+				foundTarget = true;
+
+			++i;
 		}
+
+		currentTargetIndex = i - 1;
 		break;
 	}
 	// NPC chooses random opponent.
@@ -679,48 +675,67 @@ void Character::NPCSelectTarget(std::vector<Character> charactersToChoose)
 	{
 		int randTarget = 0;
 		randTarget = rand() % charactersToChoose.size();
-		*newTarget = charactersToChoose[randTarget];
 
-		while(newTarget->ID == this->ID || newTarget->team == this->team || newTarget->isDead)
+		while (charactersToChoose[randTarget].ID == this->ID ||
+			charactersToChoose[randTarget].team == this->team ||
+			charactersToChoose[randTarget].isDead)
+		{
 			randTarget = rand() % charactersToChoose.size();
+			foundTarget = true;
+		}
 
-		*newTarget = charactersToChoose[randTarget];
+		
+
+		currentTargetIndex = randTarget;
 	}
+
 	break;
 	default:
 		return;
 	}
 
-	if (newTarget->ID == 32765)
-		currentTarget == nullptr;
+	if (!foundTarget)
+		currentTargetIndex = -1;
 	else
-		currentTarget = newTarget;
+	{
+		doesNPCHaveTarget = true;
+	}
 }
 
-std::string Character::NPCAssessSituation(std::vector<Character> charactersToChoose)
+std::string Character::NPCAssessSituation(std::vector<Character>& charactersToChoose)
 {
 	std::string message = "";
 
-	if (currentTarget == nullptr || currentTarget->isDead)
+
+	if (currentTargetIndex == -1)
 	{
 		NPCSelectTarget(charactersToChoose);
-		if (currentTarget == nullptr)
+	}
+	if (currentTargetIndex != -1)
+	{
+
+		if (charactersToChoose[currentTargetIndex].isDead)
 		{
-			return message;
+			NPCSelectTarget(charactersToChoose);
+			if (currentTargetIndex == -1)
+				return message;
 		}
+
+		// If NPC uses melee weapon resolve this branch.
+		if (currentWeapon.isMelee)
+		{
+			message = Attack(charactersToChoose[currentTargetIndex]);
+		}
+		// If NPC uses ranged weapon instead, do that:
+		else
+		{
+			// Well, shoot stuff!
+			message = Attack(charactersToChoose[currentTargetIndex]);
+		}
+
+
 	}
 
-	// If NPC uses melee weapon resolve this branch.
-	if (currentWeapon.isMelee)
-	{
-		message = Attack(*currentTarget);
-	}
-	// If NPC uses ranged weapon instead, do that:
-	else
-	{
-		// Well, shoot stuff!
-		message = Attack(*currentTarget);
-	}
 
 	return message;
 }
@@ -763,7 +778,7 @@ Character::Character(const Character& original, bool deep)
 }
 Character::Character() : isWieldingShield(false), isDead(false), isPlayer(false),
 isKnockedDown(false), hasAttackedThisTurn(false), ID(++nextID), doesNPCHaveTarget(false),
-knockDownTimer(0), strength(10), dexterity(10), health(10), veterancy(0)
+knockDownTimer(0), strength(10), dexterity(10), health(10), veterancy(0), currentTargetIndex(-1)
 {
 	usedAI = static_cast<AI>(rand() % AI_NULL);
 
@@ -912,6 +927,19 @@ Character* GameMaster::InitBasePlayer()
 
 
 	return player;
+}
+
+void GameMaster::UpdatePlayer(Character* player, std::vector<Character>& updatedVector)
+{
+	int IDToFind = player->ID;
+
+	auto characterToFind = std::find_if(updatedVector.cbegin(), updatedVector.cend(),
+		[IDToFind](const auto &c) -> bool {return c.ID == IDToFind; });
+
+	if (characterToFind == updatedVector.cend())
+		return;
+	
+	*player = *characterToFind;
 }
 
 int GameMaster::LoadCharacters()
