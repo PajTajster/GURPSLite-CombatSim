@@ -15,7 +15,7 @@
       "strength": 12,
       "dexterity": 8,
       "health": 16,
-      "veterancy": 7,
+      "veterancy": 4,
       "weapon": "Axe",
       "armour": "Scale Armour",
       "shield": "Buckler"
@@ -25,7 +25,7 @@
       "strength": 11,
       "dexterity": 13,
       "health": 18,
-      "veterancy": 6,
+      "veterancy": 3,
       "weapon": "Musket",
       "armour": "Leather Jacket",
       "shield": "None"
@@ -35,7 +35,7 @@
       "strength": 16,
       "dexterity": 12,
       "health": 15,
-      "veterancy": 3,
+      "veterancy": 2,
       "weapon": "Short Bow",
       "armour": "Leather Jacket",
       "shield": "None"
@@ -45,7 +45,7 @@
       "strength": 17,
       "dexterity": 12,
       "health": 16,
-      "veterancy": 4,
+      "veterancy": 3,
       "weapon": "Heavy Crossbow",
       "armour": "Half Plate",
       "shield": "None"

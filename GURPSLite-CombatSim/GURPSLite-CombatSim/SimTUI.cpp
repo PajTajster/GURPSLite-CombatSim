@@ -1623,6 +1623,7 @@ void MenuUIHelper::BattleMenu()
 								playerST = 10;
 								playerDX = 10;
 								playerHT = 10;
+								isPlayerInit = false;
 								playerFinished = true;
 								enteredBattleMode = true;
 								isBattleFinished = true;
@@ -1698,6 +1699,7 @@ void MenuUIHelper::BattleMenu()
 	playerST = 10;
 	playerDX = 10;
 	playerHT = 10;
+	isPlayerInit = false;
 	enteredBattleMode = true;
 	isBattleFinished = true;
 	wclear(battleWindow);
