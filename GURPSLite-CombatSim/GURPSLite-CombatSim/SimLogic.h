@@ -317,7 +317,7 @@ public:
 
 	// Run through all the present characters and refresh their
 	// actions and decrement knockdowntimer (if they have one active).
-	void NextTurn();
+	void NextTurn(std::vector<Character>& updatedVector);
 
 	// Clears team and charactersInPlay vector.
 	void ClearBattleData();

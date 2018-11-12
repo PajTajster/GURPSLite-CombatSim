@@ -159,7 +159,7 @@ std::string Character::Attack(Character& target)
 		// Critical miss, applies knockdown effect for 1 turn.
 		if (roll >= 17)
 		{
-			message.append("Critically missed! You lost balance, knockdown for 1 turn.");
+			message.append("Critically missed! Lost balance, knockdown for 1 turn.");
 			isKnockedDown = true;
 			knockDownTimer = 1;
 		}
@@ -182,6 +182,8 @@ std::string Character::Attack(Character& target)
 					message.append("Critically hit for ");
 					message.append(std::to_string(damageApplied) + " hp!");
 				}
+				if (target.isKnockedDown)
+					message.append("(KNOCKED DOWN!)");
 			}
 		// Normal hit, needs to roll for defend 
 			else if (roll <= weaponSkill->proficiency)
@@ -204,6 +206,8 @@ std::string Character::Attack(Character& target)
 						message.append("Target hit for ");
 						message.append(std::to_string(damageApplied) + " hp!");
 					}
+					if (target.isKnockedDown)
+						message.append("(KNOCKED DOWN!)");
 
 				}
 				// If no, then attack is blocked and round goes on.
@@ -254,6 +258,8 @@ std::string Character::Attack(Character& target)
 					{
 						message.append(std::to_string(damageApplied) + " hp! ");
 					}
+					if (target.isKnockedDown)
+						message.append("(KNOCKED DOWN!)");
 				}
 			// Normal hit, needs to roll for defend 
 			else if (roll <= weaponSkill->proficiency)
@@ -273,6 +279,9 @@ std::string Character::Attack(Character& target)
 						{
 							message.append(std::to_string(damageApplied) + " hp!");
 						}
+
+						if (target.isKnockedDown)
+							message.append("(KNOCKED DOWN!)");
 					}
 					// If no, then attack is blocked and round goes on.
 					else
@@ -633,6 +642,7 @@ void Character::NPCSelectTarget(std::vector<Character>& charactersToChoose)
 	{
 		int max = 0;
 		int i = 0;
+		int selectedTarget = 0;
 		for (auto& it : charactersToChoose)
 		{
 			if (this->team == it.team || this->ID == it.ID || it.isDead)
@@ -641,12 +651,14 @@ void Character::NPCSelectTarget(std::vector<Character>& charactersToChoose)
 				continue;
 			}
 			if (it.GetHealth() > max)
+			{
 				foundTarget = true;
-
+				selectedTarget = i;
+			}
 			++i;
 		}
 
-		currentTargetIndex = i - 1;
+		currentTargetIndex = selectedTarget;
 		break;
 	}
 	// NPC chooses opponent with least health.
@@ -654,6 +666,7 @@ void Character::NPCSelectTarget(std::vector<Character>& charactersToChoose)
 	{
 		int min = 999;
 		int i = 0;
+		int selectedTarget = 0;
 		for (auto& it : charactersToChoose)
 		{
 			if (this->team == it.team || this->ID == it.ID || it.isDead)
@@ -662,12 +675,14 @@ void Character::NPCSelectTarget(std::vector<Character>& charactersToChoose)
 				continue;
 			}
 			if (it.GetHealth() < min)
+			{
 				foundTarget = true;
-
+				selectedTarget = i;
+			}
 			++i;
 		}
 
-		currentTargetIndex = i - 1;
+		currentTargetIndex = selectedTarget;
 		break;
 	}
 	// NPC chooses random opponent.
@@ -804,9 +819,9 @@ void GameMaster::CalculateInitiative()
 		});
 }
 
-void GameMaster::NextTurn()
+void GameMaster::NextTurn(std::vector<Character>& updatedVector)
 {
-	for (auto i : charactersInPlay)
+	for (auto i : updatedVector)
 	{
 		if (i.isDead)
 			continue;
