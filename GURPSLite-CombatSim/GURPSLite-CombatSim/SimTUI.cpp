@@ -1229,13 +1229,12 @@ void MenuUIHelper::BattleMenu()
 	std::vector<std::string> actionsOptions =
 	{
 		"Attack",
-		"Examine",
 		"Skip Turn",
 		"Surrender"
 	};
 
 	// Action menu options positions.
-	int actionsYPos[] = { 2, 3, 4, 6 };
+	int actionsYPos[] = { 2, 3, 5 };
 
 	// Positions y for both teams.
 	constexpr int teamsYPos[] = { 3, 5, 7 };
@@ -1479,13 +1478,13 @@ void MenuUIHelper::BattleMenu()
 							}
 							else
 							{
-								currentOption = 3;
+								currentOption = 2;
 								previousPos = currentPos;
 								currentPos = actionsYPos[currentOption];
 							}
 							break;
 						case KEY_DOWN:
-							if (currentOption != 3)
+							if (currentOption != 2)
 							{
 								++currentOption;
 								previousPos = currentPos;
@@ -1601,22 +1600,15 @@ void MenuUIHelper::BattleMenu()
 								}
 							}
 							break;
-
-							// Examine
-							case 3:
-							{
-								playerFinished = true;
-							}
-							break;
-
+							
 							// Skip Turn
-							case 4:
+							case 3:
 								logWriter.WriteToLog(logWindow, false, "You've decided to do nothing. Press 'enter' to continue.");
 								playerFinished = true;
 								break;
 
 								// Surrender
-							case 6:
+							case 5:
 								logWriter.WriteToLog(logWindow, true, "You've surrendered. You lost, press 'enter' to continue.");
 								gm.ClearBattleData();
 								getch();
