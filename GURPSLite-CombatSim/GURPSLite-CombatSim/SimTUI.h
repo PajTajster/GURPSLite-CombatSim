@@ -40,6 +40,9 @@ private:
 	WINDOW* menu;
 
 
+	const int appCOLS = 120;
+	const int appLINES = 30;
+
 	void PlayerCreationMenu();
 
 	void PrepareTeamMenu();

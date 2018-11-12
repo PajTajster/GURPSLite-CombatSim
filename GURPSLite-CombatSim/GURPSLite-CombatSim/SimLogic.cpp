@@ -225,7 +225,7 @@ std::string Character::Attack(Character& target)
 	// If weapon is a ranged one.
 	else
 	{
-		message.append("Target hit for: \n");
+		message.append("Target hit for: ");
 		// Because ranged weapons have Rate Of Fire value, a loop is used
 		// because every projectile is independent to each other.
 		for (int i = 0; i < currentWeapon.rateOfFire; ++i)
@@ -356,8 +356,8 @@ int Character::ReceiveDamage(int damage)
 	if (finalDamage < 0)
 		return 0;
 
-	// If character got damaged for more or equal 1/2 of it's HP, they get knocked down.
-	if ((health / 2) <= finalDamage)
+	// If character got damaged for more or equal 3/4 of it's HP, they get knocked down.
+	if (((3 * health) / 4) <= finalDamage)
 	{
 		isKnockedDown = true;
 		knockDownTimer++;
@@ -821,7 +821,7 @@ void GameMaster::CalculateInitiative()
 
 void GameMaster::NextTurn(std::vector<Character>& updatedVector)
 {
-	for (auto i : updatedVector)
+	for (auto& i : updatedVector)
 	{
 		if (i.isDead)
 			continue;

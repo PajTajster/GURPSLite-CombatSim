@@ -6,6 +6,8 @@ void MenuUIHelper::Init()
 {
 	srand((unsigned)time(NULL));
 
+	resize_term(appLINES, appCOLS);
+
 	// If succesful init
 	if (gm.InitializeGameMaster())
 	{
@@ -1200,16 +1202,16 @@ void MenuUIHelper::BattleMenu()
 
 	// And create something better
 
-	int defaultMenuWidth = (COLS / 2) + (COLS / 4);
-	int defaultMenuHeight = (LINES / 4) + (LINES / 4);
+	int defaultMenuWidth = (appCOLS / 2) + (appCOLS / 4);
+	int defaultMenuHeight = (appLINES / 4) + (appLINES / 4);
 
 
 	WINDOW* battleWindow = newwin(defaultMenuHeight, defaultMenuWidth, 0, 0);
-	WINDOW* actionsWindow = newwin(defaultMenuHeight, 0, 0, COLS - (COLS - defaultMenuWidth));
-	WINDOW* logWindow = newwin(0, defaultMenuWidth, LINES - (LINES - defaultMenuHeight), 0);
+	WINDOW* actionsWindow = newwin(defaultMenuHeight, 0, 0, appCOLS - (appCOLS - defaultMenuWidth));
+	WINDOW* logWindow = newwin(0, defaultMenuWidth, appLINES - (appLINES - defaultMenuHeight), 0);
 	WINDOW* smallLogoWindow = newwin(0, 0,
-		(LINES + 4) - (LINES - defaultMenuHeight),
-		(COLS + 4) - (COLS - defaultMenuWidth));
+		(appLINES + 4) - (appLINES - defaultMenuHeight),
+		(appCOLS + 4) - (appCOLS - defaultMenuWidth));
 	
 	box(battleWindow, 0, 0);
 	box(actionsWindow, 0, 0);
