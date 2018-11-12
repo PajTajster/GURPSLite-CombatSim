@@ -308,7 +308,7 @@ private:
 	int LoadArmours();
 	int LoadWeapons();
 	int LoadShields();
-	void LoadNames();
+	int LoadNames();
 public:
 
 
@@ -332,7 +332,7 @@ public:
 	void RandomizeName(Character& c);
 
 	// Load all the data in JSON files.
-	void InitializeGameMaster();
+	bool InitializeGameMaster();
 	// Init base player (returns Character which is Player).
 	Character* InitBasePlayer();
 	void UpdatePlayer(Character* player, std::vector<Character>& updatedVector);

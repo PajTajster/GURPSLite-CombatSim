@@ -6,11 +6,20 @@ void MenuUIHelper::Init()
 {
 	srand((unsigned)time(NULL));
 
-	gm.InitializeGameMaster();
+	// If succesful init
+	if (gm.InitializeGameMaster())
+	{
+		player = gm.InitBasePlayer();
 
-	player = gm.InitBasePlayer();
-	
-	MainMenu();
+		MainMenu();
+	}
+	else
+	{
+		mvprintw(0, 0, "***FAILED TO LOAD DATA*** Check if those files are present with executable: ");
+		mvprintw(1, 0, "\narmours.json\ncharacters.json\nnames.json\nshields.json\nskills.json\nweapons.json\nPress any key to continue");
+		getch();
+	}
+
 }
 
 void MenuUIHelper::MainMenu()
@@ -1357,7 +1366,7 @@ void MenuUIHelper::BattleMenu()
 			bool newLine = true;
 			if (allEnemiesDied)
 			{
-				logWriter.WriteToLog(logWindow, true, "All your foes have fallen dead!b");
+				logWriter.WriteToLog(logWindow, true, "All your foes have fallen dead!");
 				newLine = false;
 			}
 			logWriter.WriteToLog(logWindow, newLine, "Battle is finished, press ENTER to finish and go back to menu.");

@@ -914,15 +914,23 @@ void GameMaster::RandomizeName(Character& c)
 	c.name = newName;
 }
 
-void GameMaster::InitializeGameMaster()
+bool GameMaster::InitializeGameMaster()
 {
 	// Init data
-	LoadNames();
-	LoadSkills();
-	LoadArmours();
-	LoadShields();
-	LoadWeapons();
-	LoadCharacters();
+	if (LoadNames() == -1)
+		return false;
+	if (LoadSkills() == -1)
+		return false;
+	if (LoadArmours() == -1)
+		return false;
+	if (LoadShields() == -1)
+		return false;
+	if (LoadWeapons() == -1)
+		return false;
+	if (LoadCharacters() == -1)
+		return false;
+
+	return true;
 }
 
 Character* GameMaster::InitBasePlayer()
@@ -960,6 +968,10 @@ void GameMaster::UpdatePlayer(Character* player, std::vector<Character>& updated
 int GameMaster::LoadCharacters()
 {
 	std::ifstream ifs("characters.json");
+	if (!ifs.good())
+	{
+		return -1;
+	}
 	json j = json::parse(ifs);
 	
 	json charactersArray = j["characters"];
@@ -1033,6 +1045,10 @@ int GameMaster::LoadCharacters()
 int GameMaster::LoadSkills()
 {
 	std::ifstream ifs("skills.json");
+	if (!ifs.good())
+	{
+		return -1;
+	}
 	json j = json::parse(ifs);
 
 	json skillsArray = j["skills"];
@@ -1062,6 +1078,10 @@ int GameMaster::LoadSkills()
 int GameMaster::LoadArmours()
 {
 	std::ifstream ifs("armours.json");
+	if (!ifs.good())
+	{
+		return -1;
+	}
 	json j = json::parse(ifs);
 
 	json armoursArray = j["armours"];
@@ -1082,6 +1102,10 @@ int GameMaster::LoadArmours()
 int GameMaster::LoadWeapons()
 {
 	std::ifstream ifs("weapons.json");
+	if (!ifs.good())
+	{
+		return -1;
+	}
 	json j = json::parse(ifs);
 
 	json weaponsArray = j["weapons"];
@@ -1122,6 +1146,10 @@ int GameMaster::LoadWeapons()
 int GameMaster::LoadShields() 
 {
 	std::ifstream ifs("shields.json");
+	if (!ifs.good())
+	{
+		return -1;
+	}
 	json j = json::parse(ifs);
 
 	json shieldsArray = j["shields"];
@@ -1138,9 +1166,15 @@ int GameMaster::LoadShields()
 	return 0;
 }
 
-void GameMaster::LoadNames()
+int GameMaster::LoadNames()
 {
 	std::ifstream ifs("names.json");
+
+	if (!ifs.good())
+	{
+		return -1;
+	}
+
 	json j = json::parse(ifs);
 
 	json namesArray = j["names"];
@@ -1151,6 +1185,8 @@ void GameMaster::LoadNames()
 
 		names.push_back(newName);
 	}
+
+	return 0;
 }
 
 std::vector<Character> GameMaster::GetCharacters()
